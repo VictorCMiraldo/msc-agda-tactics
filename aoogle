@@ -1,0 +1,139 @@
+#! /bin/bash
+
+#Location of your stdlib
+AGDA_STDLIB="/home/victor/.include/agda-stdlib-0.8.1"
+
+#TODO: complete this table...
+UTF8_TABLE=(
+  "→" 	"r- to"
+  "₁" 	"_1"
+  "₂" 	"_2" 
+  "≈" 	"~~ approx"
+  "∀" 	"all forall"
+  "ℓ" 	"ell"
+  "≡" 	"== equiv"
+  "∼" 	"~ sim"
+  "≤" 	"<= le"
+  "′" 	"'1 prime"
+  "∷" 	"::"
+  "λ" 	"Gl lambda"
+  "¬" 	"neg"
+  "∘" 	"o circ"
+  "ℕ" 	"bn"
+  "×" 	"x times"
+)
+
+# Substitute "\x" with the unicode corresponding to "x", based on $UTF8_TABLE.
+function subst() {
+  if [ -z $1 ]; then
+    echo "subst needs at least one argument..."
+    exit 1
+  fi
+  
+  local AUX=$1
+  
+  #string substituition
+  i=$(( 0 ))
+  while [ $i -lt ${#UTF8_TABLE[@]} ]; do
+    local RES=${UTF8_TABLE[$i]}
+    local PAT=${UTF8_TABLE[$i+1]}
+    for p in $PAT; do
+      p="\\\\$p"
+      AUX=$(echo $AUX | sed "s/$p/$RES/g")
+    done 
+    i=$(( i + 2 ))
+  done 
+  
+  echo $AUX
+
+}
+
+function usage()
+{
+  echo "Agda's stdlib hoogle. Victor C. Miraldo; 2014"
+  echo ""
+  echo "Support unicode inputs just like emacs:"
+  echo ""
+  echo "aoogle search data \"_\le_\""
+  echo "aoogle search func \"+-.*\""
+  echo ""
+  echo "usage: aoogle [mode] <str>"
+  echo ""
+  echo "    mode    search sym |list, "
+  echo "                 search by default."
+  echo "    str          the string to search for or"
+  echo "                 the file to list."
+  echo "    sym     data|func|type|raw, "
+  echo "                 adds different prefixes or"
+  echo "                 suffixes to search only for the"
+  echo "                 specified symbol type."
+  echo ""
+  echo "Agda Stdlib: $AGDA_STDLIB"
+  echo "Check the source for more options."
+}
+
+if [ $# == 0 ]; then
+  usage
+  exit 0
+fi
+
+case $1 in
+  search)
+      if [ $# -ne 3 ]; then
+        SYM="data"
+        STR=$2
+      else
+        SYM=$2
+        STR=$3
+      fi
+      
+      MODE=$1
+  ;;
+  list)
+      MODE=$1
+      STR=$2
+  ;;
+  help)
+      usage
+      exit
+  ;;
+  *)
+      MODE="search"
+      SYM="data"
+      STR=$1
+esac
+
+cd $AGDA_STDLIB
+case $MODE in
+  search)
+    RSTR=$(subst $STR)
+    case $SYM in
+      data)
+        FSTR="data $RSTR"
+      ;;
+      func)
+        FSTR="$RSTR : "
+      ;;
+      raw)
+        FSTR="$RSTR"
+      ;;
+      type)
+        echo "type search is not yet implemented. Sorry;"
+        exit
+      ;;
+      *)
+        echo "PANIC: unknown SYM=$SYM"
+    esac
+    
+    echo "Searching the standard library for: "
+    echo "     $FSTR"
+    grep -EnrI -A 4 -B 4 --color=auto "$FSTR"
+  ;;
+  list)
+    cat $STR
+  ;;
+  *)
+    echo "PANIC: unknown MODE=$MODE"  
+esac
+    
+exit
