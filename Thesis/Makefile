@@ -5,25 +5,28 @@ OBJS=thesis.lagda\
     
       	
 OUT=thesis.pdf
+
+COMPILER=latexmk -pdf -use-make -e '$$pdflatex=q/xelatex %O %S/'
 		
-all: megazord.lagda
+all: fast
+
+fast: $(OBJS)
+	# ./latex-include-expand --output=megazord.lagda thesis.lagda && \
+	lhs2TeX --agda -o latex/thesis.tex thesis.lagda && \
+	postprocess-latex.pl latex/thesis.tex > latex/thesis.pp && \
+	mv latex/thesis.pp latex/thesis.tex && \
 	cd latex && \
-	vtex megazord.tex && \
-	mv megazord.pdf ../thesis.pdf	
-	
-megazord.lagda: latexincludeexpand megazord
+	$(COMPILER) thesis.tex && \
+	mv thesis.pdf ../thesis.pdf
 
-megazord: $(OBJS)
-	./latex-include-expand --output=megazord.lagda thesis.lagda && \
-	lhs2TeX --agda -o latex/megazord.tex megazord.lagda && \
-	postprocess-latex.pl latex/megazord.tex > latex/megazord.pp && \
-	mv latex/megazord.pp latex/megazord.tex
-
-megazordAGDA: $(OBJS)
-	latex-include-expand --output=megazord.lagda thesis.lagda && \
-	agda --latex megazord.lagda && \
-	postprocess-latex.pl latex/megazord.tex > latex/megazord.pp && \
-	mv latex/megazord.pp latex/megazord.tex
+slow: $(OBJS)
+	# latex-include-expand --output=megazord.lagda thesis.lagda && \
+	agda --latex thesis.lagda && \
+	postprocess-latex.pl latex/thesis.tex > latex/thesis.pp && \
+	mv latex/thesis.pp latex/thesis.tex && \
+	cd latex && \
+	$(COMPILER) thesis.tex && \
+	mv thesis.pdf ../thesis.pdf
 	
 latexincludeexpand: LIE/Main.hs
 	cd LIE && \

@@ -38,6 +38,6 @@ data Bool : Set where
 \end{code}
 
 And some natural numbers:
-\include{chap01.lagda}
+%include chap01.lagda
 
 \end{document}
