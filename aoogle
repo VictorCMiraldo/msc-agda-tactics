@@ -1,7 +1,29 @@
 #! /bin/bash
 
-#Location of your stdlib
-AGDA_STDLIB="/home/victor/.include/agda-stdlib-0.8.1"
+# Version
+AOOGLE_VERSION="0.0.1"
+AOOGLE_AUTHORS="Victor C. Miraldo <victor.cacciari@gmail.com>"
+
+#Trying to find the location of your stdlib
+function findStdlib() {
+  local VERSION=""
+  local AGDA_STDLIB=""
+  
+  if [ -z $1 ]; then
+    #forcing a version
+    VERSION=""
+  else
+    VERSION="-$1"
+  fi
+  
+  AGDA_STDLIB=$(locate -n 1 "agda-stdlib$VERSION")
+  if [ -z $AGDA_STDLIB ]; then
+    echo "Could not find your standard lib. Did you force a version?" >&2
+    exit 1
+  fi
+  
+  echo $AGDA_STDLIB 
+}
 
 #TODO: complete this table...
 UTF8_TABLE=(
@@ -26,7 +48,7 @@ UTF8_TABLE=(
 # Substitute "\x" with the unicode corresponding to "x", based on $UTF8_TABLE.
 function subst() {
   if [ -z $1 ]; then
-    echo "subst needs at least one argument..."
+    echo "subst needs at least one argument..." >&2
     exit 1
   fi
   
@@ -45,31 +67,33 @@ function subst() {
   done 
   
   echo $AUX
-
 }
 
+#Shows usage menu.
 function usage()
 {
-  echo "Agda's stdlib hoogle. Victor C. Miraldo; 2014"
+  echo "Agda's stdlib hoogle, version $AOOGLE_VERSION"
+  echo "$AOOGLE_AUTHORS"
   echo ""
   echo "Support unicode inputs just like emacs:"
   echo ""
-  echo "aoogle search data \"_\le_\""
-  echo "aoogle search func \"+-.*\""
+  echo "Search strings can be:  \"_\le_\""
+  echo "and (extended) regexps: \"+-.*\""
   echo ""
-  echo "usage: aoogle [mode] <str>"
+  echo "usage: aoogle [opts] <searchstring>"
   echo ""
-  echo "    mode    search sym |list, "
-  echo "                 search by default."
-  echo "    str          the string to search for or"
-  echo "                 the file to list."
-  echo "    sym     data|func|type|raw, "
-  echo "                 adds different prefixes or"
-  echo "                 suffixes to search only for the"
-  echo "                 specified symbol type."
+  echo "where the available options are:"
   echo ""
-  echo "Agda Stdlib: $AGDA_STDLIB"
-  echo "Check the source for more options."
+  echo "    -A str            Forces an agda-stdlib version."
+  echo "    -s sym            Searches for a specific type of symbol:"
+  echo "            where sym is func, data, raw or type."
+  echo "    -c num            Adds num lines of diplayed text before"
+  echo "                      and after the search results."
+  echo "    -d                Dry-run, doesn't search anything but display"
+  echo "                      the search string. Usefull for debugging."
+  echo "    -h                Displays this screen."
+  echo "    -v                Shows version."
+  echo ""
 }
 
 if [ $# == 0 ]; then
@@ -77,63 +101,109 @@ if [ $# == 0 ]; then
   exit 0
 fi
 
-case $1 in
-  search)
-      if [ $# -ne 3 ]; then
-        SYM="data"
-        STR=$2
-      else
-        SYM=$2
-        STR=$3
-      fi
-      
-      MODE=$1
-  ;;
-  list)
-      MODE=$1
-      STR=$2
-  ;;
-  help)
+# Options:
+AGDA_PATH=""
+AGDA_VERSION=""
+SEARCHMODE="raw"
+CONTEXTFIX=0
+MODE="search"
+DRY=""
+
+###### Parsing command line arguments:
+while getopts ":s:Ec:hvA:d" opt; do
+  case $opt in   
+    ##Dryrun
+    d)
+      DRY="true"
+    ;;
+     
+    ## Context fix (add more lines to the displayed context of the search result)
+    c)
+      CONTEXTFIX=$OPTARG
+    ;;
+    
+    ## Searching for a specific something
+    s)
+      case $OPTARG in
+        data)
+          SEARCHMODE="data";;
+        func)
+          SEARCHMODE="func";;
+        raw)
+          SEARCHMODE="raw";;
+        type)
+          SEARCHMODE="type";;
+        *)
+          echo "PANIC: invalid search mode: $OPTARG." >&2
+          exit 1
+      esac 
+    ;; 
+
+    ## Forces a specific agda version
+    A)
+      AGDA_VERSION=$OPTARG
+    ;;
+
+    ## shows help
+    h)
       usage
-      exit
+      exit 1
+    ;;
+    
+    ## displays version
+    v)
+      echo "aoogle: The Agda Hoogle version $AOOGLE_VERSION"
+      echo "maintained by: $AOOGLE_AUTHORS"
+      exit 1
+    ;;
+  
+    *)
+      echo "PANIC: unknown option: $opt"
+      exit 1
+  esac
+done
+shift $((OPTIND - 1))
+
+#Let's finally get the search string
+if [ -z $1 ]; then
+  echo "PANIC: you must provide a search string."
+  exit 1
+fi
+
+#Let's find Agda's stdlib, with the possible forced version:
+AGDA_PATH=$(findStdlib $AGDA_VERSION)
+
+#String UTF8 and context handling:
+RSTR=$(subst "$1")
+case $SEARCHMODE in
+  data)
+    FSTR="data $RSTR"
+  ;;
+  func)
+    FSTR="$RSTR : "
+  ;;
+  raw)
+    FSTR="$RSTR"
+  ;;
+  type)
+    echo "type search is not yet implemented. Sorry;"
+    exit 1
   ;;
   *)
-      MODE="search"
-      SYM="data"
-      STR=$1
+    echo "PANIC: unknown search mode: $SEARCHMODE"
+    exit 1
 esac
 
-cd $AGDA_STDLIB
-case $MODE in
-  search)
-    RSTR=$(subst $STR)
-    case $SYM in
-      data)
-        FSTR="data $RSTR"
-      ;;
-      func)
-        FSTR="$RSTR : "
-      ;;
-      raw)
-        FSTR="$RSTR"
-      ;;
-      type)
-        echo "type search is not yet implemented. Sorry;"
-        exit
-      ;;
-      *)
-        echo "PANIC: unknown SYM=$SYM"
-    esac
-    
-    echo "Searching the standard library for: "
-    echo "     $FSTR"
-    grep -EnrI -A 4 -B 4 --color=auto "$FSTR"
-  ;;
-  list)
-    cat $STR
-  ;;
-  *)
-    echo "PANIC: unknown MODE=$MODE"  
-esac
-    
+#Fixing search context
+CTE_B="$((2 + $CONTEXTFIX))"
+CTE_A="$((4 + $CONTEXTFIX))"
+
+echo "Searching the standard library for: "
+echo "     $FSTR"
+echo ""
+if [ -z $DRY ]; then
+  cd $AGDA_PATH
+  grep -EnrI -A $CTE_A -B $CTE_B --color=auto "$FSTR"
+fi
+
 exit
