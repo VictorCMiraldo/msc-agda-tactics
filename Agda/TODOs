@@ -1,0 +1,5 @@
+
+For the 'rewr' tactic:
+  0. Deeply analize the code by Jensen.
+  1. Fix the interface. Find out the types of the functions I'll need.
+  2. Start coding it.
