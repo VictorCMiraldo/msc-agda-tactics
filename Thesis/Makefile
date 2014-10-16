@@ -34,7 +34,6 @@ latexincludeexpand: LIE/Main.hs
 	mv Main ../latex-include-expand
   
 clean:
-	rm -f megazord.lagda
 	rm -f latex/*
 
 cleanall: clean
