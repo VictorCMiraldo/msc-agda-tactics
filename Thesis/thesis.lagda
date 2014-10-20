@@ -21,6 +21,7 @@
 \usepackage{moreverb}
 \usepackage{agda} 
 
+%include polycode.fmt
 %include lhs2TeX.fmt
 
 \title{Victor's Thesis Template}
@@ -30,14 +31,20 @@
 \maketitle
 \tableofcontents
 
-Document template.
+\chapter{Prelude}
+\label{chap:prelude}
 
-\begin{code}
-data Bool : Set where
-  true false : Bool
-\end{code}
+  \section{Introduction}
+  \label{sec:introduction}
 
-And some natural numbers:
-%include chap01.lagda
+  \section{The Problem}
+  \label{sec:theproblem}
+  
+  \section{Agda language}
+  \label{sec:agdalanguage}
+  \input{SectionAgdaLang.lagda}
+
+\chapter{Background}
+\label{chap:background}
 
 \end{document}
