@@ -1,17 +1,19 @@
 #	Template Makefile
 
 OBJS=thesis.lagda\
-     SectionAgdaLang.lagda
+     SectionAgdaLang.lagda\
+     MartinLof_prelude.lagda
     
       	
 OUT=thesis.pdf
 
-#COMPILER=latexmk -pdf -use-make -e '$$pdflatex=q/xelatex %O %S/'
-COMPILER=vtex
+#COMPILER=latexmk -f -pdf -use-make -e '$$pdflatex=q/xelatex %O %S/'
+#COMPILER=vtex
+COMPILER=pdflatex -etex
 		
 all: slow
 
-fast: $(OBJS)
+fast:
 	# ./latex-include-expand --output=megazord.lagda thesis.lagda && \
 	lhs2TeX --agda -o latex/thesis.tex thesis.lagda && \
 	# postprocess-latex.pl latex/thesis.tex > latex/thesis.pp && \
@@ -28,6 +30,11 @@ slow: $(OBJS)
 	cd latex && \
 	$(COMPILER) megazord.tex && \
 	mv megazord.pdf ../thesis.pdf
+	
+bib: thesisbib.bib
+	cd latex && \
+	bibtex megazord
+  
 	
 #latexincludeexpand: LIE/Main.hs
 #	cd LIE && \
