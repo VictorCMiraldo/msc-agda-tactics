@@ -43,6 +43,7 @@ UTF8_TABLE=(
   "∘" 	"o circ"
   "ℕ" 	"bn"
   "×" 	"x times"
+  "≟"   "?="
 )
 
 # Substitute "\x" with the unicode corresponding to "x", based on $UTF8_TABLE.
