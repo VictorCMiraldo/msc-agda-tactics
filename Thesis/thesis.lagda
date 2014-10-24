@@ -22,9 +22,6 @@
 \usepackage{agda} 
 \usepackage{proof}
 
-% %include polycode.fmt
-% %include lhs2TeX.fmt
-
 %\setmainfont{XITS}
 %\setmathfont{XITS Math}
 
@@ -36,6 +33,17 @@
   \end{itemize}
 }
 
+% empty env, maybe later we can add some style to it.
+\newenvironment{agdacode}{%
+\linebreak
+\hspace{1em}
+\begin{minipage}[t]{.8\textwidth}
+}{%
+\end{minipage}
+\vspace{.5em}
+}
+
+\newcommand{\inlagda}[1]{\texttt{\small #1}}
 
 \title{Victor's Thesis Template}
 \author{Victor}

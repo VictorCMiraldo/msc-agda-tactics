@@ -28,6 +28,7 @@ slow: $(OBJS)
 	# postprocess-latex.pl latex/thesis.tex > latex/thesis.pp && \
 	# mv latex/thesis.pp latex/thesis.tex && \
 	cd latex && \
+	# lhs2TeX -o megazord2.tex megazord.tex \
 	$(COMPILER) megazord.tex && \
 	mv megazord.pdf ../thesis.pdf
 	
