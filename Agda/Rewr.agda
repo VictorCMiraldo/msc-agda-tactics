@@ -123,14 +123,14 @@ rewrWithInternal f g = def (quote cong) (cf ∷ currt ∷ [])
     currt : Arg Term
     currt = mkArg f 
 
-++-t : ∀{a}{A : Set a}(xs ys : List A)(x : A)
-     → x ∷ (xs ++ ys) ≡ x ∷ xs ++ ys
-++-t xs ys x = {! getDiff (quoteTerm (x ∷ xs)) (quoteTerm (x ∷ ys))!}
+aux1 : ℕ → ℕ → ℕ
+aux1 x y = {! buildCongF (getDiff (quoteTerm (3 + (suc x))) (quoteTerm (3 + (suc y))))!}
 
-
+-- quoteGoal g in let x = /* ...the clever reflection stuff */ in {! !}
 -----------------------------
 -----------------------------
 -- Testing
+
 
 open import Relation.Binary.PropositionalEquality
 open import Data.List
@@ -140,28 +140,61 @@ open import Data.List
 ++-assoc [] ys zs = refl
 ++-assoc (x ∷ xs) ys zs = cong (λ l → x ∷ l) (++-assoc xs ys zs)
 
-open ≡-Reasoning
+++-assoc2 : ∀{a}{A : Set a}(xs ys zs : List A) → 
+           (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
+++-assoc2 [] ys zs = refl
+++-assoc2 (x ∷ xs) ys zs 
+  = quoteGoal g in
+    let y : _
+        y = rewrWithInternal (quoteTerm (++-assoc2 xs ys zs)) g
 
-++-assocH : ∀{a}{A : Set a}(xs ys zs : List A) →
-            (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
-++-assocH [] ys zs = 
-          begin 
-            ([] ++ ys) ++ zs
-          ≡⟨ refl ⟩
-            ys ++ zs
-          ≡⟨ refl ⟩
-            [] ++ (ys ++ zs)
-          ∎
-++-assocH (x ∷ xs) ys zs =
-          begin
-            ((x ∷ xs) ++ ys) ++ zs
-          ≡⟨ refl ⟩
-            x ∷ (xs ++ ys) ++ zs
-          ≡⟨ refl ⟩
-            x ∷ ((xs ++ ys) ++ zs)
-          ≡⟨ {! quoteGoal g in
-                  (unquote (rewrWithInternal g (quoteTerm (++-assocH xs ys zs))))!}  ⟩ -- ≡⟨ cong (_∷_ x) (++-assocH xs ys zs) ⟩
-             x ∷ (xs ++ (ys ++ zs))
-          ≡⟨ refl ⟩
-            (x ∷ xs) ++ (ys ++ zs)
-          ∎
+        ep : Term × Term
+        ep = fromJust (getEqParts g)
+
+        a : Term
+        a = p1 ep
+
+        b : Term
+        b = p2 ep
+  
+        cf : Term
+        cf = buildCongF (getDiff a b)
+
+        currt : Term
+        currt = quoteTerm (++-assoc2 xs ys zs) 
+
+        z : Term
+        z =  def (quote cong) (mkArg cf ∷ mkArg currt ∷ [])
+    in {!g  !}
+
+++-neutral : ∀{a}{A : Set a}(xs : List A)
+           → xs ++ [] ≡ xs
+++-neutral [] = refl
+++-neutral (x ∷ xs) = cong (λ l → x ∷ l) (++-neutral xs)
+
+++-neutral2 : ∀{a}{A : Set a}(xs : List A)
+           → xs ++ [] ≡ xs
+++-neutral2 [] = refl
+++-neutral2 (x ∷ xs)
+  = quoteGoal g in
+    let y : _
+        y = rewrWithInternal (quoteTerm (++-neutral2 xs)) g
+
+        ep : Term × Term
+        ep = fromJust (getEqParts g)
+
+        a : Term
+        a = p1 ep
+
+        b : Term
+        b = p2 ep
+  
+        cf : Term
+        cf = buildCongF (getDiff a b)
+
+        currt : Term
+        currt = quoteTerm (++-neutral2 xs) 
+
+        z : Term
+        z =  def (quote cong) (mkArg cf ∷ mkArg currt ∷ [])
+    in {!g  !}
