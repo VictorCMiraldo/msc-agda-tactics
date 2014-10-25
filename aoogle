@@ -92,6 +92,7 @@ function usage()
   echo "                      and after the search results."
   echo "    -d                Dry-run, doesn't search anything but display"
   echo "                      the search string. Usefull for debugging."
+  echo "    -l                Lists the given module"
   echo "    -h                Displays this screen."
   echo "    -v                Shows version."
   echo ""
@@ -109,10 +110,16 @@ SEARCHMODE="raw"
 CONTEXTFIX=0
 MODE="search"
 DRY=""
+LIST=""
 
 ###### Parsing command line arguments:
-while getopts ":s:Ec:hvA:d" opt; do
+while getopts ":s:Ec:hvA:dl:" opt; do
   case $opt in   
+    ## List
+    l)
+      LIST=$OPTARG
+    ;;    
+    
     ##Dryrun
     d)
       DRY="true"
@@ -165,46 +172,51 @@ while getopts ":s:Ec:hvA:d" opt; do
 done
 shift $((OPTIND - 1))
 
-#Let's finally get the search string
-if [ -z $1 ]; then
-  echo "PANIC: you must provide a search string."
-  exit 1
-fi
-
 #Let's find Agda's stdlib, with the possible forced version:
 AGDA_PATH=$(findStdlib $AGDA_VERSION)
 
-#String UTF8 and context handling:
-RSTR=$(subst "$1")
-case $SEARCHMODE in
-  data)
-    FSTR="data $RSTR"
-  ;;
-  func)
-    FSTR="$RSTR : "
-  ;;
-  raw)
-    FSTR="$RSTR"
-  ;;
-  type)
-    echo "type search is not yet implemented. Sorry;"
-    exit 1
-  ;;
-  *)
-    echo "PANIC: unknown search mode: $SEARCHMODE"
-    exit 1
-esac
+if [ ! -z $LIST ]; then
+  echo "Listing: $LIST"
+  cat $AGDA_PATH/$LIST | less
+else
 
-#Fixing search context
-CTE_B="$((2 + $CONTEXTFIX))"
-CTE_A="$((4 + $CONTEXTFIX))"
+  #Let's finally get the search string
+  if [ -z $1 ]; then
+    echo "PANIC: you must provide a search string."
+    exit 1
+  fi
+  
+  #String UTF8 and context handling:
+  RSTR=$(subst "$1")
+  case $SEARCHMODE in
+    data)
+      FSTR="data $RSTR"
+    ;;
+    func)
+      FSTR="$RSTR : "
+    ;;
+    raw)
+      FSTR="$RSTR"
+    ;;
+    type)
+      echo "type search is not yet implemented. Sorry;"
+      exit 1
+    ;;
+    *)
+      echo "PANIC: unknown search mode: $SEARCHMODE"
+      exit 1
+  esac
 
-echo "Searching the standard library for: "
-echo "     $FSTR"
-echo ""
-if [ -z $DRY ]; then
-  cd $AGDA_PATH
-  grep -EnrI -A $CTE_A -B $CTE_B --color=auto "$FSTR"
+  #Fixing search context
+  CTE_B="$((2 + $CONTEXTFIX))"
+  CTE_A="$((4 + $CONTEXTFIX))"
+
+  echo "Searching the standard library for: "
+  echo "     $FSTR"
+  echo ""
+  if [ -z $DRY ]; then
+    cd $AGDA_PATH
+    grep -EnrI -A $CTE_A -B $CTE_B --color=auto "$FSTR"
+  fi
 fi
-
 exit
