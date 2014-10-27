@@ -1,200 +1,154 @@
 module Rewr where
 
-open import Data.Nat as N using (ℕ; zero; suc; _+_)
+open import Data.Bool
+open import Data.Nat as N using (ℕ; zero; suc; _+_) renaming (_≟_ to _≟-Nat_)
 open import Data.String using (String)
 open import Data.Maybe using (Maybe; just; nothing)
 open import Data.Product using (_×_; _,_) renaming (proj₁ to p1; proj₂ to p2)
-open import Data.Bool using (Bool; if_then_else_)
-
-open import Data.List using (List; []; _∷_; _++_; map)
-
-open import Reflection
+open import Data.List using (List; []; _∷_; _++_; map; length)
+open import Relation.Nullary.Decidable as Dec
+open import Relation.Binary
 open import Relation.Binary.PropositionalEquality
+open import Reflection
 open import Relation.Nullary using (Dec; yes; no)
-open import Relation.Nullary.Decidable
+open import Function using (_∘_)
 
-
+--------------------------------------------------------------------------------
 -- Error Handling
+
 postulate
   error : ∀{a}{A : Set a} → String → A
 
---------------------------------------------------------------
--- * Applicative Maybe
---
+--------------------------------------------------------------------------------
+-- Some syntax sugaring
 
-infix 35 _<$>_
-_<$>_ : ∀{a b}{A : Set a}{B : Set b}(f : A → B) → Maybe A → Maybe B
-f <$> just x  = just (f x)
-f <$> nothing = nothing
+uncurry : ∀{a}{A B C : Set a} → (A → B → C) → A × B → C
+uncurry f (a , b) = f a b
 
-infixl 30 _<*>_
-_<*>_ : ∀{a b}{A : Set a}{B : Set b} → Maybe (A → B) → Maybe A → Maybe B
-just f  <*> m = f <$> m
-nothing <*> m = nothing
+--------------------------------------------------------------------------------
+-- Goal Manipulation
 
-fromJust : ∀{a}{A : Set a} → Maybe A → A
-fromJust (just x) = x
-fromJust nothing  = error "fromJust: nothing"
+-- Utilities
 
---
--------------------------------------------------------------
---------------------------------------------------------------
--- Term manipulation
+argListMap : (Term → Term) → List (Arg Term) → List (Arg Term)
+argListMap f = Data.List.map (argMap f)
+  where
+    argMap : (Term → Term) → Arg Term → Arg Term
+    argMap f (arg i x) = arg i (f x)
 
--- Takes the term out of an el.
-unEl : Type → Term
-unEl (el _ x) = x
+-- maps a function over all variables. Usefull for manipulating
+-- DeBruijn indexes.
+{-# NO_TERMINATION_CHECK #-}
+varMap : (ℕ → ℕ) → Term → Term
+varMap f (var x args) = var (f x) (argListMap (varMap f) args)
+varMap f (con c args) = con c (argListMap (varMap f) args)
+varMap f (def d args) = def d (argListMap (varMap f) args)
+varMap f (lam v t) = lam v (varMap f t)
+varMap f (pat-lam cs args) = pat-lam cs (argListMap (varMap f) args)
+varMap f (pi t₁ t₂) = pi t₁ t₂
+varMap f (sort x) = sort x
+varMap f (lit x) = lit x
+varMap f unknown = unknown
+-- TODO: why is the termination checker complaining?
+--       the recursive calls are in structurally smaller args...
 
--- Takes the actual argument, ignoring argument info.
+-- Remove argument information
 unArg : {A : Set} → Arg A → A
 unArg (arg _ x) = x
 
-mkArg : {A : Set} → A → Arg A
-mkArg x = arg (arg-info visible relevant) x
+-- Transforms something into a visible relevant argument.
+mkArgVR : {A : Set} → A → Arg A
+mkArgVR x = arg (arg-info visible relevant) x
 
--- ok, we're modeling terms with the same constructor,
--- but we also need to strip some arguments.
-data TermDiff : Term → Term → Set where
-  eqNone : ∀{m n}                         → TermDiff m n
-  eqHead : ∀{a b x y} → x ≡ y → List Term → TermDiff (con x a) (con y b) 
+-- Some type synonyms
+Implicits : Set
+Implicits = List (Arg Term)
 
--- Returns the longest common prefix of the two lists.
-argsListDiff : List (Arg Term) → List (Arg Term) → List Term 
-argsListDiff l1 l2 = aux (Data.List.map unArg l1) (Data.List.map unArg l2)
-  where
-    aux : List Term → List Term → List Term
-    aux [] _ = []
-    aux _ [] = []
-    aux (x ∷ xs) (y ∷ ys) with x ≟ y
-    ...| yes _ = x ∷ (aux xs ys)
-    ...| no _  = aux xs ys
+TermBuilder : Set
+TermBuilder = Term → Term
 
--- Traverse both terms searching for a difference. Returns the
--- quoted common part and the two different terms.
+-- Given something like "a ≡ b" will return
+-- just (a × b × 'implicit parms').
+-- If the top-most definition is not eq, though,
+-- will return nothing.
+un-≡ : Term → Maybe ((Term × Term) × Implicits)
+un-≡ (def (quote _≡_) (i1 ∷ i2 ∷ a ∷ b ∷ []))
+  = just ((unArg a , unArg b) , (i1 ∷ i2 ∷ []))
+un-≡ _
+  = nothing
+
+-- Strips a common prefix of two lists.
 --
--- > getDiff "x:(xs ++ ys)" "x:(ys ++ xs)"
--- >  = "x:", "(xs ++ ys)", "(ys ++ xs)"
+-- > takeWith i j = a × b × c ⇔ a ++ b ≡ i ∧ a ++ c ≡ j
 --
-getDiff : (n : Term) → (m : Term) → TermDiff m n
-getDiff (con x a) (con y b) with (y ≟-Name x)
-...| yes f  = eqHead f (argsListDiff a b)
-...| no  _  = eqNone 
-getDiff n m = eqNone
+takeWith : ∀{a}{A : Set a} → (A → A → Bool) 
+         → List A → List A → (List A × List A × List A)
+takeWith f [] l2 = [] , [] , l2
+takeWith f l1 [] = [] , l1 , []
+takeWith f (x ∷ l1) (y ∷ l2) with f x y
+...| true  = let a , b , c = takeWith f l1 l2 
+             in x ∷ a , b , c
+...| false = [] , (x ∷ l1) , (y ∷ l2)
 
--- Given a (TermDiff m n) builds up a lambda function that takes one parameter
--- and applies this difference to it.
-buildCongF : {m n : Term} → TermDiff m n → Term
-buildCongF eqNone       
-  = error "I can't build a congruence function for such terms."
-buildCongF {con n _} (eqHead f l) 
-  = lam visible (con n (Data.List.map mkArg l)) 
-
-
-{-
-quoteTerm (λ x → 5 ∷ x)
-
-lam visible
-(con (quote _∷_)
- (arg (arg-info visible relevant) (lit (nat 5)) ∷
-  arg (arg-info visible relevant) (var 0 []) ∷ []))
--}
-
--- Returns the terms applied to an equality.
--- If the head of the target term is not an equality, returns nothing.
-getEqParts : Term → Maybe (Term × Term)
-getEqParts (def (quote _≡_) (_ ∷ _ ∷ a ∷ b ∷ [])) = just (unArg a , unArg b)
-getEqParts _                                      = nothing
-
-rewrWithInternal : Term → Term → Term
-rewrWithInternal f g = def (quote cong) (cf ∷ currt ∷ [])
-  where
-    ep : Term × Term
-    ep = fromJust (getEqParts g)
-
-    a : Term
-    a = p1 ep
-
-    b : Term
-    b = p2 ep
-  
-    cf : Arg Term
-    cf = mkArg (buildCongF (getDiff a b))
-
-    currt : Arg Term
-    currt = mkArg f 
-
-aux1 : ℕ → ℕ → ℕ
-aux1 x y = {! buildCongF (getDiff (quoteTerm (3 + (suc x))) (quoteTerm (3 + (suc y))))!}
-
--- quoteGoal g in let x = /* ...the clever reflection stuff */ in {! !}
------------------------------
------------------------------
--- Testing
+-- Translates a Dec to a boolean, to be used with filters.
+decToBool : ∀{a}{A : Set a}{x y : A} → Dec (x ≡ y) → Bool
+decToBool (yes _) = true
+decToBool (no  _) = false
 
 
-open import Relation.Binary.PropositionalEquality
-open import Data.List
+-- Abstracts the common constructors of two terms.
+-- 
+-- > abstr "x ∷ (xs ++ [])" "x ∷ xs"
+-- >   = "λ l → x ∷ l" × "xs ++ []" × "xs"
+abstr : Term → Term → (Term × List Term × List Term)
+abstr (con m am) (con n an) with (m ≟-Name n)
+...| yes _ = let c , r1 , r2 = takeWith (λ x y → decToBool (x ≟-ArgTerm y)) am an 
+             in con n c , Data.List.map unArg r1 , Data.List.map unArg r2
+...| no  _ = unknown , con m am ∷ [] , con n an ∷ []
+abstr m n  = unknown , m ∷ [] , n ∷ []
 
-++-assoc : ∀{a}{A : Set a}(xs ys zs : List A) → 
-           (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
-++-assoc [] ys zs = refl
-++-assoc (x ∷ xs) ys zs = cong (λ l → x ∷ l) (++-assoc xs ys zs)
+-- Given a constructor term, prepare a lambda abstraction by appending one variable to
+-- the end of the given term argument list.
+prepLambda : Term → Term
+prepLambda (con n l)
+  = let l' = argListMap (varMap suc) l
+        a0 : List (Arg Term)
+        a0 = mkArgVR (var 0 []) ∷ []
+    in lam visible (con n (l' ++ a0))
+prepLambda x
+  = error "Cannot prepare a lambda on a non-constructor term"
 
-++-assoc2 : ∀{a}{A : Set a}(xs ys zs : List A) → 
-           (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
-++-assoc2 [] ys zs = refl
-++-assoc2 (x ∷ xs) ys zs 
-  = quoteGoal g in
-    let y : _
-        y = rewrWithInternal (quoteTerm (++-assoc2 xs ys zs)) g
+-- Replicates a list of implicit parameters. UNUSED
+repl : List (Arg Term) → List (Arg Term)
+repl (a ∷ b ∷ []) = a ∷ a ∷ b ∷ b ∷ []
+repl _            = error "unkown list of implicits" 
 
-        ep : Term × Term
-        ep = fromJust (getEqParts g)
+fromJust : ∀{a}{A : Set a} → Maybe A → A
+fromJust (just a) = a
+fromJust nothing  = error "fromJust"
 
-        a : Term
-        a = p1 ep
+-- The actual tactic
+rewrWith′ : Term → Term → Term
+rewrWith′ induc g with un-≡ g
+...| just (a , i) = let l = prepLambda (p1 (uncurry abstr a))
+                      in def (quote cong) (Data.List.map mkArgVR (l ∷ induc ∷ []))
+...| nothing      = error "Not a _≡_ goal."
 
-        b : Term
-        b = p2 ep
-  
-        cf : Term
-        cf = buildCongF (getDiff a b)
+-------------------------------------------------------------------------------------
+-- TESTING
 
-        currt : Term
-        currt = quoteTerm (++-assoc2 xs ys zs) 
+++N : ∀{a}{A : Set a}(xs : List A)
+      → xs ++ [] ≡ xs
+++N []       = refl
+++N (x ∷ xs) = tactic rewrWith′ (quoteTerm (++N xs))
 
-        z : Term
-        z =  def (quote cong) (mkArg cf ∷ mkArg currt ∷ [])
-    in {!g  !}
+++Assoc : ∀{a}{A : Set a}(xs ys zs : List A)
+        → xs ++ (ys ++ zs) ≡ (xs ++ ys) ++ zs
+++Assoc [] _ _         = refl
+++Assoc (x ∷ xs) ys zs = tactic rewrWith′ (quoteTerm (++Assoc xs ys zs))
 
-++-neutral : ∀{a}{A : Set a}(xs : List A)
-           → xs ++ [] ≡ xs
-++-neutral [] = refl
-++-neutral (x ∷ xs) = cong (λ l → x ∷ l) (++-neutral xs)
+open import Data.Nat using (_≤_)
 
-++-neutral2 : ∀{a}{A : Set a}(xs : List A)
-           → xs ++ [] ≡ xs
-++-neutral2 [] = refl
-++-neutral2 (x ∷ xs)
-  = quoteGoal g in
-    let y : _
-        y = rewrWithInternal (quoteTerm (++-neutral2 xs)) g
-
-        ep : Term × Term
-        ep = fromJust (getEqParts g)
-
-        a : Term
-        a = p1 ep
-
-        b : Term
-        b = p2 ep
-  
-        cf : Term
-        cf = buildCongF (getDiff a b)
-
-        currt : Term
-        currt = quoteTerm (++-neutral2 xs) 
-
-        z : Term
-        z =  def (quote cong) (mkArg cf ∷ mkArg currt ∷ [])
-    in {!g  !}
+shouldFail : (n m : ℕ) → n ≤ m → suc n ≤ suc m
+shouldFail zero m p = N.s≤s p
+shouldFail (suc n) m p = {! tactic rewrWith′ (quoteTerm (shouldFail n m)) !}
