@@ -89,10 +89,11 @@
   
 \chapter{Martin-Löf's Type Theory}
 \label{chap:martinlof}
-  \input{MartinLof_prelude.lagda}
-
-  \section{Introduction}
-  \label{sec:martinlof:introduction}
+\input{MartinLof_prelude.lagda}
+  
+\chapter{Notes on Reflection}
+\label{chap:reflection}
+  \input{Reflection_prelude.lagda}
 
 
 \bibliographystyle{alpha}
