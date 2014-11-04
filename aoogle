@@ -177,7 +177,7 @@ AGDA_PATH=$(findStdlib $AGDA_VERSION)
 
 if [ ! -z $LIST ]; then
   echo "Listing: $LIST"
-  cat $AGDA_PATH/$LIST | less
+  cat "$AGDA_PATH/${LIST//\./\/}.agda" | less
 else
 
   #Let's finally get the search string
