@@ -32,6 +32,7 @@ UTF8_TABLE=(
   "₂" 	"_2" 
   "≈" 	"~~ approx"
   "∀" 	"all forall"
+  "∃"   "ex exist"
   "ℓ" 	"ell"
   "≡" 	"== equiv"
   "∼" 	"~ sim"
@@ -44,6 +45,11 @@ UTF8_TABLE=(
   "ℕ" 	"bn"
   "×" 	"x times"
   "≟"   "?="
+  "∧"   "wedge"
+  "∨"   "vee"
+  "⊎"   "u+"
+  "∪"   "cup"
+  "∩"   "cap"
 )
 
 # Substitute "\x" with the unicode corresponding to "x", based on $UTF8_TABLE.
