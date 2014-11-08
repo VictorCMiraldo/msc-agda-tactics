@@ -9,6 +9,10 @@
 *.agdai
 *.aux
 *.tex
+
+# Backup files #
+################
+*~
  
 # Packages #
 ############
