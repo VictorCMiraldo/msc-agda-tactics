@@ -35,7 +35,7 @@
 
 % empty env, maybe later we can add some style to it.
 \newenvironment{agdacode}{%
-\linebreak
+\vspace{.5em}
 \hspace{1em}
 \begin{minipage}[t]{.8\textwidth}
 }{%
@@ -43,10 +43,21 @@
 \vspace{.5em}
 }
 
-\newcommand{\inlagda}[1]{\texttt{\small #1}}
+\long\def\ignore#1{}
+
+\newcommand{\inlagda}[1]{$\mathsf{\small #1}$}
+\newcommand{\AgdaType}[1]{#1}
+\newcommand{\catname}[1]{\textbf{#1}}
 
 \title{Victor's Thesis Template}
 \author{Victor}
+
+\ignore{
+\begin{code}
+module Megazord where
+\end{code}
+}
+
 
 \begin{document}
 \maketitle
