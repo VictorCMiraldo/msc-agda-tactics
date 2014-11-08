@@ -11,14 +11,7 @@ open ≡-Reasoning
 
 ++-assocH : ∀{a}{A : Set a}(xs ys zs : List A) →
             (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
-++-assocH [] ys zs = 
-          begin 
-            ([] ++ ys) ++ zs
-          ≡⟨ refl ⟩
-            ys ++ zs
-          ≡⟨ refl ⟩
-            [] ++ (ys ++ zs)
-          ∎
+++-assocH [] ys zs = refl
 ++-assocH (x ∷ xs) ys zs =
           begin
             ((x ∷ xs) ++ ys) ++ zs
@@ -33,3 +26,12 @@ open ≡-Reasoning
           ∎
 \end{code}
 \end{agdacode}
+
+The notation is very clear and understandable, it indeed looks very much
+to what a \emph{squiggolist}\footnote{
+%%%% BEGIN FOOTNOTE
+\emph{Squiggol} is a slang name for the Bird–Meertens formalism, due to the squiggly symbols it
+uses.
+%%%% END FOOTNOTE
+} would write on paper. One of the main downsides to it, which is also inherent to Agda in general,
+is the need to specify every single detail of the demonstration, even the trivial ones.
