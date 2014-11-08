@@ -23,18 +23,18 @@ fast:
 	mv thesis.pdf ../thesis.pdf
 
 slow: $(OBJS)
-	latexpand --explain thesis.lagda > megazord.lagda && \
-	agda --latex megazord.lagda && \
+	latexpand --explain thesis.lagda > Megazord.lagda && \
+	agda -i/home/victor/Documents/UU/Thesis/agda-stdlib/src -i. --latex Megazord.lagda && \
 	# postprocess-latex.pl latex/thesis.tex > latex/thesis.pp && \
 	# mv latex/thesis.pp latex/thesis.tex && \
 	cd latex && \
 	# lhs2TeX -o megazord2.tex megazord.tex \
-	$(COMPILER) megazord.tex && \
-	mv megazord.pdf ../thesis.pdf
+	$(COMPILER) Megazord.tex && \
+	mv Megazord.pdf ../thesis.pdf
 	
 bib: thesisbib.bib
 	cd latex && \
-	bibtex megazord
+	bibtex Megazord
   
 	
 #latexincludeexpand: LIE/Main.hs
