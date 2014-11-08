@@ -1,4 +1,4 @@
-\newcommand{\AgdaType}[1]{#1}
+
 Agda introduced a reflection API in version 2.2.8. Although not a new feature
 in the world of functional programming (Lisp's \emph{quoting} and \emph{unquoting} and Template Haskell, for instance, are similar techniques) 
 it is proving to be very usefull for implementing interesting things. One application for reflection, which I chose to explore, is the possibility to write
