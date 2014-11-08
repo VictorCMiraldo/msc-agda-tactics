@@ -103,13 +103,9 @@ R ≡r S = (R ⊆ S) × (S ⊆ R)
       → R ⊆ S → S ⊆ R → R ≡r S
 ≡r-intro p1 p2 = p1 , p2
 
-------------------
--- * Converse * --
-------------------
-
--- The converse of a relation.
-_ᵒ : {A B : Set} → Rel A B → Rel B A
-(R ᵒ) a b = R b a 
+---------------------
+-- * Composition * --
+---------------------
 
 -- Relational composition is given in terms of a existential quantifier,
 -- which, in turn, is a relational poduct.
@@ -120,6 +116,25 @@ infixr 10 _∙_
 _∙_ : {A B C : Set} → Rel B C → Rel A B → Rel A C
 (R ∙ S) c a = ∃ (λ b → (R c b) × (S b a))
 
+-- Relational composition is left associative
+∙-assocl : ∀{A B C D}{R : Rel A B}{S : Rel B C}{T : Rel C D}
+         → T ∙ (S ∙ R) ⊆ (T ∙ S) ∙ R
+∙-assocl d a (c , dTc , b , cSb , bRa) = b , (c , dTc , cSb) , bRa
+
+-- And right associative
+∙-assocr : ∀{A B C D}{R : Rel A B}{S : Rel B C}{T : Rel C D}
+         → (T ∙ S) ∙ R ⊆ T ∙ (S ∙ R)
+∙-assocr d a (b , (c , dTc , cSb) , bRa) = c , dTc , b , cSb , bRa
+
+-- Wrapper for associativity
+∙-assoc : ∀{A B C D}{R : Rel A B}{S : Rel B C}{T : Rel C D}
+        → (T ∙ S) ∙ R ≡r T ∙ (S ∙ R)
+∙-assoc = ≡r-intro ∙-assocr ∙-assocl
+
+--------------------------
+-- * Function Lifting * --
+--------------------------
+
 -- Lifting a function to a relation is pretty simple
 fun : {A B : Set} → (A → B) → Rel A B
 fun f b a = f a ≡ b
@@ -129,9 +144,44 @@ fun-comp : {A B C : Set} {f : B → C} {g : A → B}
          → fun (f ∘ g)  ⊆  fun f ∙ fun g
 fun-comp {g = g} c a fga = g a , fga , refl
 
+------------------
+-- * Identity * --
+------------------
+
 -- Identity Relation
 Id : {A : Set} → Rel A A
 Id = fun id
+
+------------------
+-- * Converse * --
+------------------
+
+-- The converse of a relation.
+_ᵒ : {A B : Set} → Rel A B → Rel B A
+(R ᵒ) a b = R b a 
+
+-------------------------------
+-- * Knapking and Shunting * --
+-------------------------------
+
+shunting-l-1 : ∀{A B C}{R : Rel A B}{f : B → C}{S : Rel A C}
+             → (fun f) ∙ R ⊆ S
+             → R ⊆ (fun f)ᵒ ∙ S
+shunting-l-1 {f = f} hip b a bRa = f b , refl , hip (f b) a (b , refl , bRa) 
+
+shunting-l-2 : ∀{A B C}{R : Rel A B}{f : B → C}{S : Rel A C}
+             → R ⊆ (fun f)ᵒ ∙ S
+             → (fun f) ∙ R ⊆ S
+shunting-l-2 {f = f}{S = S} hip c a bfRa 
+  = let aux = hip (p1 bfRa) a (p2 (p2 bfRa))
+        r   = p2 (p2 aux)
+    in subst (λ k → S k a) (
+             subst (λ x → x ≡ c) (p1 (p2 aux)) (p1 (p2 bfRa))
+       ) r
+
+knapking : ∀{A B C D}{R : Rel B C}{f : A → B}{g : D → C}{a : A}{d : D}
+         → R (g d) (f a) ≡ ((fun g)ᵒ ∙ R ∙ (fun f)) d a
+knapking = {!!}
 
 --------------------
 -- ** Products ** --
