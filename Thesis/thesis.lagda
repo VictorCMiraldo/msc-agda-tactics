@@ -82,13 +82,15 @@ module Megazord where
 
   \section{Introduction}
   \label{sec:prelude:introduction}
-
-  \section{The Problem}
-  \label{sec:prelude:theproblem}
+  \input{Intro.lagda}
   
   \section{The Agda language}
   \label{sec:prelude:agdalanguage}
   \input{Agda_prelude.lagda}
+  
+  \section{The Problem}
+  \label{sec:prelude:theproblem}
+  \input{Problem.lagda}
   
 \chapter{Background}
 \label{chap:background}
