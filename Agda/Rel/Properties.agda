@@ -28,10 +28,23 @@ Bot⊆R _ _ ()
 -- * Correflexive Properties * --
 ---------------------------------
 
+{-
 φ-intro-r : ∀{A B}(P : A → Set)(a : A)(b : B)
           → ((φ P) ∙ Top) a b ≡ P a
 φ-intro-r p a b with φ p 
 ...| q = {!!}
+-}
+
+φ⊆Id : ∀{A : Set}{P : A → Set}
+     → φ P ⊆ Id
+φ⊆Id b b′ bφb = sym (p1 bφb)
+
+ρ-intro : ∀{A B : Set}(R : Rel A B)
+        → R ≡r ρ R ∙ R
+ρ-intro r 
+        = (λ b a bRa → b , ((a , bRa , bRa) , refl) , bRa)
+        , (λ b a bρRRa → subst (λ x → r x a) (p2 (p1 (p2 bρRRa))) (p2 (p2 bρRRa)))
+  
 
 ----------------------
 -- * Composition  * --
@@ -65,6 +78,14 @@ Bot⊆R _ _ ()
 ∙-id-r {R = R}
        = (λ b a bRa → a , bRa , refl)
        , (λ b a bRIda → subst (R b) (sym (p2 (p2 bRIda))) (p1 (p2 bRIda)))
+
+∙-monotony : ∀{A B C}{S T : Rel B C}(R : Rel A B)
+           → S ⊆ T → S ∙ R ⊆ T ∙ R
+∙-monotony _ hip c a bSRa
+  = let b = p1 bSRa
+        cSb = p1 (p2 bSRa)
+        bRa = p2 (p2 bSRa)
+    in b , hip c b cSb , bRa
 
 -------------------------------
 -- * Knapking and Shunting * --
@@ -104,6 +125,7 @@ shunting-r-2 {f = f}{S = S} hip b c bRfa
              subst (λ x → x ≡ c) (p2 (p2 aux)) (p2 (p2 bRfa))
        ) r
 
+{-
 -- TODO: figure how to prove this guys!
 knapking-l :  ∀{B C D}{g : D → C}(R : Rel B C)(b : B)(d : D)
            → R (g d) b ≡ ((fun g)ᵒ ∙ R) d b
@@ -114,3 +136,4 @@ knapking : ∀{A B C D}{f : A → B}{g : D → C}(R : Rel B C)(a : A)(d : D)
          → R (g d) (f a) ≡ ((fun g)ᵒ ∙ R ∙ (fun f)) d a
 knapking {f = f}{g = g} r a d with ((fun g)ᵒ ∙ r ∙ fun f)
 ...| p = {!!}
+-}

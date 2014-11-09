@@ -80,6 +80,15 @@ infix 6 _⊆_
 _⊆_ : {A B : Set} → Rel A B → Rel A B → Set
 R ⊆ S = ∀ b a → R b a → S b a
 
+-- Inclusion is reflexive
+⊆-refl : {A B : Set}{R : Rel A B} → R ⊆ R
+⊆-refl _ _ bRa = bRa
+
+-- And transitive
+⊆-trans : {A B : Set}{R S T : Rel A B}
+        → R ⊆ S → S ⊆ T → R ⊆ T
+⊆-trans rs st b a bRa = st b a (rs b a bRa)
+
 -- Relational Union
 infix 8 _∪_
 _∪_ : {A B : Set} → Rel A B → Rel A B → Rel A B
@@ -127,6 +136,18 @@ _∩_ : {A B : Set} → Rel A B → Rel A B → Rel A B
 infix 6 _≡r_
 _≡r_ : {A B : Set} → Rel A B → Rel A B → Set
 R ≡r S = (R ⊆ S) × (S ⊆ R)
+
+≡r-refl : {A B : Set}{R : Rel A B}
+        → R ≡r R
+≡r-refl = ⊆-refl , ⊆-refl
+
+≡r-sym : {A B : Set}{R S : Rel A B}
+       → R ≡r S → S ≡r R
+≡r-sym h = p2 h , p1 h
+
+≡r-trans : {A B : Set}{R S T : Rel A B}
+         → R ≡r S → S ≡r T → R ≡r T
+≡r-trans rs st = ⊆-trans (p1 rs) (p1 st) , ⊆-trans (p2 st) (p2 rs)
 
 -- And some syntax sugar:
 
