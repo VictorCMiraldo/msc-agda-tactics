@@ -1,10 +1,13 @@
-module Rel.Relations where
+module Rel.Core where
 
 open import Data.Bool using (Bool; true; false)
 open import Relation.Binary.PropositionalEquality
 open import Data.Product using (_×_; ∃; _,_) renaming (proj₁ to p1; proj₂ to p2)
 open import Data.Sum using (_⊎_; [_,_]) renaming (inj₁ to i1; inj₂ to i2; [_,_]′ to case)
 open import Function using (id; _∘_)
+
+open import Data.Unit using (Unit)
+open import Data.Empty using (⊥)
 
 --------------
 -- * Sets * --
@@ -37,12 +40,12 @@ singleton a = λ a' → a ≡ a'
 -- Set-theoretic operations can also be defined easily.
 
 -- Union
-_∪_ : {A : Set} → ℙ A → ℙ A → ℙ A
-(r ∪ s) a = r a ⊎ s a
+_∪s_ : {A : Set} → ℙ A → ℙ A → ℙ A
+(r ∪s s) a = r a ⊎ s a
 
 -- Intersection
-_∩_ : {A : Set} → ℙ A → ℙ A → ℙ A
-(r ∩ s) a = r a × s a
+_∩s_ : {A : Set} → ℙ A → ℙ A → ℙ A
+(r ∩s s) a = r a × s a
 
 -- Subset relation
 _⊆s_ : {A : Set} → ℙ A → ℙ A → Set
@@ -76,6 +79,45 @@ Rel A B = B → A → Set
 infix 6 _⊆_
 _⊆_ : {A B : Set} → Rel A B → Rel A B → Set
 R ⊆ S = ∀ b a → R b a → S b a
+
+-- Relational Union
+infix 8 _∪_
+_∪_ : {A B : Set} → Rel A B → Rel A B → Rel A B
+(R ∪ S) b a = R b a ⊎ S b a
+
+-- Relational Intersection
+infix 8 _∩_
+_∩_ : {A B : Set} → Rel A B → Rel A B → Rel A B
+(R ∩ S) b a = R b a × S b a
+
+-- Union universal
+∪-uni-l : {A B : Set}(X R S : Rel A B)
+        → R ∪ S ⊆ X 
+        → (R ⊆ X) × (S ⊆ X)
+∪-uni-l x r s hip 
+        = (λ b a bRa → hip b a (i1 bRa)) 
+        , (λ b a bSa → hip b a (i2 bSa)) 
+
+∪-uni-r : {A B : Set}(X R S : Rel A B)
+        → (R ⊆ X) × (S ⊆ X)
+        → R ∪ S ⊆ X
+∪-uni-r x r s hip 
+        = λ { b a (i1 bRa) → p1 hip b a bRa
+            ; b a (i2 bSa) → p2 hip b a bSa
+            }
+
+-- Intersection Universal
+∩-uni-l : {A B : Set}(X R S : Rel A B)
+        → X ⊆ R ∩ S
+        → (X ⊆ R) × (X ⊆ S)
+∩-uni-l x r s hip 
+        = (λ b a bXa → p1 (hip b a bXa))
+        , (λ b a bXa → p2 (hip b a bXa))
+
+∩-uni-r : {A B : Set}(X R S : Rel A B)
+        → (X ⊆ R) × (X ⊆ S)
+        → X ⊆ R ∩ S
+∩-uni-r x r s (x⊆r , x⊆s) = λ b a bXa → x⊆r b a bXa , x⊆s b a bXa
 
 ------------------------------
 -- * Inclusion Properties * --
@@ -116,21 +158,6 @@ infixr 10 _∙_
 _∙_ : {A B C : Set} → Rel B C → Rel A B → Rel A C
 (R ∙ S) c a = ∃ (λ b → (R c b) × (S b a))
 
--- Relational composition is left associative
-∙-assocl : ∀{A B C D}{R : Rel A B}{S : Rel B C}{T : Rel C D}
-         → T ∙ (S ∙ R) ⊆ (T ∙ S) ∙ R
-∙-assocl d a (c , dTc , b , cSb , bRa) = b , (c , dTc , cSb) , bRa
-
--- And right associative
-∙-assocr : ∀{A B C D}{R : Rel A B}{S : Rel B C}{T : Rel C D}
-         → (T ∙ S) ∙ R ⊆ T ∙ (S ∙ R)
-∙-assocr d a (b , (c , dTc , cSb) , bRa) = c , dTc , b , cSb , bRa
-
--- Wrapper for associativity
-∙-assoc : ∀{A B C D}{R : Rel A B}{S : Rel B C}{T : Rel C D}
-        → (T ∙ S) ∙ R ≡r T ∙ (S ∙ R)
-∙-assoc = ≡r-intro ∙-assocr ∙-assocl
-
 --------------------------
 -- * Function Lifting * --
 --------------------------
@@ -144,13 +171,21 @@ fun-comp : {A B C : Set} {f : B → C} {g : A → B}
          → fun (f ∘ g)  ⊆  fun f ∙ fun g
 fun-comp {g = g} c a fga = g a , fga , refl
 
-------------------
--- * Identity * --
-------------------
+-------------------
+-- * Constants * --
+-------------------
 
 -- Identity Relation
 Id : {A : Set} → Rel A A
 Id = fun id
+
+-- Top relation
+Top : {A B : Set} → Rel A B
+Top _ _ = Unit
+
+-- Bottom relation
+Bot : {A B : Set} → Rel A B
+Bot _ _ = ⊥
 
 ------------------
 -- * Converse * --
@@ -160,28 +195,30 @@ Id = fun id
 _ᵒ : {A B : Set} → Rel A B → Rel B A
 (R ᵒ) a b = R b a 
 
--------------------------------
--- * Knapking and Shunting * --
--------------------------------
+--------------------------
+-- * Kernel and Image * --
+--------------------------
 
-shunting-l-1 : ∀{A B C}{R : Rel A B}{f : B → C}{S : Rel A C}
-             → (fun f) ∙ R ⊆ S
-             → R ⊆ (fun f)ᵒ ∙ S
-shunting-l-1 {f = f} hip b a bRa = f b , refl , hip (f b) a (b , refl , bRa) 
+ker : {A B : Set} → Rel A B → Rel A A
+ker r = r ᵒ ∙ r
 
-shunting-l-2 : ∀{A B C}{R : Rel A B}{f : B → C}{S : Rel A C}
-             → R ⊆ (fun f)ᵒ ∙ S
-             → (fun f) ∙ R ⊆ S
-shunting-l-2 {f = f}{S = S} hip c a bfRa 
-  = let aux = hip (p1 bfRa) a (p2 (p2 bfRa))
-        r   = p2 (p2 aux)
-    in subst (λ k → S k a) (
-             subst (λ x → x ≡ c) (p1 (p2 aux)) (p1 (p2 bfRa))
-       ) r
+img : {A B : Set} → Rel A B → Rel B B
+img r = r ∙ r ᵒ
 
-knapking : ∀{A B C D}{R : Rel B C}{f : A → B}{g : D → C}{a : A}{d : D}
-         → R (g d) (f a) ≡ ((fun g)ᵒ ∙ R ∙ (fun f)) d a
-knapking = {!!}
+-- Domain
+δ : {A B : Set} → Rel A B → Rel A A
+δ r = ker r ∩ Id
+
+-- Image
+ρ : {A B : Set} → Rel A B → Rel B B
+ρ r = img r ∩ Id
+
+-----------------------
+-- * Correflexives * --
+-----------------------
+
+φ : {A : Set}(P : A → Set) → Rel A A
+φ p = λ a a′ → a ≡ a′ × p a 
 
 --------------------
 -- ** Products ** --
