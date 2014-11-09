@@ -50,6 +50,8 @@ UTF8_TABLE=(
   "⊎"   "u+"
   "∪"   "cup"
   "∩"   "cap"
+  "⊥"   "bot"
+  "⊤"   "top"
 )
 
 # Substitute "\x" with the unicode corresponding to "x", based on $UTF8_TABLE.
