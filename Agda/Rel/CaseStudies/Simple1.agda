@@ -11,7 +11,10 @@ open import Data.Empty using (⊥; ⊥-elim)
 
 open import Data.Nat using (ℕ; zero; suc)
 
-open import Rel.Core
+open import Rel.Core.Core
+open import Rel.Core.Correflexive
+open import Rel.Core.Equality
+open import Rel.Reasoning.SubsetJudgement
 open import Rel.Properties
 
 twice : ℕ → ℕ
@@ -33,8 +36,19 @@ So false = ⊥
 evenR : Rel ℕ ℕ
 evenR = φ (So ∘ even)
 
-open import Relation.Binary
+twiceIsEven : (twiceR ⊆ twiceR) ⇐ (twiceR ⊆ twiceR ∙ Id)
+twiceIsEven 
+  = begin
+    twiceR ⊆ twiceR
+  ≡⟨ subst-r (∙-id-r twiceR) ⟩
+    twiceR ⊆ twiceR ∙ Id
+  ∎
 
+twiceInTwice : Unit ⇐ (twiceR ⊆ twiceR) 
+twiceInTwice 
+  = {! lemma (∙-id-r twiceR)!}
+
+{-
 ≡r-equivalence : {A B : Set} → IsEquivalence (_≡r_ {A = A} {B = B})
 ≡r-equivalence = record
   { refl  = ≡r-refl
@@ -42,11 +56,19 @@ open import Relation.Binary
   ; trans = ≡r-trans
   }
 
-⊆-preorder : {A B : Set} → IsPreorder (_≡r_ {A = A} {B = B}) _⊆_
-⊆-preorder = record
+⊆-IsPreorder : {A B : Set} → IsPreorder (_≡r_ {A = A} {B = B}) _⊆_
+⊆-IsPreorder = record
   { isEquivalence = ≡r-equivalence
   ; reflexive     = p1
   ; trans         = ⊆-trans
+  }
+
+⊆-Preorder : {A B : Set} → Preorder (Level.suc Level.zero) Level.zero Level.zero
+⊆-Preorder {A} {B} = record
+  { Carrier = Rel.Core.Rel A B
+  ; _≈_     = _≡r_
+  ; _∼_     = _⊆_
+  ; isPreorder = ⊆-IsPreorder
   }
 
 import Relation.Binary.PreorderReasoning as Pre
@@ -54,9 +76,12 @@ import Relation.Binary.PreorderReasoning as Pre
 twiceIsEven : twiceR ∙ evenR ⊆ evenR ∙ twiceR
 twiceIsEven 
   = begin
-    twiceR ∙ evenR ⊆ evenR ∙ twiceR
-  ≈⟨ ? ⟩
-    ?
+    twiceR ∙ evenR  -- twiceR ∙ evenR ⊆ evenR ∙ twiceR
+  ∼⟨ ∙-subst-r (ρ-intro evenR) ⟩
+    twiceR ∙ (ρ evenR ∙ evenR)
+  ∼⟨ {!!} ⟩
+    {!!}
   ∎
-  where open Pre ⊆-preorder
+  where open Pre ⊆-Preorder
+-}
 
