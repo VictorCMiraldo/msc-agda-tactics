@@ -9,8 +9,9 @@ open import Function using (id; _∘_)
 open import Data.Unit using (Unit; unit)
 open import Data.Empty using (⊥; ⊥-elim)
 
-
-open import Rel.Core
+open import Rel.Core.Core
+open import Rel.Core.Correflexive
+open import Rel.Core.Equality
 
 ----------------------------
 -- * Trivial Properties * --
@@ -73,9 +74,9 @@ Bot⊆R _ _ ()
        , (λ b a bIdRa → subst (λ x → R x a) (p1 (p2 bIdRa)) (p2 (p2 bIdRa)))
 
 -- Id is right neutral
-∙-id-r : ∀{A B}{R : Rel A B}
+∙-id-r : ∀{A B}(R : Rel A B)
        → R ≡r R ∙ Id
-∙-id-r {R = R}
+∙-id-r R
        = (λ b a bRa → a , bRa , refl)
        , (λ b a bRIda → subst (R b) (sym (p2 (p2 bRIda))) (p1 (p2 bRIda)))
 
@@ -86,6 +87,22 @@ Bot⊆R _ _ ()
         cSb = p1 (p2 bSRa)
         bRa = p2 (p2 bSRa)
     in b , hip c b cSb , bRa
+
+∙-subst-r : ∀{A B C}{R : Rel B C}{T U : Rel A B}
+          → T ≡r U → R ∙ T ⊆ R ∙ U
+∙-subst-r (t⊆u , u⊆t) 
+  = λ c a bRTa →
+    let b   = p1 bRTa 
+        cRb = p1 (p2 bRTa)
+    in b , cRb , t⊆u b a (p2 (p2 bRTa))
+
+∙-subst-l : ∀{A B C}{T U : Rel B C}{R : Rel A B}
+          → T ≡r U → T ∙ R ⊆ U ∙ R
+∙-subst-l (t⊆u , u⊆t)
+  = λ c a bTRa → 
+    let b   = p1 bTRa
+        cTb = p1 (p2 bTRa)
+    in b , t⊆u c b cTb , p2 (p2 bTRa)
 
 -------------------------------
 -- * Knapking and Shunting * --
