@@ -61,7 +61,7 @@ p ⇔ q = (p ⇐ q) × (q ⇐ p)
   }
 
 import Relation.Binary.PreorderReasoning as Pre
-open Pre ⇐-Preorder public renaming (_∼⟨_⟩_ to _≡⟨_⟩_)
+open Pre ⇐-Preorder public renaming (_∼⟨_⟩_ to _⇐⟨_⟩_)
 
 -- Some substitution lemmas to ease the handling of a single
 -- side of our inclusion
