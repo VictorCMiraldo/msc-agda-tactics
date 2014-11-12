@@ -80,13 +80,13 @@ Bot⊆R _ _ ()
        = (λ b a bRa → a , bRa , refl)
        , (λ b a bRIda → subst (R b) (sym (p2 (p2 bRIda))) (p1 (p2 bRIda)))
 
-∙-monotony : ∀{A B C}{S T : Rel B C}(R : Rel A B)
-           → S ⊆ T → S ∙ R ⊆ T ∙ R
-∙-monotony _ hip c a bSRa
-  = let b = p1 bSRa
-        cSb = p1 (p2 bSRa)
-        bRa = p2 (p2 bSRa)
-    in b , hip c b cSb , bRa
+∙-monotony : ∀{A B C}{S T : Rel B C}{Q R : Rel A B}
+           → (S ⊆ T) × (Q ⊆ R) → S ∙ Q ⊆ T ∙ R
+∙-monotony (s⊆t , q⊆r) c a bSQa
+  = let b   = p1 bSQa
+        cSb = p1 (p2 bSQa)
+        bQa = p2 (p2 bSQa)
+    in b , s⊆t c b cSb , q⊆r b a bQa
 
 ∙-subst-r : ∀{A B C}{R : Rel B C}{T U : Rel A B}
           → T ≡r U → R ∙ T ⊆ R ∙ U
