@@ -36,52 +36,38 @@ So false = ⊥
 evenR : Rel ℕ ℕ
 evenR = φ (So ∘ even)
 
-twiceIsEven : (twiceR ⊆ twiceR) ⇐ (twiceR ⊆ twiceR ∙ Id)
+-- TODO: solve this two problems!
+evenLemma : evenR ≡ ρ twiceR
+evenLemma = {!!}
+
+≡r-promote : {A B : Set}{R S : Rel A B}
+           → R ≡r S → R ≡ S
+≡r-promote (r⊆s , s⊆r) = {!!}
+
+twiceIsEven : (twiceR ∙ evenR ⊆ evenR ∙ twiceR) ⇐ Unit
 twiceIsEven 
   = begin
-    twiceR ⊆ twiceR
-  ≡⟨ subst-r (∙-id-r twiceR) ⟩
-    twiceR ⊆ twiceR ∙ Id
+
+    twiceR ∙ evenR ⊆ evenR ∙ twiceR
+
+  ⇐⟨ subst (λ x → twiceR ∙ evenR ⊆ x ∙ twiceR) (sym evenLemma) ⟩
+
+    twiceR ∙ evenR ⊆ ρ twiceR ∙ twiceR
+
+  ⇐⟨ subst (λ x → twiceR ∙ evenR ⊆ x) (≡r-promote (ρ-intro twiceR)) ⟩
+
+    twiceR ∙ evenR ⊆ twiceR
+
+  ⇐⟨ subst (λ x → twiceR ∙ evenR ⊆ x) (≡r-promote (≡r-sym (∙-id-r twiceR))) ⟩
+
+    twiceR ∙ evenR ⊆ twiceR ∙ Id
+
+  ⇐⟨ ∙-monotony ⟩
+
+    (twiceR ⊆ twiceR × evenR ⊆ Id)
+
+  ⇐⟨ (λ _ → ⊆-refl , φ⊆Id) ⟩
+
+    Unit
+
   ∎
-
-twiceInTwice : Unit ⇐ (twiceR ⊆ twiceR) 
-twiceInTwice 
-  = {! lemma (∙-id-r twiceR)!}
-
-{-
-≡r-equivalence : {A B : Set} → IsEquivalence (_≡r_ {A = A} {B = B})
-≡r-equivalence = record
-  { refl  = ≡r-refl
-  ; sym   = ≡r-sym
-  ; trans = ≡r-trans
-  }
-
-⊆-IsPreorder : {A B : Set} → IsPreorder (_≡r_ {A = A} {B = B}) _⊆_
-⊆-IsPreorder = record
-  { isEquivalence = ≡r-equivalence
-  ; reflexive     = p1
-  ; trans         = ⊆-trans
-  }
-
-⊆-Preorder : {A B : Set} → Preorder (Level.suc Level.zero) Level.zero Level.zero
-⊆-Preorder {A} {B} = record
-  { Carrier = Rel.Core.Rel A B
-  ; _≈_     = _≡r_
-  ; _∼_     = _⊆_
-  ; isPreorder = ⊆-IsPreorder
-  }
-
-import Relation.Binary.PreorderReasoning as Pre
-
-twiceIsEven : twiceR ∙ evenR ⊆ evenR ∙ twiceR
-twiceIsEven 
-  = begin
-    twiceR ∙ evenR  -- twiceR ∙ evenR ⊆ evenR ∙ twiceR
-  ∼⟨ ∙-subst-r (ρ-intro evenR) ⟩
-    twiceR ∙ (ρ evenR ∙ evenR)
-  ∼⟨ {!!} ⟩
-    {!!}
-  ∎
-  where open Pre ⊆-Preorder
--}
-
