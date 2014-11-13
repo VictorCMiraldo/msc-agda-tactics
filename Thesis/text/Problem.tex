@@ -1,0 +1,16 @@
+As we could see in section \ref{sec:prelude:agdalanguage}, Agda is a very expressive language
+and it allows us to build smaller proofs than the great majority of proof assistants available.
+The mixfix feature gives the language a very customizable feel, one application is the
+equational reasoning framework. In the following illustration we prove the associativity of
+the concatenation operation.
+
+\Agda{Basic}{++-assocH}
+
+The notation is very clear and understandable, it indeed looks very much
+to what a \emph{squiggolist}\footnote{
+%%%% BEGIN FOOTNOTE
+\emph{Squiggol} is a slang name for the Bird–Meertens formalism, due to the squiggly symbols it
+uses.
+%%%% END FOOTNOTE
+} would write on paper. One of the main downsides to it, which is also inherent to Agda in general,
+is the need to specify every single detail of the demonstration, even the trivial ones.
