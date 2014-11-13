@@ -118,15 +118,7 @@ evenLemma : ρ twiceR ≡r evenR
 evenLemma = evenLemma1 , evenLemma2
 
 -- * End of assumption
---------------------------------------------------------------
--- * Promotion rule. This is the problem we're stuck at,
---   at the moment.
---
-
-≡r-promote : {A B : Set}{R S : Rel A B}
-           → R ≡r S → R ≡ S
-≡r-promote (r⊆s , s⊆r) = {!!}
-
+-------------------------------------------------------------
 -------------------------------------------------------------
 -- * The actual equational proof that twice respects even.
 
@@ -136,15 +128,15 @@ twiceIsEven
 
     twiceR ∙ evenR ⊆ evenR ∙ twiceR
 
-  ⇐⟨ subst (λ x → twiceR ∙ evenR ⊆ x ∙ twiceR) (≡r-promote evenLemma) ⟩
+  ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x ∙ twiceR) evenLemma ⟩
 
     twiceR ∙ evenR ⊆ ρ twiceR ∙ twiceR
 
-  ⇐⟨ subst (λ x → twiceR ∙ evenR ⊆ x) (≡r-promote (ρ-intro twiceR)) ⟩
+  ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x) (ρ-intro twiceR) ⟩
 
     twiceR ∙ evenR ⊆ twiceR
 
-  ⇐⟨ subst (λ x → twiceR ∙ evenR ⊆ x) (≡r-promote (≡r-sym (∙-id-r twiceR))) ⟩
+  ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x) (≡r-sym (∙-id-r twiceR)) ⟩
 
     twiceR ∙ evenR ⊆ twiceR ∙ Id
 
