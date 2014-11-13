@@ -1,5 +1,6 @@
 module Rel.Core.Equality where
 
+open import Relation.Binary.PropositionalEquality
 open import Data.Product using (_×_; ∃; _,_) renaming (proj₁ to p1; proj₂ to p2)
 open import Rel.Core.Core
 
@@ -36,3 +37,22 @@ R ≡r S = (R ⊆ S) × (S ⊆ R)
 ≡r-intro : {A B : Set}{R S : Rel A B}
       → R ⊆ S → S ⊆ R → R ≡r S
 ≡r-intro p1 p2 = p1 , p2
+
+-- Substitution. 
+-- 
+-- This is tricky. I believe that I can safely add the ≡r-promote postulate
+-- since once I have a proof that relations R and S are the same relation,
+-- I can argue that they'll eventually reduce to the same value.
+--
+-- It is hard to prove R ≡r S → R ≡ S direcly mostly because of
+-- extensionality. 
+--
+-- We chose to leave this postulate hidden from the user, so, to work
+-- with relations he only needs Rel.Core.Equality and no equality from
+-- the standard library.
+≡r-subst : {A B : Set}(P : Rel A B → Set){R S : Rel A B} 
+         → R ≡r S → P R → P S
+≡r-subst p rs pr = subst p (≡r-promote rs) pr
+  where 
+    postulate
+      ≡r-promote : {A B : Set}{R S : Rel A B} → R ≡r S → R ≡ S
