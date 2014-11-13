@@ -10,6 +10,8 @@ open import Data.Unit using (Unit; unit)
 open import Data.Empty using (⊥; ⊥-elim)
 
 open import Data.Nat using (ℕ; zero; suc; _+_; _*_)
+open import Data.Nat.Properties.Simple
+  using (+-suc; +-right-identity)
 
 open import Rel.Core.Core
 open import Rel.Core.Correflexive
@@ -47,31 +49,21 @@ evenR = φ (So ∘ even)
 --
 --   the proof follows:
 
-lemma-+zero : ∀ a
-            → a + zero ≡ a
-lemma-+zero zero = refl
-lemma-+zero (suc a) = cong suc (lemma-+zero a)
-
-lemma-+succ : ∀ a b 
-            → suc a + b ≡ a + suc b
-lemma-+succ zero b = refl
-lemma-+succ (suc a) b = cong suc (lemma-+succ a b)
-
 twiceIsN+N : (n : ℕ) → twice n ≡ n + n
 twiceIsN+N zero = refl
-twiceIsN+N (suc n) = cong suc (trans (cong suc (twiceIsN+N n)) (lemma-+succ n n))
+twiceIsN+N (suc n) = cong suc (trans (cong suc (twiceIsN+N n)) (sym (+-suc n n)))
 
 twiceIsTwice : (n : ℕ) → twice n ≡ 2 * n
 twiceIsTwice zero = refl
-twiceIsTwice (suc n) rewrite lemma-+zero n
-  = cong suc (trans (cong suc (twiceIsN+N n)) (lemma-+succ n n)) 
+twiceIsTwice (suc n) rewrite +-right-identity n
+  = cong suc (trans (cong suc (twiceIsN+N n)) (sym (+-suc n n))) 
 
 n*2-IsEven : (n : ℕ) → even (2 * n) ≡ true
 n*2-IsEven zero    = refl
 n*2-IsEven (suc n) 
-  rewrite lemma-+zero n
-  | sym (lemma-+succ n n)
-    = subst (λ x → even (n + x) ≡ true) (lemma-+zero n) (n*2-IsEven n)
+  rewrite +-right-identity n
+  | +-suc n n
+    = subst (λ x → even (n + x) ≡ true) (+-right-identity n) (n*2-IsEven n)
 
 twiceEven : (a : ℕ) → even (twice a) ≡ true
 twiceEven zero = refl
@@ -134,6 +126,36 @@ twiceIsEven
 
   ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x) (ρ-intro twiceR) ⟩
 
+    twiceR ∙ evenR ⊆ twiceR
+
+  ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x) (≡r-sym (∙-id-r twiceR)) ⟩
+
+    twiceR ∙ evenR ⊆ twiceR ∙ Id
+
+  ⇐⟨ ∙-monotony ⟩
+
+    (twiceR ⊆ twiceR × evenR ⊆ Id)
+
+  ⇐⟨ (λ _ → ⊆-refl , φ⊆Id) ⟩
+
+    Unit
+
+  ∎
+
+open import Reflection
+
+twiceIsEvenRewr : (twiceR ∙ evenR ⊆ evenR ∙ twiceR) ⇐ Unit
+twiceIsEvenRewr 
+  = begin
+
+    twiceR ∙ evenR ⊆ evenR ∙ twiceR
+
+  ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x ∙ twiceR) evenLemma ⟩
+
+    twiceR ∙ evenR ⊆ ρ twiceR ∙ twiceR
+
+  ⇐⟨ (quoteGoal g in {!type (quote ρ-intro)!}) ⟩
+    
     twiceR ∙ evenR ⊆ twiceR
 
   ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x) (≡r-sym (∙-id-r twiceR)) ⟩
