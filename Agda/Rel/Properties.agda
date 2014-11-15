@@ -25,6 +25,10 @@ Bot⊆R : ∀{A B : Set}{R : Rel A B}
       → Bot ⊆ R
 Bot⊆R _ _ ()
 
+⊆-upper-bound : {A B : Set}{R S S' : Rel A B}
+              → S ⊆ S' → R ⊆ S → R ⊆ S'
+⊆-upper-bound ss' rs = ⊆-trans rs ss'
+
 ---------------------------------
 -- * Correflexive Properties * --
 ---------------------------------
@@ -108,6 +112,7 @@ Bot⊆R _ _ ()
 -- * Knapking and Shunting * --
 -------------------------------
 
+
 shunting-l-1 : ∀{A B C}{R : Rel A B}{f : B → C}{S : Rel A C}
              → (fun f) ∙ R ⊆ S
              → R ⊆ (fun f)ᵒ ∙ S
@@ -154,3 +159,22 @@ knapking : ∀{A B C D}{f : A → B}{g : D → C}(R : Rel B C)(a : A)(d : D)
 knapking {f = f}{g = g} r a d with ((fun g)ᵒ ∙ r ∙ fun f)
 ...| p = {!!}
 -}
+
+-------------------
+-- * Converses * --
+-------------------
+
+ᵒ-distr : ∀{A B C}{R : Rel A B}{S : Rel B C}
+          → (S ∙ R) ᵒ ≡r R ᵒ ∙ S ᵒ
+ᵒ-distr 
+  = (λ a c bSRoa → p1 bSRoa , p2 (p2 bSRoa) , p1 (p2 bSRoa))
+  , (λ a c bSoRoa → p1 bSoRoa , p2 (p2 bSoRoa) , p1 (p2 bSoRoa))
+
+ᵒ-fun-identity-r : {A B : Set}{f : A → B}
+                 → (fun f) ∙ (fun f)ᵒ ⊆ Id
+ᵒ-fun-identity-r {f = f}
+  = λ b b' hip → fun-is-simple {f = f} (p1 hip) b b' (p1 (p2 hip)) (p2 (p2 hip))
+  where
+    fun-is-simple : {A B : Set}{f : A → B}(a : A)(b b' : B)
+                  → (fun f) b a → (fun f) b' a → id b' ≡ b
+    fun-is-simple _ _ _ bfa b'fa = trans (sym b'fa) bfa

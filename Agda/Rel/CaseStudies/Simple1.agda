@@ -144,30 +144,26 @@ twiceIsEven
 
 open import Reflection
 
-twiceIsEvenRewr : (twiceR ∙ evenR ⊆ evenR ∙ twiceR) ⇐ Unit
-twiceIsEvenRewr 
+goalTest1 : {A B : Set}(R : Rel A B) → (R ⊆ R ∙ Id) ⇐ Unit
+goalTest1 R 
   = begin
-
-    twiceR ∙ evenR ⊆ evenR ∙ twiceR
-
-  ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x ∙ twiceR) evenLemma ⟩
-
-    twiceR ∙ evenR ⊆ ρ twiceR ∙ twiceR
-
-  ⇐⟨ (quoteGoal g in {!type (quote ρ-intro)!}) ⟩
-    
-    twiceR ∙ evenR ⊆ twiceR
-
-  ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x) (≡r-sym (∙-id-r twiceR)) ⟩
-
-    twiceR ∙ evenR ⊆ twiceR ∙ Id
-
-  ⇐⟨ ∙-monotony ⟩
-
-    (twiceR ⊆ twiceR × evenR ⊆ Id)
-
-  ⇐⟨ (λ _ → ⊆-refl , φ⊆Id) ⟩
-
+    R ⊆ R ∙ Id
+  ⇐⟨(quoteGoal g in {!unquote g!}) ⟩
+    R ⊆ R
+  ⇐⟨ (λ _ → ⊆-refl) ⟩
     Unit
+  ∎
 
+
+goalTest2 : {A B : Set}(R S : Rel A B)(f : A → A)
+          → (R ⊆ S) ⇐ (R ∙ (fun f) ⊆ S ∙ (fun f))
+goalTest2 R S f
+  = begin
+    R ⊆ S
+  ⇐⟨ ≡r-subst (λ x → R ⊆ x) (≡r-sym (∙-id-r S)) ⟩
+    R ⊆ S ∙ Id
+  ⇐⟨ ⊆-upper-bound (∙-monotony (⊆-refl , ᵒ-fun-identity-r)) ⟩
+    R ⊆ S ∙ fun f ∙ fun f ᵒ
+  ⇐⟨ {!shunting-r-2!} ⟩
+    R ∙ fun f ⊆ S ∙ fun f
   ∎
