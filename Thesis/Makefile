@@ -10,13 +10,13 @@ TEXT_PARTS_SRC_GENTEX=$(TEXT_PARTS_SRC_ROOT)
 MAINTEX=$(TEXT_PARTS_SRC_ROOT)/$(MAIN_NAME).tex
 MAINPDF=./$(MAIN_NAME).pdf
 REFERENCES=$(REFERENCES_NAME).bib
-TEXT_PARTS=Agda_prelude
-#           Background_prelude \
-#           Background_LambdaCalc \
-#           MartinLof_prelude \
-#           Problem \
-#           Intro \
-#           Reflection_prelude
+TEXT_PARTS=Agda_prelude \
+           Background_prelude \
+           Background_LambdaCalc \
+           Background_MartinLof \
+           Problem \
+           Intro \
+           Reflection_prelude
 
 
 CODE_AGDA_ROOT=code/agda
@@ -38,6 +38,9 @@ $(MAINPDF): \
 	$(CODE_AGDA_STY) \
 	$(CODE_AGDA_MODULES:%=$(CODE_AGDA_EXCERPTS)/%.tex)
 	$(COMPILER) $(MAINTEX) #latexmk $(LATEXMKOPTS) $(MAINTEX)
+	
+force:
+	$(COMPILER) $(MAINTEX)
 
 $(CODE_AGDA_EXCERPTS)/%.tex: $(CODE_AGDA_SRC)/%.lagda
 	$(DIRGUARD); agda --allow-unsolved-metas -i $(CODE_AGDA_STDLIB) -i $(CODE_AGDA_SRC) \
