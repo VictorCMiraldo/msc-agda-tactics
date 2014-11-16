@@ -1,0 +1,30 @@
+\begin{TODO}
+  \item frame this thing
+\end{TODO}
+
+A very interesting exercise is to encode Relational Algebra\cite{Bird97}, where
+we can truly see the advantage of dependent types in action. Most of the definitions
+happens at the \emph{type level} (remember that there is no difference between types and values in Agda,
+this is just a mnemonic to help understanting the \emph{functions}). The encoding presented
+here is based on \cite{Jansson09}. Only high level introduction will be made in this chapter, whereas
+in chapter \ref{chap:martinlof} we'll delve into more detailed explanations.
+
+A binary relation $R$ of type $A \rightarrow B$ can be thought of in terms of several mathematical objects.
+The usual definition is to say that $R \subseteq A \times B$, where $\cdot\times\cdot$ is the cartesian product of sets.
+In fact, $R$ contains pairs or related elements whose first component is of type $A$ and second component is of type $B$,
+note that it is slightly more general than the concept of a function, where we can have $a R b_1$ and $a R b_2$, which means
+that $(a, b_1) \in R$ and $(a, b_2) \in R$, as a perfectly valid relation, but not a function, since $a$ would be mapped to two different values, $b_1$ and $b_2$.
+
+\newcommand{\powerset}{\mathcal{P}}
+Another way of speaking about relations, though, is to consider functions of type $A \rightarrow \powerset B$.
+If our previous $R$ was in fact a function $f$, we would then have $f\; a = \{b_1, b_2\}$. For the more
+mathematically inclined reader, the arrows $A \rightarrow \powerset B$ in the category \catname{Sets}, of sets and
+functions, correspond to arrows $A \rightarrow B$ in the category \catname{Rel}, of sets and relations. For this matter,
+we actually call \catname{Rel} the Kleisli Category for the monad $\powerset$. 
+
+For our Agda encoding of Relations, we shall use a slight modification of the $\powerset$ approach.
+Let's begin, in fact, by encoding set theoretic notions. The most important of all beeing undoubtly
+the membership notion $\cdot \in \cdot$. One way of encoding a subset of a set $A$ is using a function
+of type $A \rightarrow Bool$, the subset is obtained by $\{ a \in A | f\;a \}$. Yet, in Agda, this would
+force that the deal only with decidable domains, which is not a problem if everything is finite, but
+for infinite domains this would not work. More on that later.

@@ -11,11 +11,11 @@ is the type of the elements and \inlagda{n} is the length of the vector. The rea
 with C may think: but I also hve fixed size arrays in C. The difference is that
 this \inlagda{n} need not to be known at compile time, it can be an arbitrary term (as long
 as it has type \inlagda{Nat}). That is, there is difference between types and values,
-they are all sets, as shall see in chapter \ref{chap:martinlof}).
+they are all sets, as shall see in chapter \ref{sec:background:martinlof}).
 
 In this chapter I'll introduce the basics of Agda and show some examples in both
 the programming and the proof theoretic sides of the language. Later on, in 
-chapter \ref{chap:martinlof}, we will see the theory in which Agda is built 
+chapter \ref{sec:background:martinlof}, we will see the theory in which Agda is built 
 on top of, and a lot of concepts introduced here will become clearer. 
 Some background on the $\lambda$-calculus and the Curry-Howard isomorphism is
 presented in section \ref{sec:background:lambdacalculus}.
@@ -28,7 +28,7 @@ the programming techniques we need to use in Haskell also apply for an Agda prog
 Knowledge of Haskell is not strictly necessary, but of a great value for a better
 understanting of Agda.\\
 
-The \emph{Hello World} program in Agda is to encode Peano's Natural numbers:\\[.5em]
+The \emph{Hello World} program in Agda is to encode Peano's Natural numbers:
 
 \Agda{Basic}{NAT}
 
@@ -43,10 +43,11 @@ Generalized Algebraic Data Types
 in this data declaration we're stating that \inlagda{Nat} is \emph{of type} 
 \inlagda{Set}. This \inlagda{Set} is the type of types, later on we'll
 see it's formal definition and why it is needed. For now, think of it
-as Haskell's $*$ kind.\\
+as Haskell's $*$ kind.
+
 
 As it was expected, definitions are made by structural induction over the
-data type. Pattern matching is the mechanism of choice here.\\[.5em]
+data type. Pattern matching is the mechanism of choice here.
 
 \Agda{Basic}{PLUS-MUL}
 
@@ -59,13 +60,13 @@ apply a mixfix operator in normal infix form: \inlagda{a + b = \_+\_ a b}.
 \subsection{Propositional Logic, a fragment}
 
 Let us continue our exposition of Agda by encoding some propositional logic. 
-We first need two sets for representing the truth values:\\[.5em]
+We first need two sets for representing the truth values:
 
 \Agda{Basic}{TOP-BOT}
 
 The absurd is modeled as a set with no constructors, therefore no elements. In the theory of types,
 this means that there is no proof for the proposition $\bot$, as expected. Note the definition
-of $\bot-elim$, it's type is, for all sets $A$\footnote{
+of \N{$\bot-elim$}, it's type is, for all sets $A$\footnote{
 %%%%% BEGIN FOOTNOTE
 Implicit parameters are enclosed in brackets, this can be read as universal quantification in
 the type level.
@@ -79,7 +80,7 @@ a right-hand side.
 The top set, $\top$, on the other
 hand, is written as a set with only one constructor, proving $\top$ is trivial. Yet, for reasons that will be clear 
 later, we chose to encode $\top$ as a record with no fields, and therefore only one constructor, \inlagda{record\{\}} in Agda's syntax.
-Following Agda's standard library notation, let's call it \AgdaType{Unit}.
+Following Agda's standard library notation, let's call it \D{Unit}.
 
 \Agda{Basic}{UNIT}
 
@@ -93,7 +94,7 @@ can only be constructed with the \inlagda{<\_,\_>} constructor. The reader famil
 might recognize the following trivial properties:
 
 
-As we shall see in chapter \ref{chap:martinlof}, these properties come for free whenever we introduce 
+As we shall see in section \ref{sec:background:martinlof}, these properties come for free whenever we introduce 
 a new set forming operation, or, a data declaration in Agda. In fact, for each set forming operation $D$
 we have four kinds of rules:
 \begin{enumerate}[i)]
@@ -130,13 +131,13 @@ interesting part right away.
 
 \Agda{Basic}{IN-LIST}
 
-Now, let's look closely to this data. We have a set formin operation \inlagda{In}, that receives
-one implicid parameter $A$ and is indexed by an element of $A$ and a $List A$. Indeed, \inlagda{In\; y\; l}
+Now, let's look closely to this data. We have a set forming operation \D{In}, that receives
+one implicid parameter $A$ and is indexed by an element of $A$ and a $List A$. Indeed, \DArgs{In}{y\; l}
 is the proposition that states that $x$ is an element of $l$. How do we construct such a proof?
-There are two ways of doing so! Either $y$ is in $l$'s head, that's captured by the \inlagda{InHead}
-constructor, or it is in $l$'s tail, and for that we require a proof of such statement, in the \inlagda{InTail}
-constructor. How about the statement \inlagda{In\; y\; []}, which is clearly impossible. It is possible to see,
-just from the types, that we cannot construct such statement. The result of both of \inlagda{In} constructors
+There are two ways of doing so! Either $y$ is in $l$'s head, that's captured by the \IC{InHead}
+constructor, or it is in $l$'s tail, and for that we require a proof of such statement, in the \IC{InTail}
+constructor. How about the statement \DArgs{In}{y\; []}, which is clearly impossible. It is possible to see,
+just from the types, that we cannot construct such statement. The result of both of \IC{In} constructors
 are non-empty list and they are the only constructors we are allowed to use. So, the \emph{non-empty list}
 requirement in the proposition we're trying to prove comes for free.
 
@@ -153,7 +154,7 @@ The proof follows by \emph{induction} on the first list.
 
 \Agda{Basic}{inDistr-1}
 
-If the first list is empty, $[] ++ l_2$ reduces to $l_2$. So, prf has type \inlagda{In\; x\; l_2}, which
+If the first list is empty, $[] ++ l_2$ reduces to $l_2$. So, prf has type \DArgs{In}{x\; l_2}, which
 is just what we need to create a disjunction.
 
 \Agda{Basic}{inDistr-2}
@@ -162,7 +163,7 @@ If it's not empty, though, then it has a head and a tail. Now we have to also pa
 on $prf$. If it says that our element is in the head of our list, the result is also very simple.
 The repetition of the symbol $x$ in the left hand side is allowed as long as all duplicate occurences
 are preceded by a dot. They're called dotted patterns and tell Agda that this is \emph{the only possible}
-value for that pattern. We can see that by reasoning with \inlagda{InHead} type, \inlagda{In\; x\; (x :: l)}. 
+value for that pattern. We can see that by reasoning with \IC{InHead} type, \DArgs{In}{x\; (x :: l)}. 
 So, if $l_1 = (x :: l)$ and we have $prf = In\; x\; (x :: l)$, that is, a proof that $x$ is in $l_1$'s head,
 we can only be looking for $x$. 
 
@@ -171,51 +172,9 @@ we can only be looking for $x$.
 In case our element is not in $l_1$'s head, it might be either in the rest of $l_1$ or it's in $l_2$.
 Note that we pass a \emph{smaller} proof to the recursive call.
 
-
-\subsection{Relational Algebra in Agda}
-
-
 \begin{TODO}
-  \item This should be in another place... too complex
-  \item at chapter (MartinLof) would be cool. We can actually
-        use relational composition as a very nice example of
-        dependent products in practice.
+  \item Conclude this chapter.
 \end{TODO}
-
-
-A very interesting exercise is to encode Relational Algebra\cite{Bird97}, where
-we can truly see the advantage of dependent types in action. Most of the definitions
-happens at the \emph{type level} (remember that there is no difference between types and values in Agda,
-this is just a mnemonic to help understanting the \emph{functions}). The encoding presented
-here is based on \cite{Jansson09}. Only high level introduction will be made in this chapter, whereas
-in chapter \ref{chap:martinlof} we'll delve into more detailed explanations.
-
-A binary relation $R$ of type $A \rightarrow B$ can be thought of in terms of several mathematical objects.
-The usual definition is to say that $R \subseteq A \times B$, where $\cdot\times\cdot$ is the cartesian product of sets.
-In fact, $R$ contains pairs or related elements whose first component is of type $A$ and second component is of type $B$,
-note that it is slightly more general than the concept of a function, where we can have $a R b_1$ and $a R b_2$, which means
-that $(a, b_1) \in R$ and $(a, b_2) \in R$, as a perfectly valid relation, but not a function, since $a$ would be mapped to two different values, $b_1$ and $b_2$.
-
-\newcommand{\powerset}{\mathcal{P}}
-Another way of speaking about relations, though, is to consider functions of type $A \rightarrow \powerset B$.
-If our previous $R$ was in fact a function $f$, we would then have $f\; a = \{b_1, b_2\}$. For the more
-mathematically inclined reader, the arrows $A \rightarrow \powerset B$ in the category \catname{Sets}, of sets and
-functions, correspond to arrows $A \rightarrow B$ in the category \catname{Rel}, of sets and relations. For this matter,
-we actually call \catname{Rel} the Kleisli Category for the monad $\powerset$. 
-
-For our Agda encoding of Relations, we shall use a slight modification of the $\powerset$ approach.
-Let's begin, in fact, by encoding set theoretic notions. The most important of all beeing undoubtly
-the membership notion $\cdot \in \cdot$. One way of encoding a subset of a set $A$ is using a function
-of type $A \rightarrow Bool$, the subset is obtained by $\{ a \in A | f\;a \}$. Yet, in Agda, this would
-force that the deal only with decidable domains, which is not a problem if everything is finite, but
-for infinite domains this would not work. More on that later.
-
-%\begin{agdacode}
-%\begin{code}
-%ℙ : Set → Set1
-%ℙ A = A → Set
-%\end{code}
-%\end{agdacode}
 
 
 

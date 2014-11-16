@@ -64,8 +64,16 @@
 \long\def\ignore#1{}
 
 \newcommand{\inlagda}[1]{$\mathsf{\small #1}$}
-\newcommand{\AgdaType}[1]{#1}
 \newcommand{\catname}[1]{\textbf{#1}}
+
+%% Agda shortcuts
+\newcommand{\D}[1]{\AgdaDatatype{#1}}
+\newcommand{\F}[1]{\AgdaFunction{#1}}
+\newcommand{\K}[1]{\AgdaKeyword{#1}}
+\newcommand{\N}[1]{\AgdaSymbol{#1}}
+\newcommand{\IC}[1]{\AgdaInductiveConstructor{#1}}
+\newcommand{\ICArgs}[2]{\AgdaInductiveConstructor{#1}$\; #2 $}
+\newcommand{\DArgs}[2]{\D{#1}$\; #2 $}
 
 \title{Victor's Thesis Template}
 \author{Victor}
@@ -111,9 +119,13 @@
   \label{sec:background:lambdacalculus}
   \input{text/Background_LambdaCalc}
   
-\chapter{Martin-Löf's Type Theory}
-\label{chap:martinlof}
-\input{text/MartinLof_prelude}
+  \section{Martin-Löf's Type Theory}
+  \label{sec:background:martinlof}
+  \input{text/Background_MartinLof}
+  
+\chapter{Case Study, Relational Algebra}
+\label{chap:relationalalgebra}
+\input{text/RelationalAlgebra_prelude}
   
 \chapter{Notes on Reflection}
 \label{chap:reflection}
