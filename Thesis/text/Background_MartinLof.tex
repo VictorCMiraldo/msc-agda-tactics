@@ -20,8 +20,25 @@ which differs from it's canonical meaning, finishing with a small discussion on 
 and sums operators, which closes the gap to first order logic. The interested reader should continue
 with \cite{nords90} or, for a more practical view, \cite{wouter08,bove2009}
 
+\subsection{Constructive Mathematics}
+\label{subsec:martinlof:constructivemathematics}
+
+The line between Computer Science and Constructive Mathematics is very thin. The primitive object is
+the notion of a function from a set $A$ to a set $B$. Such function can be viewed as a program that,
+when applied to an element $a \in A$ will construct an element $b \in B$. This means that every
+function we use in constructive mathematics are computable. 
+
+Using the constructive mindset to prove things is also very closely related to building a computer program.
+That is, to prove a proposition $\forall x_1,x_2 \in A \; . \; \exists y \in B \; . \; Q(x_1, x_2, y)$ for a given
+predicate $Q$ is to give a function that when applied to two elements $a_1, a_2$ of $A$ will give an element $b$ in $B$
+such that $Q(a_1, a_2, b)$ holds. 
+
 \subsection{Propositions as Sets}
 \label{subsec:martinlof:propositionsassets}
+
+\begin{TODO}
+  \item Cite Heyting's Intuicionism, an Introduction
+\end{TODO}
 
 In classical mathematics, a proposition is thought of as beeing either true or false, it doesn't
 matter if we can prove or disprove it. On a different angle, a proposition is constructively true
@@ -48,12 +65,53 @@ The elements of $A \times B$ are of the form $(a, b)$, where $a \in A$ and $b \i
 
 \newcommand{\ione}{i_1}
 \newcommand{\itwo}{i_2}
-\paragraph{Disjunction,} $A \vee B$, is identified with the disjoint union $A + B$. A proof
+\paragraph{Disjunction,} $A \vee B$ is identified with the disjoint union $A + B$. A proof
 of $A \vee B$ is either a proof of $A$ or a proof of $B$. The elements of $A + B$ are of the
 form $\ione\; a$ and $\itwo\; b$ with $a \in A$ and $b \in B$.
 
 \paragraph{Negation,} $\neg A$, can be identified relying on it's definition
 on the minimal logic, $A \supset \bot$
+
+Until now, we defined propositional logic using sets (types) that are available in almost every
+programming language. In order to handle quantifications, though, we'll need operations defined over a 
+family of sets, possibly \emph{depending} on a given \emph{value}. The intuicionistic explanation
+of the existential quantifier is as follows:
+
+\paragraph{Exists,} $\exists a \in A \; . \; P(a)$ consists of a pair whose first
+component is one element $i \in A$ and whose second component is a proof of $P(i)$. More generally,
+we can identify it with the disjoint union of a family of sets, denoted by $\Sigma(x \in A, B(x))$,
+or just $\Sigma(A, B)$. The elements of $\Sigma(A, B)$ are of the form $(a, b)$ where $a \in A$ and
+$b \in P(a)$.
+
+\paragraph{For all,} $\forall a \in A \; . \; P(a)$ is a function that gives a proof of $P(a)$
+for each $a \in A$ given as input. The correspondent set is the cartesian product of a family
+of sets $\Pi(x \in A, B(x))$. The elements of such set the aforementioned functions. The same
+notation simplification takes place here, and we denote it by $\Pi(A, B)$. The elements of such set
+are of the form $\lambda x\;.\;b(x)$ where $b(x) \in B(x)$ for $x \in A$. 
+
+\subsection{Expressions}
+
+Until now we have identified the sets we'll need to express first order formulas, but we
+did not mention what an expression is. In fact, in the theory of types, and expression is a
+very abstract notion. We can define the set $\mathcal{E}$ of all expressions by induction
+with:
+
+\begin{TODO}
+\item find a better syntax for this guy...
+\end{TODO}
+\begin{mydef}[Expressions]
+\begin{description}
+  \item[Builtin's]
+  
+  \item[Application]
+  
+  \item[Abstraction]
+  
+  \item[Combinations]
+  
+  \item[Selection]
+\end{description}
+\end{mydef}
 
 \begin{TODO}
   \item everything....
