@@ -38,12 +38,12 @@ argListMap f = Data.List.map (argMap f)
 
 -- maps a function over all variables. Usefull for manipulating
 -- DeBruijn indexes.
-{-# NO_TERMINATION_CHECK #-}
+{-# TERMINATING #-}
 varMap : (ℕ → ℕ) → Term → Term
 varMap f (var x args) = var (f x) (argListMap (varMap f) args)
 varMap f (con c args) = con c (argListMap (varMap f) args)
 varMap f (def d args) = def d (argListMap (varMap f) args)
-varMap f (lam v t) = lam v (varMap f t)
+varMap f (lam v t) = lam v (abs ? (varMap f ?))
 varMap f (pat-lam cs args) = pat-lam cs (argListMap (varMap f) args)
 varMap f (pi t₁ t₂) = pi t₁ t₂
 varMap f (sort x) = sort x
@@ -114,7 +114,7 @@ prepLambda (con n l)
   = let l' = argListMap (varMap suc) l
         a0 : List (Arg Term)
         a0 = mkArgVR (var 0 []) ∷ []
-    in lam visible (con n (l' ++ a0))
+    in lam visible (abs ? (con n (l' ++ a0)))
 prepLambda x
   = error "Cannot prepare a lambda on a non-constructor term"
 
@@ -152,3 +152,12 @@ open import Data.Nat using (_≤_)
 shouldFail : (n m : ℕ) → n ≤ m → suc n ≤ suc m
 shouldFail zero m p = N.s≤s p
 shouldFail (suc n) m p = {! tactic rewrWith′ (quoteTerm (shouldFail n m)) !}
+
+---- Context testing
+
+head : ∀{a}{A : Set a} → List A → A
+head [] = error "Head"
+head (x ∷ _) = x
+
+ctxtest1 : ∀{a}{A : Set a} → ℕ → List A → A
+ctxtest1 n l = ?
