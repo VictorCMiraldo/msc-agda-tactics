@@ -4,17 +4,17 @@
 \begin{code}
 data Nat : Set where
   zero : Nat
-  succ : Nat -> Nat
+  succ : Nat → Nat
 \end{code}
 %</NAT>
 
 %<*PLUS-MUL>
 \begin{code}
-_+_ : Nat -> Nat -> Nat
+_+_ : Nat → Nat → Nat
 zero     + m = m
 (succ n) + m = succ (n + m)
 
-_*_ : Nat -> Nat -> Nat
+_*_ : Nat → Nat → Nat
 zero     * _ = zero
 (succ n) * m = m + (n * m)
 \end{code}
