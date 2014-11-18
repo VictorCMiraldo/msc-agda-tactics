@@ -2,7 +2,7 @@ module Rel.Properties where
 
 open import Data.Bool using (Bool; true; false)
 open import Relation.Binary.PropositionalEquality
-open import Data.Product using (_×_; ∃; _,_) renaming (proj₁ to p1; proj₂ to p2)
+open import Data.Product using (_×_; ∃; _,_) renaming (proj₁ to p1; proj₂ to p2; map to _><_)
 open import Data.Sum using (_⊎_; [_,_]) renaming (inj₁ to i1; inj₂ to i2; [_,_]′ to case)
 open import Function using (id; _∘_)
 
@@ -186,3 +186,65 @@ knapking {f = f}{g = g} r a d with ((fun g)ᵒ ∙ r ∙ fun f)
     fun-is-simple _ _ _ bfa b'fa = trans (sym b'fa) bfa
 
 -}
+
+-- Indirect equality testing
+
+open import Rel.Reasoning.SubsetJudgement
+
+∩-assoc : {A B : Set}{R S T : Rel A B}
+        → (R ∩ S) ∩ T ≡i R ∩ (S ∩ T)
+∩-assoc {R = r} {S = s} {T = t} x 
+  = (begin 
+      x ⊆ (r ∩ s) ∩ t 
+
+    ⇐⟨ ∩-uni-r x (r ∩ s) t ⟩ 
+
+      (x ⊆ r ∩ s × x ⊆ t)
+
+    ⇐⟨ ∩-uni-r x r s >< id ⟩
+
+      ((x ⊆ r × x ⊆ s) × x ⊆ t)
+
+    ⇐⟨ ×-assoc-l ⟩
+
+      (x ⊆ r × x ⊆ s × x ⊆ t) 
+
+    ⇐⟨ id >< ∩-uni-l x s t ⟩
+
+      (x ⊆ r × x ⊆ s ∩ t)
+
+    ⇐⟨ ∩-uni-l x r (s ∩ t) ⟩
+
+      x ⊆ r ∩ (s ∩ t)
+
+    ∎)
+  , (begin 
+
+      x ⊆ r ∩ (s ∩ t)
+
+    ⇐⟨ ∩-uni-r x r (s ∩ t) ⟩ 
+
+      (x ⊆ r × x ⊆ s ∩ t)
+
+    ⇐⟨ id >< ∩-uni-r x s t ⟩
+
+      (x ⊆ r × x ⊆ s × x ⊆ t)
+
+    ⇐⟨ ×-assoc-r ⟩ 
+
+      ((x ⊆ r × x ⊆ s) × x ⊆ t) 
+
+    ⇐⟨ ∩-uni-l x r s >< id ⟩
+
+      (x ⊆ r ∩ s × x ⊆ t)
+
+    ⇐⟨ ∩-uni-l x (r ∩ s) t ⟩
+
+      x ⊆ (r ∩ s) ∩ t
+    ∎)
+  where
+    ×-assoc-l : {A B C : Set} → (A × B × C) → (A × B) × C
+    ×-assoc-l (a , b , c) = ((a , b) , c) 
+
+    ×-assoc-r : {A B C : Set} → (A × B) × C → A × B × C
+    ×-assoc-r ((a , b) , c) = (a , b , c)
