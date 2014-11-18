@@ -77,17 +77,27 @@ Rel A B = B → A → Set
 -- Relational Inclusion
 -- Whenever R ⊆ S, it means that ∀a b . a R b ⇒ a S b
 infix 6 _⊆_
+
+{-
 _⊆_ : {A B : Set} → Rel A B → Rel A B → Set
 R ⊆ S = ∀ b a → R b a → S b a
+-}
+data _⊆_ {A B : Set}(R S : Rel A B) : Set where
+  ⊆in : (∀ a b → R b a → S b a) → R ⊆ S
+
+⊆out : {A B : Set}{R S : Rel A B}
+     → R ⊆ S → (∀ a b → R b a → S b a)
+⊆out (⊆in f) = f
 
 -- Inclusion is reflexive
 ⊆-refl : {A B : Set}{R : Rel A B} → R ⊆ R
-⊆-refl _ _ bRa = bRa
+⊆-refl = ⊆in (λ _ _ → id)
 
 -- And transitive
 ⊆-trans : {A B : Set}{R S T : Rel A B}
         → R ⊆ S → S ⊆ T → R ⊆ T
-⊆-trans rs st b a bRa = st b a (rs b a bRa)
+⊆-trans (⊆in rs) (⊆in st) 
+  = ⊆in (λ a b bRa → st a b (rs a b bRa))
 
 -- Relational Union
 infix 8 _∪_
@@ -103,30 +113,31 @@ _∩_ : {A B : Set} → Rel A B → Rel A B → Rel A B
 ∪-uni-l : {A B : Set}(X R S : Rel A B)
         → R ∪ S ⊆ X 
         → (R ⊆ X) × (S ⊆ X)
-∪-uni-l x r s hip 
-        = (λ b a bRa → hip b a (i1 bRa)) 
-        , (λ b a bSa → hip b a (i2 bSa)) 
+∪-uni-l x r s (⊆in hip) 
+        = ⊆in (λ b a bRa → hip b a (i1 bRa)) 
+        , ⊆in (λ b a bSa → hip b a (i2 bSa)) 
 
 ∪-uni-r : {A B : Set}(X R S : Rel A B)
         → (R ⊆ X) × (S ⊆ X)
         → R ∪ S ⊆ X
 ∪-uni-r x r s hip 
-        = λ { b a (i1 bRa) → p1 hip b a bRa
-            ; b a (i2 bSa) → p2 hip b a bSa
-            }
+        = ⊆in λ { b a (i1 bRa) → ⊆out (p1 hip) b a bRa
+                ; b a (i2 bSa) → ⊆out (p2 hip) b a bSa
+                }
 
 -- Intersection Universal
 ∩-uni-l : {A B : Set}(X R S : Rel A B)
         → X ⊆ R ∩ S
         → (X ⊆ R) × (X ⊆ S)
-∩-uni-l x r s hip 
-        = (λ b a bXa → p1 (hip b a bXa))
-        , (λ b a bXa → p2 (hip b a bXa))
+∩-uni-l x r s (⊆in hip) 
+        = ⊆in (λ b a bXa → p1 (hip b a bXa))
+        , ⊆in (λ b a bXa → p2 (hip b a bXa))
 
 ∩-uni-r : {A B : Set}(X R S : Rel A B)
         → (X ⊆ R) × (X ⊆ S)
         → X ⊆ R ∩ S
-∩-uni-r x r s (x⊆r , x⊆s) = λ b a bXa → x⊆r b a bXa , x⊆s b a bXa
+∩-uni-r x r s (x⊆r , x⊆s) 
+  = ⊆in (λ b a bXa → (⊆out x⊆r) b a bXa , (⊆out x⊆s) b a bXa)
 
 ---------------------
 -- * Composition * --
@@ -152,7 +163,7 @@ fun f b a = f a ≡ b
 -- We can prove that function composition distributes over functional lifting.
 fun-comp : {A B C : Set} {f : B → C} {g : A → B}
          → fun (f ∘ g)  ⊆  fun f ∙ fun g
-fun-comp {g = g} c a fga = g a , fga , refl
+fun-comp {g = g} = ⊆in (λ a _ fga → g a , fga , refl)
 
 -------------------
 -- * Constants * --
