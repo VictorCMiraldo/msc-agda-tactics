@@ -38,19 +38,19 @@ coprod-uni-r1 : ∀{A B C}{X : Rel (A ⊎ B) C}
               → (R : Rel A C) → (S : Rel B C)
               → (X ≡r either R S) 
               → R ≡r X ∙ ι₁
-coprod-uni-r1 {X = X} r s prf
-  = (λ c a hip → i1 a , ≡r-elim2 prf c (i1 a) hip , refl) 
-  , (λ c a hip → let wit , hprf = hip
-                 in ≡r-elim1 prf c (i1 a) (subst (X c) (sym (p2 hprf)) (p1 hprf)))
+coprod-uni-r1 {X = X} r s (prf1 , prf2)
+  = ⊆in (λ a c hip → i1 a , (⊆out prf2) (i1 a) c hip , refl) 
+  , ⊆in (λ a c hip → let wit , hprf = hip
+                     in (⊆out prf1) (i1 a) c (subst (X c) (sym (p2 hprf)) (p1 hprf)))
 
 coprod-uni-r2 : ∀{A B C}{X : Rel (A ⊎ B) C}
               → (R : Rel A C) → (S : Rel B C)
               → (X ≡r either R S) 
               → S ≡r X ∙ ι₂
-coprod-uni-r2 {X = X} r s prf
-  = (λ c b hip → i2 b , ≡r-elim2 prf c (i2 b) hip , refl)
-  , (λ c b hip → let wit , hprf = hip 
-                 in ≡r-elim1 prf c (i2 b) (subst (X c) (sym (p2 hprf)) (p1 hprf)))
+coprod-uni-r2 {X = X} r s (prf1 , prf2)
+  = ⊆in (λ b c hip → i2 b , (⊆out prf2) (i2 b) c hip , refl)
+  , ⊆in (λ b c hip → let wit , hprf = hip 
+                     in (⊆out prf1) (i2 b) c (subst (X c) (sym (p2 hprf)) (p1 hprf)))
 
 -- The left proof will be provided by two auxiliary proofs, since it is a big one.
 --
@@ -61,9 +61,9 @@ coprod-uni-l-aux1 : ∀{A B C}{X : Rel (A ⊎ B) C}
                   → (R ≡r X ∙ ι₁) → (S ≡r X ∙ ι₂)
                   → X ⊆ either R S
 coprod-uni-l-aux1  {X = X} r s pr ps
-  = λ { c (i1 a) hip → (≡r-elim2 pr) c a (coprod-lemma-i1 {X = X} a c hip)
-      ; c (i2 b) hip → (≡r-elim2 ps) c b (coprod-lemma-i2 {X = X} b c hip)
-      }
+  = ⊆in λ { (i1 a) c hip → (⊆out (≡r-elim2 pr)) a c (coprod-lemma-i1 {X = X} a c hip)
+          ; (i2 b) c hip → (⊆out (≡r-elim2 ps)) b c (coprod-lemma-i2 {X = X} b c hip)
+          }
   where
     coprod-lemma-i1 : ∀{A B C}{X : Rel (A ⊎ B) C}
                     → (a : A) → (c : C)
@@ -77,6 +77,7 @@ coprod-uni-l-aux1  {X = X} r s pr ps
                     → (X ∙ ι₂) c b
     coprod-lemma-i2 b c cXi2b = i2 b , cXi2b , refl
 
+
 -- Right implication
 --
 coprod-uni-l-aux2 : ∀{A B C}{X : Rel (A ⊎ B) C}
@@ -84,11 +85,11 @@ coprod-uni-l-aux2 : ∀{A B C}{X : Rel (A ⊎ B) C}
                   → (R ≡r X ∙ ι₁) → (S ≡r X ∙ ι₂)
                   → either R S ⊆ X
 coprod-uni-l-aux2 {X = X} r s pr ps
-  = λ { c (i1 a) hip → let aux = ≡r-elim1 pr c a hip
-                       in subst (X c) (sym (p2 (p2 aux))) (p1 (p2 aux))
-      ; c (i2 b) hip → let aux = ≡r-elim1 ps c b hip
-                       in subst (X c) (sym (p2 (p2 aux))) (p1 (p2 aux))
-      }
+  = ⊆in λ { (i1 a) c hip → let aux = (⊆out (≡r-elim1 pr)) a c hip
+                           in subst (X c) (sym (p2 (p2 aux))) (p1 (p2 aux))
+          ; (i2 b) c hip → let aux = (⊆out (≡r-elim1 ps)) b c hip
+                           in subst (X c) (sym (p2 (p2 aux))) (p1 (p2 aux))
+          }
 
 -- And, finally, the universal.
 coprod-uni-l : ∀{A B C}{X : Rel (A ⊎ B) C}
@@ -96,3 +97,4 @@ coprod-uni-l : ∀{A B C}{X : Rel (A ⊎ B) C}
              → (R ≡r X ∙ ι₁) → (S ≡r X ∙ ι₂)
              → X ≡r either R S
 coprod-uni-l r s pr ps = ≡r-intro (coprod-uni-l-aux1 r s pr ps) (coprod-uni-l-aux2 r s pr ps)
+
