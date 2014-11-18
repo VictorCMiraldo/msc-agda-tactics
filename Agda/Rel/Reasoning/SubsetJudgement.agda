@@ -67,9 +67,9 @@ open Pre ⇐-Preorder public renaming (_∼⟨_⟩_ to _⇐⟨_⟩_)
 -- side of our inclusion
 subst-r : {A B : Set}{R S S' : R A B}
         → S' ≡r S → R ⊆ S → R ⊆ S'
-subst-r (_ , ss') rs b a bRa = ss' b a (rs b a bRa)
+subst-r (_ , ss') rs = ⊆-trans rs ss' 
 
 
 subst-l : {A B : Set}{R R' S : R A B}
         → R' ≡r R → R ⊆ S → R' ⊆ S
-subst-l (r'r , _) rs b a bR'a = rs b a (r'r b a bR'a)
+subst-l (r'r , _) rs = ⊆-trans r'r rs

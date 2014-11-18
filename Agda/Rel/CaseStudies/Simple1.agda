@@ -82,22 +82,22 @@ div2-twice-cancel (suc (suc b)) so
   = cong (λ x → suc (suc x)) (div2-twice-cancel b so)
 
 evenLemma1 : ρ twiceR ⊆ evenR
-evenLemma1 b b' bTb 
-  = let a = p1 (p1 bTb)
+evenLemma1 = ⊆in (λ b' b bTb 
+  → let a = p1 (p1 bTb)
     in sym (p2 bTb) , evenLemma1Aux a b (p1 (p2 (p1 bTb)))
-  where 
+  ) where 
     evenLemma1Aux : (a : ℕ) → (b : ℕ) → twice a ≡ b → So (even b)
     evenLemma1Aux a b a*2≡b 
       rewrite sym a*2≡b
       | twiceEven a = unit
 
 evenLemma2 : evenR ⊆ ρ twiceR
-evenLemma2 b b' bEvena 
-  = let evenb = p2 bEvena
+evenLemma2 = ⊆in (λ  b' b bEvena 
+  → let evenb = p2 bEvena
         a , btwicea = evenLemma2Aux b evenb
     in (a , btwicea , subst (λ x → twice a ≡ x) (p1 bEvena) btwicea) 
       , sym (p1 bEvena)
-  where
+  ) where
     evenLemma2Aux : (b : ℕ) → So (even b) 
                   → ∃ (λ x → twiceR b x)
     evenLemma2Aux b so with div2 b so | div2-twice-cancel b so
@@ -155,15 +155,3 @@ goalTest1 R
   ∎
 
 
-goalTest2 : {A B : Set}(R S : Rel A B)(f : A → A)
-          → (R ⊆ S) ⇐ (R ∙ (fun f) ⊆ S ∙ (fun f))
-goalTest2 R S f
-  = begin
-    R ⊆ S
-  ⇐⟨ ≡r-subst (λ x → R ⊆ x) (≡r-sym (∙-id-r S)) ⟩
-    R ⊆ S ∙ Id
-  ⇐⟨ ⊆-upper-bound (∙-monotony (⊆-refl , ᵒ-fun-identity-r)) ⟩
-    R ⊆ S ∙ fun f ∙ fun f ᵒ
-  ⇐⟨ {!shunting-r-2!} ⟩
-    R ∙ fun f ⊆ S ∙ fun f
-  ∎
