@@ -62,6 +62,7 @@ R ≡r S = (R ⊆ S) × (S ⊆ R)
 -- Another option is to define relational equality using indirect equality.
 --
 -- As we would expect, this is also an equivalence relation.
+infix 6 _≡i_
 _≡i_ : {A B : Set} → Rel A B → Rel A B → Set1
 r ≡i s = ∀ x → (x ⊆ s → x ⊆ r) × (x ⊆ r → x ⊆ s)
 
