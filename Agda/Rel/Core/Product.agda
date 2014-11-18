@@ -33,37 +33,37 @@ prod-uni-r1 : ∀{A B C} → {X : Rel C (A × B)}
              → (R : Rel C A) → (S : Rel C B)
              → X ⊆ ⟨ R , S ⟩
              → π₁ ∙ X ⊆ R
-prod-uni-r1 {X = X} r s prf
-  = λ a c hip →
-    let wita , witb  = p1 hip -- the pair witnessing the composition. 
-        aπ₁ab , abXc = p2 hip
-        k = pair-lemma-l (p1 hip) a aπ₁ab
-    in p1 (prf (a , witb) c (subst (λ x → X x c) k abXc))
-  where
+prod-uni-r1 {X = X} r s (⊆in prf)
+  = ⊆in (λ c a hip →
+         let wita , witb  = p1 hip -- the pair witnessing the composition. 
+             aπ₁ab , abXc = p2 hip
+             k = pair-lemma-l (p1 hip) a aπ₁ab
+         in p1 (prf c (a , witb) (subst (λ x → X x c) k abXc))
+  ) where
     pair-lemma-l : {A B : Set} → (h : A × B) → (x : A) → p1 h ≡ x → h ≡ (x , p2 h)
     pair-lemma-l h .(p1 h) refl = refl
+
 
 prod-uni-r2 : ∀{A B C} → {X : Rel C (A × B)}
             → (R : Rel C A) → (S : Rel C B)
             → X ⊆ ⟨ R , S ⟩
             → π₂ ∙ X ⊆ S
-prod-uni-r2 {X = X} r s prf
-  = λ b c hip → 
-    let wita , witb  = p1 hip 
-        bπ₂ab , abXc = p2 hip
-        k = pair-lemma-r (p1 hip) b bπ₂ab
-    in p2 (prf (wita , b) c (subst (λ x → X x c) k abXc))
-  where
+prod-uni-r2 {X = X} r s (⊆in prf)
+  = ⊆in (λ c b hip → 
+         let wita , witb  = p1 hip 
+             bπ₂ab , abXc = p2 hip
+             k = pair-lemma-r (p1 hip) b bπ₂ab
+         in p2 (prf c (wita , b) (subst (λ x → X x c) k abXc))
+  ) where
     pair-lemma-r : {A B : Set} → (h : A × B) → (x : B) → p2 h ≡ x → h ≡ (p1 h , x)
     pair-lemma-r h .(p2 h) refl = refl
+
 
 prod-uni-l : ∀{A B C} → {X : Rel C (A × B)}
            → (R : Rel C A) → (S : Rel C B)
            → (π₁ ∙ X) ⊆ R → (π₂ ∙ X) ⊆ S
            → X ⊆ ⟨ R , S ⟩
 prod-uni-l {X = X} r s pr ps 
-  = λ ab c hip →
-    let a , b = ab
-    in pr a c (ab , refl , hip) , ps b c (ab , refl , hip)
-
-
+  = ⊆in (λ c ab hip →
+         let a , b = ab
+         in (⊆out pr) c a (ab , refl , hip) , (⊆out ps) c b (ab , refl , hip))
