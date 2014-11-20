@@ -1,9 +1,9 @@
 module Rel.Core.Equality where
 
 open import Relation.Binary.PropositionalEquality
-open import Data.Product using (_×_; ∃; _,_) renaming (proj₁ to p1; proj₂ to p2)
+open import Data.Product using (_×_; ∃; _,_; uncurry) renaming (proj₁ to p1; proj₂ to p2)
 open import Rel.Core.Core
-open import Function using (id)
+open import Function using (id; flip)
 
 -- We can define relational equality in terms of inclusion.
 infix 6 _≡r_
@@ -39,24 +39,47 @@ R ≡r S = (R ⊆ S) × (S ⊆ R)
       → R ⊆ S → S ⊆ R → R ≡r S
 ≡r-intro p1 p2 = p1 , p2
 
+---------------------------------------------------------------
+-- Relation Extensionality
+
+-- This promotion rule is a tricky one. TODO: I strongly believe
+-- that I can prove this using some extensional equality whichcraft.
+≡r-promote : {A B : Set}{R S : Rel A B}
+             → R ≡r S → R ≡ S
+≡r-promote {R = R} {S = S} (⊆in rs , ⊆in sr)
+  = Λ-ext (λ a → ℙ-ext (flip R a) (flip S a) (rs a) (sr a))
+  where
+    -- power transpose
+    Λ_ : {A B : Set}(R : Rel A B) → A → ℙ B
+    Λ R = λ a b → R b a 
+
+    postulate
+      -- We can say that two relations are equal if their
+      -- power transpose for any given a is the same set.
+      Λ-ext : {A B : Set}{R S : Rel A B}
+            → (∀ a → (Λ R) a ≡ (Λ S) a)
+            → R ≡ S
+
+      -- Beeing the same set, however, is having the same elements.
+      -- Since in our scenario, the set (r x) beeing inhabited only
+      -- means that x is an element of r (with our encoding of sets).
+      -- so, to prove equality, we can boil down to saying that
+      -- it's enough for r and s to be inhabited at the same time.
+      ℙ-ext : {A : Set}(s1 s2 : ℙ A)
+            → (∀ x → s1 x → s2 x)
+            → (∀ x → s2 x → s1 x)
+            → s1 ≡ s2     
+
+      -- note: this is some sort of cheap way out, though. In the end, since 
+      --       I'm assuming traditional set equality to be part of Agda's equality,
+      --       of course I'll be able to prove relational equality, which is
+      --       set equality over pairs.
+
 -- Substitution. 
--- 
--- This is tricky. I believe that I can safely add the ≡r-promote postulate
--- since once I have a proof that relations R and S are the same relation,
--- I can argue that they'll eventually reduce to the same value.
 --
--- It is hard to prove R ≡r S → R ≡ S direcly mostly because of
--- extensionality. 
---
--- We chose to leave this postulate hidden from the user, so, to work
--- with relations he only needs Rel.Core.Equality and no equality from
--- the standard library.
 ≡r-subst : {A B : Set}(P : Rel A B → Set){R S : Rel A B} 
          → R ≡r S → P R → P S
 ≡r-subst p rs pr = subst p (≡r-promote rs) pr
-  where 
-    postulate
-      ≡r-promote : {A B : Set}{R S : Rel A B} → R ≡r S → R ≡ S
 
 
 -- Another option is to define relational equality using indirect equality.
@@ -81,13 +104,15 @@ r ≡i s = ∀ x → (x ⊆ s → x ⊆ r) × (x ⊆ r → x ⊆ s)
     in (λ xt → xsxr (xtxs xt)) 
      , (λ xr → xsxt (xrxs xr))
 
+-----------------------------------------------------------------------
+-- Equality Conversion
+
 -- And we can easily convert between the two definitions!
 ≡-itor : {A B : Set}{R S : Rel A B}
        → R ≡i S → R ≡r S
 ≡-itor {R = R} {S = S} rs 
   = p2 (rs R) ⊆-refl 
   , p1 (rs S) ⊆-refl
-
 
 ≡-rtoi : {A B : Set}{R S : Rel A B}
        → R ≡r S → R ≡i S
