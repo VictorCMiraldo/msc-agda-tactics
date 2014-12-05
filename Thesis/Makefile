@@ -14,6 +14,7 @@ TEXT_PARTS=Agda_prelude \
            Background_prelude \
            Background_LambdaCalc \
            Background_MartinLof \
+           RelationalAlgebra_prelude \
            Problem \
            Intro \
            Reflection_prelude
@@ -24,8 +25,11 @@ CODE_AGDA_SRC=$(CODE_AGDA_ROOT)/src
 CODE_AGDA_EXCERPTS=$(CODE_AGDA_ROOT)/excerpts
 CODE_AGDA_STY=./agda.sty
 CODE_AGDA_STDLIB=/home/victor/Documents/UU/Thesis/agda-stdlib/src
+CODE_AGDA_REL=/home/victor/Documents/UU/Thesis/msc-agda-tactics/Agda
 
-CODE_AGDA_MODULES=Basic
+CODE_AGDA_MODULES=Basic\
+                  CaseStudy1\
+                  RelationsCore
 
 COMPILER=pdflatex -etex
 
@@ -44,7 +48,7 @@ force:
 
 $(CODE_AGDA_EXCERPTS)/%.tex: $(CODE_AGDA_SRC)/%.lagda
 	$(DIRGUARD); agda --allow-unsolved-metas -i $(CODE_AGDA_STDLIB) -i $(CODE_AGDA_SRC) \
-		--latex-dir=$(CODE_AGDA_EXCERPTS) --latex $<
+		-i $(CODE_AGDA_REL) --latex-dir=$(CODE_AGDA_EXCERPTS) --latex $<
 
 bib: $(REFERENCES)
 	rm -f thesis.bbl

@@ -75,6 +75,10 @@
 \newcommand{\ICArgs}[2]{\AgdaInductiveConstructor{#1}$\; #2 $}
 \newcommand{\DArgs}[2]{\D{#1}$\; #2 $}
 
+%for some reasons, LaTeX does not like unicode chars outside math mode.
+%therefore we have to define them here.
+\newcommand{\textrho}{$\rho$}
+
 \title{Victor's Thesis Template}
 \author{Victor}
 
@@ -123,7 +127,7 @@
   \label{sec:background:martinlof}
   \input{text/Background_MartinLof}
   
-\chapter{Case Study, Relational Algebra}
+\chapter{Relational Algebra in Agda}
 \label{chap:relationalalgebra}
 \input{text/RelationalAlgebra_prelude}
   
