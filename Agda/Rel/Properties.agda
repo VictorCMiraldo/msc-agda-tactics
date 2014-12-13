@@ -49,8 +49,8 @@ Bot⊆R = ⊆in (λ _ _ → λ ())
         → R ≡r ρ R ∙ R
 ρ-intro r 
         = ⊆in (λ a b bRa → b , ((a , bRa , bRa) , refl) , bRa)
-        , ⊆in (λ a b bρRRa → subst (λ x → r x a) (p2 (p1 (p2 bρRRa))) (p2 (p2 bρRRa)))
-  
+        , ⊆in (λ a b bρRRa → subst (λ x → r x a) (p2 (p1 (p2∙ bρRRa))) (p2 (p2∙ bρRRa)))
+
 ----------------------
 -- * Composition  * --
 ----------------------
@@ -79,20 +79,20 @@ Bot⊆R = ⊆in (λ _ _ → λ ())
        → R ≡r Id ∙ R
 ∙-id-l {R = R}
        = ⊆in (λ a b bRa → b , refl , bRa) 
-       , ⊆in (λ a b bIdRa → subst (λ x → R x a) (p1 (p2 bIdRa)) (p2 (p2 bIdRa)))
+       , ⊆in (λ a b bIdRa → subst (λ x → R x a) (p1 (p2∙ bIdRa)) (p2 (p2∙ bIdRa)))
 
 -- Id is right neutral
 ∙-id-r : ∀{A B}(R : Rel A B)
        → R ≡r R ∙ Id
 ∙-id-r R = ⊆in (λ a b bRa → a , bRa , refl)
-         , ⊆in (λ a b bRIda → subst (R b) (sym (p2 (p2 bRIda))) (p1 (p2 bRIda)))
+         , ⊆in (λ a b bRIda → subst (R b) (sym (p2 (p2∙ bRIda))) (p1 (p2∙ bRIda)))
 
 ∙-monotony : ∀{A B C}{S T : Rel B C}{Q R : Rel A B}
            → (S ⊆ T) × (Q ⊆ R) → S ∙ Q ⊆ T ∙ R
 ∙-monotony (⊆in s⊆t , ⊆in q⊆r) = ⊆in (λ a c bSQa
-  → let b   = p1 bSQa
-        cSb = p1 (p2 bSQa)
-        bQa = p2 (p2 bSQa)
+  → let b   = p1∙ bSQa
+        cSb = p1 (p2∙ bSQa)
+        bQa = p2 (p2∙ bSQa)
     in b , s⊆t b c cSb , q⊆r a b bQa)
 
 
@@ -112,10 +112,10 @@ shunting-l-2 : ∀{A B C}{R : Rel A B}{f : B → C}{S : Rel A C}
              → (fun f) ∙ R ⊆ S
 shunting-l-2 {f = f}{S = S} (⊆in hip)
   = ⊆in (λ a c bfRa →
-         let aux = hip a (p1 bfRa) (p2 (p2 bfRa))
-             r   = p2 (p2 aux)
+         let aux = hip a (p1∙ bfRa) (p2 (p2∙ bfRa))
+             r   = p2 (p2∙ aux)
          in subst (λ k → S k a) (
-             subst (λ x → x ≡ c) (p1 (p2 aux)) (p1 (p2 bfRa))
+             subst (λ x → x ≡ c) (p1 (p2∙ aux)) (p1 (p2∙ bfRa))
             ) r
          )
 
@@ -130,10 +130,10 @@ shunting-r-2 : ∀{A B C}{R : Rel A B}{f : A → C}{S : Rel C B}
              → R ∙ (fun f)ᵒ ⊆ S
 shunting-r-2 {f = f}{S = S} (⊆in hip) 
   = ⊆in (λ c b bRfa →
-         let aux = hip (p1 bRfa) b (p1 (p2 bRfa))
-             r   = p1 (p2 aux)
+         let aux = hip (p1∙ bRfa) b (p1 (p2∙ bRfa))
+             r   = p1 (p2∙ aux)
          in subst (S b) (
-                  subst (λ x → x ≡ c) (p2 (p2 aux)) (p2 (p2 bRfa))
+                  subst (λ x → x ≡ c) (p2 (p2∙ aux)) (p2 (p2∙ bRfa))
             ) r
          )
 
@@ -144,14 +144,14 @@ shunting-r-2 {f = f}{S = S} (⊆in hip)
 ᵒ-distr : ∀{A B C}{R : Rel A B}{S : Rel B C}
           → (S ∙ R) ᵒ ≡r R ᵒ ∙ S ᵒ
 ᵒ-distr 
-  = ⊆in (λ c a bSRoa → p1 bSRoa , p2 (p2 bSRoa) , p1 (p2 bSRoa))
-  , ⊆in (λ c a bSoRoa → p1 bSoRoa , p2 (p2 bSoRoa) , p1 (p2 bSoRoa))
+  = ⊆in (λ c a bSRoa → p1∙ bSRoa , p2 (p2∙ bSRoa) , p1 (p2∙ bSRoa))
+  , ⊆in (λ c a bSoRoa → p1∙ bSoRoa , p2 (p2∙ bSoRoa) , p1 (p2∙ bSoRoa))
 
 
 ᵒ-fun-identity-r : {A B : Set}{f : A → B}
                  → (fun f) ∙ (fun f)ᵒ ⊆ Id
 ᵒ-fun-identity-r {f = f}
-  = ⊆in (λ b' b hip → fun-is-simple {f = f} (p1 hip) b b' (p1 (p2 hip)) (p2 (p2 hip)))
+                 = ⊆in (λ b' b hip → fun-is-simple {f = f} (p1∙ hip) b b' (p1 (p2∙ hip)) (p2 (p2∙ hip)))
   where
     fun-is-simple : {A B : Set}{f : A → B}(a : A)(b b' : B)
                   → (fun f) b a → (fun f) b' a → id b' ≡ b
