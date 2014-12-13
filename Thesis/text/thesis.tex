@@ -35,6 +35,8 @@
   \end{itemize}
 }
 
+\newcommand{\warnme}[1]{{\color{red} \textbf{$[$} #1 \textbf{$]$}}}
+
 % empty env, maybe later we can add some style to it.
 \newenvironment{agdacode}{%
 \vspace{.5em}
@@ -63,8 +65,12 @@
 
 \long\def\ignore#1{}
 
+%% Notation
 \newcommand{\inlagda}[1]{$\mathsf{\small #1}$}
 \newcommand{\catname}[1]{\textbf{#1}}
+
+%%%% Relational Notation
+\newcommand{\releq}{\equiv_r}
 
 %% Agda shortcuts
 \newcommand{\D}[1]{\AgdaDatatype{#1}}
@@ -78,6 +84,11 @@
 %for some reasons, LaTeX does not like unicode chars outside math mode.
 %therefore we have to define them here.
 \newcommand{\textrho}{$\rho$}
+\newcommand{\textLambda}{$\Lambda$}
+
+% And some others that actually require the unicode declaration
+\DeclareUnicodeCharacter {10627}{\{\hspace {-.2em}[}
+\DeclareUnicodeCharacter {10628}{]\hspace {-.2em}\}}
 
 \title{Victor's Thesis Template}
 \author{Victor}

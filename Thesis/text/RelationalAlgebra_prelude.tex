@@ -8,6 +8,18 @@ reasoning about software, in an equational fashion. Relational Algebra is in fac
 allows us to speak of software engineering through unambiguous equations, giving a definite meaning
 to the \emph{engineering} part of software engineering.
 
+In this chapter we will introduce a basic encoding for relations, then we'll discuss several 
+further options that would change the handling of equality, which turned out to be a very
+delicate matter. The problem imposed by Agda's (intensional) equality is that it implies
+convertibility. As we shall see later, we don't really care about convertibility of relations,
+but that they're inhabited at the same time. We can borrow some notions from Homotopy Type Theory\cite{hottbook}
+in order to hardcode a proof irrelevance notion, but this adds a very complex layer of boilerplate
+code for the end-user. Another option is to postulate some axioms that will allow us to \emph{trick}
+Agda's equality, beeing always carefull not to introduce a contradiction. 
+There are a lot of options for this later case too, we shall discuss a few of them.
+
+\section{Encoding Relations}
+
 Unlike most programming languages, an encoding of Relational Algebra in a dependently typed 
 language allows one to truly see the advantage of dependent types in action. Most of the definitions
 happens at the \emph{type level} (remember that there is no difference between types and values in Agda,
@@ -26,6 +38,9 @@ If our previous $R$ was in fact a function $f$, we would then have $f\; a = \{b_
 mathematically inclined reader, the arrows $A \rightarrow \powerset B$ in the category \catname{Sets}, of sets and
 functions, correspond to arrows $A \rightarrow B$ in the category \catname{Rel}, of sets and relations. For this matter,
 we actually call \catname{Rel} the Kleisli Category for the monad $\powerset$. 
+In fact, we can even define the powerset transpose of a relation $R$, which is a function that for each $a$
+returns the subset of $B$ that is related to $a$ trough $R$.
+\[ (\Lambda\; R)\; a = \{ b \in B \;\mid\; b\;R\;a \} \]
 
 For our Agda encoding of Relations, we shall use a slight modification of the $\powerset$ approach.
 Let's begin, in fact, by encoding set theoretic notions. The most important of all beeing undoubtly
@@ -51,20 +66,228 @@ statement from left to right, that is, $y\;R\;x$ means that $(x, y) \in R$.
                          & = & B \times A \rightarrow \D{Set}\\
                          & = & B \rightarrow A \rightarrow \D{Set}
 \end{eqnarray*}
-Or, in Agda:
+
+Here we present the the base encoding for relations in Agda, together with a few constructs
+to help in their definition and to illustrate usage.
 
 \Agda{RelationsCore}{relation-def}
 
-Now we need to specify constructions that will allow us to define our relations. A couple simple
-ones are:
-
-\Agda{RelationsCore}{first-constructs}
-
-And they're defined just as we would expect them. Note that \D{\_⊎\_} represents a disjoin union of sets
+And the operations are defined just as we would expect them. Note that \D{\_⊎\_} represents a disjoin union of sets
 (equivalent to Either in Haskell) and \D{\_×\_} represents the usual cartesian product. The function
 lifting might look like the less intuitive construction, but it's a very simple one. $fun\;f$ is a relation,
 therefore it takes a $b$ and a $a$ and should return a type that is inhabited if and only if $(a, b) \in fun\;f$,
-or, to put it another way, if $b = f\;a$, almost like it's textbook definition. The difference is in
-Agda's propositional equality operator: \D{\_≡\_}.  
+or, to put it another way, if $b = f\;a$, almost like it's textbook definition.
+
+\begin{TODO}
+  \item Fix the definition of composition in the library. Explain it here.
+  \item Add a few universals. Explain how we're taking the road in the "wrongway".
+        We first give a definition then we prove it satisfies the universals, instead
+        of using universals as definitions.
+  \item Explain Agda's propositional equality?
+\end{TODO}
+
+\section{Relational Equality}
+
+A notion of convertibility is paramount to any form of rewriting. In out scenario, whenever
+two relations are equal, we can substitute them back and forth in a given equation. There are
+a couple different, but equivalent notions of equality. The simplest one is borrowed from set
+theory.\\
+
+\begin{mydef}[Relation Inclusion]
+Let $R$ and $S$ be suitably typed binary relations, we say that $R \subseteq S$ 
+if and only if for all $a , b$, if $b\;R\;a$ then $b\;S\;a$.\\
+\end{mydef}
+
+\begin{mydef}[Relational Equality]
+Let $R$ and $S$ be as before, we say that $R \releq S$ if and only if
+$R \subseteq S$ and $S \subseteq R$.\\
+\end{mydef}
+
+\begin{lemma}
+Relation Inclusion is a partial order, that is, $\subseteq$ is reflexive, transitive and anti-symmetric.
+And $\releq$ is an equivalence relation (reflexive, transitive and symmetric).\\
+\end{lemma}
+
+So far so good, at first sight one would believe that there are no problems with such definitions
+(and in fact there won't be any problem as long as we keep away from Agda, but then it wouldn't be fun, right?). 
+Ignore the boilerplate code, we wraped both definitions
+as datatypes in Agda to prevent expansion when using reflection.
+
+\Agda{RelationsCore}{subrelation}
+
+Allow us to take a deeper look into what this definition say, though. 
+Let $R : \D{Rel}\;A\;B$, for $A$ and $B$ \D{Set}s, $a : A$ and $b : B$. When we
+state $R\;b\;a$ we're obtaining a \D{Set}, and an element $r : R\;b\;a$ represents
+a proof that $b$ is related to $a$ trough $R$. We have no interest in the contents of
+such proof though, it's existence is what matters. In more formal terms, we would like
+that $\D{Rel}$ returned a proof irrelevant set. In Coq this would be \texttt{\small Prop}, but
+Agda has no set of propositions.
+
+We can see such problem comming to the surface if we try to use Agda's propositional equality 
+instead of $\releq$ (and hence the name distinction):
+
+\Agda{RelationsCore}{releq-is-not-propeq}
+
+We have to use functional extensionality anyway (here, disguised as \F{rel-ext}). But the 
+type of our goal is $R\;b\;a \equiv S\;b\;a$ and the proof get stuck since set equality is
+undecidable \warnme{is it? Be sure!}. We infact just want $R$ and $S$ to be inhabited at
+the same time.
+
+So, it's clear that we also need some encoding of $\releq$:
+
+\Agda{RelationsCore}{releq}
+
+But this definition is not substitutive in Agda. Therefore we need to lift it to
+a substitutive definition. In fact, it is safe to lift it to the standard propositional equality.
+The advantages of doing so are that we win all of the functionality to work with $\equiv$ for free.
+
+The solution we're currently adopting relies on using yet another disguised version of
+function extensionality (here as powerset transpose extensionality) 
+and postulating the proof-irrelevant notion of set equality (as in Set Theory):
+
+\Agda{RelationsCore}{releq-lifting}
+
+The powerset transpose postulate is pretty much function-extensionality with some syntatic sugar, and it is
+known to not introduce any contractiction. But $ℙ-ext$ on the other hand, have to be justified.
+The reason for such postulate is just because somewhere in our library, we gotta have a notion
+of proof-irrelevance to be able to state relational equality. As we'll discuss in the next section,
+there are a couple places were we can insert this notion, but postulating it at the subsets ($ℙ$) level is
+by far the easier to handle and introduces the least amount of boilerplate code. (Remember that
+if $a$ is a subset of $A$, that is $a : ℙ A$, stating $a\;x$ is stating $x \in a$, for any $x : A$.).
+
+There are a few other options of achieving a substitutive behavior for $\releq$, they all
+rely on it's lifting to propositional equality, though. As we shall present in the next 
+sections.
+
+\begin{TODO}
+  \item Indirect equality somewhere?
+\end{TODO}
+
+\subsection{Hardcoded Proof Irrelevance}
+
+  We mentioned before this idea of a proof irrelevant set, we also mentioned that we postulated
+  such notion, which is not the ideal thing to do in Agda. We want to keep our postulates to an
+  absolute minimum.
+  
+  In order to formally talk about proof irrelevance we need some concepts from Homotopy Type Theory\cite{hottbook}.
+  HoTT is an immense and complex newly founded field of Mathematics, and we are not going to explain
+  it in detail. The general idea is to use abstract Homotopy Theory to interpret types. In normal
+  type theory, a statement $a : A$ is interpreted as $a$ is an element of the set $A$. In HoTT, however,
+  we say that $a$ is a point in space $A$. Objects are seen as points in a space and the type $a = b$ is seen as a path from $a$ to $b$.
+  It's obvious that for all $a$ there is a path from $a$ to $a$, therefore $a = a$, giving us reflexivity.
+  If we have a path from $a$ to $b$, we also have one from $b$ to $a$, resulting in symmetry.
+  \emph{Glueing} of paths together corresponds to transitivity. So we have an equivalence relation $=$.
+  
+  Even more important, if we have a proof of $P a$ and $a = b$, for a predicate $P$, we can
+  transport this proof along the path $a = b$ and arrive at a proof of $P b$. This corresponds to
+  the substitutive behavior of standard equality. Note though, that in classical mathematics,
+  once an equality $x = y$ has been proved, we can just switch $x$ and $y$ whenever we want. 
+  In HoTT, however, there might be more than one path from $x$ to $y$, and they might yield different
+  results, it is important to state which path is beeing \emph{walked} when we use substitutivity.
+  
+  The first important notion is that of homotopy. Traditionally, we take that two functions are
+  the same if they agree onall inputs. A homotopy between two functions is very close to that
+  classical notion:
+  
+  \Agda{ProofIrrel}{homotopy-def}
+  
+  It's worth mentioning that \F{\_\~\_} is an equivalence relation, although we ommit the proof.
+  We follow by defining an equivalence, which can be seen an isomorphism notion:
+  
+  \Agda{ProofIrrel}{isequiv-def}
+  
+  That is, $f$ is an equivalence if there exists a $g$ such that $g$ is a left and right-inverse
+  of $f$.
+  
+  Now we can state when two types are equivalent. And for the reader familiar with algebra, it is
+  not very far from the usual isomorphism-based equivalence notion. As expected, univalence is
+  also an equivalence relation.
+  
+  \Agda{ProofIrrel}{univalence-def}
+  
+  Following the common pracice when encoding HoTT in Agda, we have to postulate the Univalence
+  axiom, which in short says that univalence and equivalence coincide:
+  
+  \Agda{ProofIrrel}{univalence-axiom}
+  
+  Now, our job becomes much easier, and it suffices to show that if two relations are
+  mutually included, then they are univalent.
+  
+  \subsubsection{Mere Propositions}
+  
+  As we mentioned earlier, proof irrelevance is a desired property in most systems. In HoTT,
+  one distinguish between mere propositions and other types, where mere propositions
+  are defined by:
+  
+  \Agda{ProofIrrel}{isprop-def}
+  
+  This allows us to state some very usefull properties, which allows us to handle propositions
+  as both true or false, depending on wether or not they're inhabited. These corresponds to
+  lemma 3.3.2 in \cite{hottbook}.
+  
+  \Agda{ProofIrrel}{lemma-332}\\
+  \Agda{ProofIrrel}{not-lemma-332}
+  
+  Which are both provable in Agda, but the proofs are ommited here.
+  
+  \subsubsection{Adding Relations to the mix}
+  
+  Now, to exploit such finer treatment of equality in our favor, we need to add
+  relation and a few other details to the mix. We'll keep the relation definition
+  as before, and push to the user the responsability of proving that his relations
+  are both mere propositions and decidable.
+  
+  This can be easily done with Agda's instance mechanism:
+  
+  \Agda{ProofIrrel}{instances}
+  
+  This will treat both records as typeclasses in the Haskell sense. Now, for talking about
+  subrelations they must be an instance of \D{IsProp}, and whenever we wish to use anti-symmetry
+  they must also be an instance of \D{IsDec}, and it turns out that anti-symmetry is now
+  provable as long as we assume relational extensionality.
+  
+  \Agda{ProofIrrel}{subrel-def}\\
+  \Agda{ProofIrrel}{subrel-antisym}
+  
+  Although we could arrive at the result we desired with a minimal number of postulates (relational extensionality
+  and univalence axiom), the user was heavily punished for when he wants to define a relation, not to
+  say that decidability will give problems once relational composition enters the stage. For this reasons
+  we chose not to adopt this solution, even though it's more formal than what we have.
+
+\subsubsection{Custom Universes}
+
+
+  We could remove the \D{IsProp} record from our code, if we gave relations a bit more structure,
+  and, prove that every object in this new (more structured) world is a mere proposition.
+  One good option would be to encode a universe $U$ of mere propositions and have relations
+  defined as $B \rightarrow A \rightarrow U$. This extra structure allows us to prove proof irrelevance
+  for all $u : U$ (which holds by construction, once $u$ is a mere proposition), but only let's us define
+  relations over $U$, which is less expressive than $Set$. The additional code boilerplate is also big,
+  once we have to define a language and all operations that we'll need to perform with it.
+  
+  A universe and it's interpretation are defined as:
+  
+  \Agda{Universes}{data-U}
+  
+  Where $\mid\mid\_\mid\mid$ is a propositional truncation. That is, for every type $A$,
+  there is a type $\mid\mid A \mid\mid$ with two constructors: (i) for any $x : A$ we have
+  $\mid x \mid : \mid\mid A \mid\mid$; (ii) for any $x , y : \mid\mid A \mid\mid$, we have
+  $x \equiv y$. This is also called smashing sometimes. Not every type constructor 
+  preserves mere propositions. A simple example is with the coproduct
+  $1 + 1$. Even though $1$ is a mere proposition, $1 + 1$ is not, since the elements of such type
+  contain also information about which injection was used; We need to smash this information out
+  if we want to keep with mere propositions.
+  
+  It turns out that we're just defining the logic we'll need to define relations, but this
+  structure is very helpful! Now we can prove that given $u : U$, $\sharp u$ is a mere proposition.
+  
+  \Agda{Universes}{uprop-decl}
+  
+  So far so good! We just removed one instance from the user and proving decidability can be very
+  straight forward (but in a few, rare, complicated cases)! Well, the changes were not only for the best.
+  A new, minor, problem is the verbosity introduced by $U$, everything is harder to write and read.
+  But there's a bigger situation happening here. If we look at the existential quantifier defined in $U$,
+  it's witnesses must also come from $U$. This can be very restrictive once we start using relational
+  composition (which is defined in terms of an existential).
 
 

@@ -29,7 +29,9 @@ CODE_AGDA_REL=/home/victor/Documents/UU/Thesis/msc-agda-tactics/Agda
 
 CODE_AGDA_MODULES=Basic\
                   CaseStudy1\
-                  RelationsCore
+                  RelationsCore\
+                  ProofIrrel\
+                  Universes\
 
 COMPILER=pdflatex -etex
 
