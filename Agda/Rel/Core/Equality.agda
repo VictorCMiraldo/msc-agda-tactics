@@ -1,14 +1,17 @@
 module Rel.Core.Equality where
 
 open import Relation.Binary.PropositionalEquality
-open import Data.Product using (_×_; ∃; _,_; uncurry) renaming (proj₁ to p1; proj₂ to p2)
+open import Data.Product using (_×_; ∃; _,_; uncurry; proj₁; proj₂)
 open import Rel.Core.Core
 open import Function using (id; flip)
 
 -- We can define relational equality in terms of inclusion.
 infix 6 _≡r_
-_≡r_ : {A B : Set} → Rel A B → Rel A B → Set
-R ≡r S = (R ⊆ S) × (S ⊆ R)
+record _≡r_ {A B : Set}(R S : Rel A B) : Set where
+  constructor _,_
+  field
+    p1 : R ⊆ S
+    p2 : S ⊆ R
 
 ≡r-refl : {A B : Set}{R : Rel A B}
         → R ≡r R
@@ -16,23 +19,23 @@ R ≡r S = (R ⊆ S) × (S ⊆ R)
 
 ≡r-sym : {A B : Set}{R S : Rel A B}
        → R ≡r S → S ≡r R
-≡r-sym h = p2 h , p1 h
+≡r-sym h = _≡r_.p2 h , _≡r_.p1 h
 
 ≡r-trans : {A B : Set}{R S T : Rel A B}
          → R ≡r S → S ≡r T → R ≡r T
-≡r-trans rs st = ⊆-trans (p1 rs) (p1 st) , ⊆-trans (p2 st) (p2 rs)
+≡r-trans rs st = ⊆-trans (_≡r_.p1 rs) (_≡r_.p1 st) , ⊆-trans (_≡r_.p2 st) (_≡r_.p2 rs)
 
 -- And some syntax sugar:
 
 -- Left elimination
 ≡r-elim1 : {A B : Set}{R S : Rel A B}
       → R ≡r S → R ⊆ S
-≡r-elim1 = p1
+≡r-elim1 = _≡r_.p1
 
 -- Right elimination
 ≡r-elim2 : {A B : Set}{R S : Rel A B}
       → R ≡r S → S ⊆ R
-≡r-elim2 = p2
+≡r-elim2 = _≡r_.p2
 
 -- introduction
 ≡r-intro : {A B : Set}{R S : Rel A B}
@@ -111,14 +114,14 @@ r ≡i s = ∀ x → (x ⊆ s → x ⊆ r) × (x ⊆ r → x ⊆ s)
 ≡-itor : {A B : Set}{R S : Rel A B}
        → R ≡i S → R ≡r S
 ≡-itor {R = R} {S = S} rs 
-  = p2 (rs R) ⊆-refl 
-  , p1 (rs S) ⊆-refl
+  = proj₂ (rs R) ⊆-refl
+  , proj₁ (rs S) ⊆-refl
 
 ≡-rtoi : {A B : Set}{R S : Rel A B}
        → R ≡r S → R ≡i S
 ≡-rtoi {R = R} {S = S} rs
-  = λ x → (λ xs → ⊆in (λ a b bXa → ⊆out (p2 rs) a b (⊆out xs a b bXa)))
-        , (λ xs → ⊆in (λ a b bXa → ⊆out (p1 rs) a b (⊆out xs a b bXa)))
+  = λ x → (λ xs → ⊆in (λ a b bXa → ⊆out (_≡r_.p2 rs) a b (⊆out xs a b bXa)))
+        , (λ xs → ⊆in (λ a b bXa → ⊆out (_≡r_.p1 rs) a b (⊆out xs a b bXa)))
 
 -- Just to complete the module, a substitution for _≡i_
 ≡i-subst : {A B : Set}(P : Rel A B → Set){R S : Rel A B} 
