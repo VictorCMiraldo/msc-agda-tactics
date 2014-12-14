@@ -5,6 +5,8 @@ open import Data.Product using (_×_; ∃; _,_; uncurry; proj₁; proj₂)
 open import Rel.Core.Core
 open import Function using (id; flip)
 
+open import Rel.Core.HOTT using (fun-ext)
+
 -- We can define relational equality in terms of inclusion.
 infix 6 _≡r_
 record _≡r_ {A B : Set}(R S : Rel A B) : Set where
@@ -45,8 +47,8 @@ record _≡r_ {A B : Set}(R S : Rel A B) : Set where
 ---------------------------------------------------------------
 -- Relation Extensionality
 
--- This promotion rule is a tricky one. TODO: I strongly believe
--- that I can prove this using some extensional equality whichcraft.
+-- This should NOT be used if you want your model verified. Check
+-- the core module for anti-symmetry of ⊆. 
 ≡r-promote : {A B : Set}{R S : Rel A B}
              → R ≡r S → R ≡ S
 ≡r-promote {R = R} {S = S} (⊆in rs , ⊆in sr)
@@ -56,13 +58,13 @@ record _≡r_ {A B : Set}(R S : Rel A B) : Set where
     Λ_ : {A B : Set}(R : Rel A B) → A → ℙ B
     Λ R = λ a b → R b a 
 
-    postulate
-      -- We can say that two relations are equal if their
-      -- power transpose for any given a is the same set.
-      Λ-ext : {A B : Set}{R S : Rel A B}
+    Λ-ext : {A B : Set}{R S : Rel A B}
             → (∀ a → (Λ R) a ≡ (Λ S) a)
             → R ≡ S
+    Λ-ext {R = R} {S = S} prf with Λ R | Λ S
+    ...| lR | lS = fun-ext (λ b → fun-ext (λ a → cong (λ f → f b) (prf a)))
 
+    postulate
       -- Beeing the same set, however, is having the same elements.
       -- Since in our scenario, the set (r x) beeing inhabited only
       -- means that x is an element of r (with our encoding of sets).
@@ -123,7 +125,11 @@ r ≡i s = ∀ x → (x ⊆ s → x ⊆ r) × (x ⊆ r → x ⊆ s)
   = λ x → (λ xs → ⊆in (λ a b bXa → ⊆out (_≡r_.p2 rs) a b (⊆out xs a b bXa)))
         , (λ xs → ⊆in (λ a b bXa → ⊆out (_≡r_.p1 rs) a b (⊆out xs a b bXa)))
 
--- Just to complete the module, a substitution for _≡i_
+-- Just to complete the module, a promotion and substitution for _≡i_
+≡i-promote : {A B : Set}{R S : Rel A B}
+           → R ≡i S → R ≡ S
+≡i-promote r≡is = ≡r-promote (≡-itor r≡is)
+
 ≡i-subst : {A B : Set}(P : Rel A B → Set){R S : Rel A B} 
          → R ≡i S → P R → P S
 ≡i-subst p rs pr = ≡r-subst p (≡-itor rs) pr
