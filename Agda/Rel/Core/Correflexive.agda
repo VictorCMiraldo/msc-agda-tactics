@@ -8,5 +8,6 @@ open import Rel.Core.Core using (Rel)
 -- * Correflexives * --
 -----------------------
 
-φ : {A : Set}(P : A → Set) → Rel A A
-φ p = λ a a′ → a ≡ a′ × p a 
+record φ {A : Set}(P : A → Set)(a₁ : A)(a₂ : A) : Set
+  where constructor cons-φ
+        field un : a₁ ≡ a₂ × P a₁

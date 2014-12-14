@@ -168,7 +168,7 @@ data _⊆_ {A B : Set}(R S : Rel A B) : Set where
 infix 8 _∪_
 record _∪_ {A B : Set}(R S : Rel A B)(b : B)(a : A) : Set
   where constructor cons-∪
-        field un-∪ : R b a ⊎ S b a
+        field un : R b a ⊎ S b a
 
 i1∪ : {A B : Set}{R S : Rel A B}{b : B}{a : A} → R b a → (R ∪ S) b a
 i1∪ rba = cons-∪ (i1 rba)
@@ -180,7 +180,7 @@ i2∪ sba = cons-∪ (i2 sba)
 infix 8 _∩_
 record _∩_ {A B : Set}(R S : Rel A B)(b : B)(a : A) : Set
   where constructor cons-∩
-        field un-∩ : R b a × S b a
+        field un : R b a × S b a
 
 p1∩ : {A B : Set}{R S : Rel A B}{b : B}{a : A} → (R ∩ S) b a → R b a
 p1∩ (cons-∩ (bRa , _)) = bRa
@@ -248,7 +248,7 @@ p2∙ rs = _∙_.composes rs
 -- Lifting a function to a relation is pretty simple
 record fun {A B : Set}(f : A → B)(b : B)(a : A) : Set
   where constructor cons-fun
-        field un-fun : f a ≡ b
+        field un : f a ≡ b
 
 -- We can prove that function composition distributes over functional lifting.
 fun-comp : {A B C : Set} {f : B → C} {g : A → B}
