@@ -166,28 +166,42 @@ data _⊆_ {A B : Set}(R S : Rel A B) : Set where
 
 -- Relational Union
 infix 8 _∪_
-_∪_ : {A B : Set} → Rel A B → Rel A B → Rel A B
-(R ∪ S) b a = R b a ⊎ S b a
+record _∪_ {A B : Set}(R S : Rel A B)(b : B)(a : A) : Set
+  where constructor cons-∪
+        field un-∪ : R b a ⊎ S b a
+
+i1∪ : {A B : Set}{R S : Rel A B}{b : B}{a : A} → R b a → (R ∪ S) b a
+i1∪ rba = cons-∪ (i1 rba)
+
+i2∪ : {A B : Set}{R S : Rel A B}{b : B}{a : A} → S b a → (R ∪ S) b a
+i2∪ sba = cons-∪ (i2 sba)
 
 -- Relational Intersection
 infix 8 _∩_
-_∩_ : {A B : Set} → Rel A B → Rel A B → Rel A B
-(R ∩ S) b a = R b a × S b a
+record _∩_ {A B : Set}(R S : Rel A B)(b : B)(a : A) : Set
+  where constructor cons-∩
+        field un-∩ : R b a × S b a
+
+p1∩ : {A B : Set}{R S : Rel A B}{b : B}{a : A} → (R ∩ S) b a → R b a
+p1∩ (cons-∩ (bRa , _)) = bRa
+
+p2∩ : {A B : Set}{R S : Rel A B}{b : B}{a : A} → (R ∩ S) b a → S b a
+p2∩ (cons-∩ (_ , bSa)) = bSa
 
 -- Union universal
 ∪-uni-l : {A B : Set}(X R S : Rel A B)
         → R ∪ S ⊆ X 
         → (R ⊆ X) × (S ⊆ X)
 ∪-uni-l x r s (⊆in hip) 
-        = ⊆in (λ b a bRa → hip b a (i1 bRa)) 
-        , ⊆in (λ b a bSa → hip b a (i2 bSa)) 
+        = ⊆in (λ b a bRa → hip b a (i1∪ bRa)) 
+        , ⊆in (λ b a bSa → hip b a (i2∪ bSa)) 
 
 ∪-uni-r : {A B : Set}(X R S : Rel A B)
         → (R ⊆ X) × (S ⊆ X)
         → R ∪ S ⊆ X
 ∪-uni-r x r s hip 
-        = ⊆in λ { b a (i1 bRa) → ⊆out (p1 hip) b a bRa
-                ; b a (i2 bSa) → ⊆out (p2 hip) b a bSa
+        = ⊆in λ { b a (cons-∪ (i1 bRa)) → ⊆out (p1 hip) b a bRa
+                ; b a (cons-∪ (i2 bSa)) → ⊆out (p2 hip) b a bSa
                 }
 
 -- Intersection Universal
@@ -195,14 +209,14 @@ _∩_ : {A B : Set} → Rel A B → Rel A B → Rel A B
         → X ⊆ R ∩ S
         → (X ⊆ R) × (X ⊆ S)
 ∩-uni-l x r s (⊆in hip) 
-        = ⊆in (λ b a bXa → p1 (hip b a bXa))
-        , ⊆in (λ b a bXa → p2 (hip b a bXa))
+        = ⊆in (λ b a bXa → p1∩ (hip b a bXa))
+        , ⊆in (λ b a bXa → p2∩ (hip b a bXa))
 
 ∩-uni-r : {A B : Set}(X R S : Rel A B)
         → (X ⊆ R) × (X ⊆ S)
         → X ⊆ R ∩ S
 ∩-uni-r x r s (x⊆r , x⊆s) 
-  = ⊆in (λ b a bXa → (⊆out x⊆r) b a bXa , (⊆out x⊆s) b a bXa)
+  = ⊆in (λ b a bXa → cons-∩ ((⊆out x⊆r) b a bXa , (⊆out x⊆s) b a bXa))
 
 ---------------------
 -- * Composition * --
@@ -232,13 +246,14 @@ p2∙ rs = _∙_.composes rs
 --------------------------
 
 -- Lifting a function to a relation is pretty simple
-fun : {A B : Set} → (A → B) → Rel A B
-fun f b a = f a ≡ b
+record fun {A B : Set}(f : A → B)(b : B)(a : A) : Set
+  where constructor cons-fun
+        field un-fun : f a ≡ b
 
 -- We can prove that function composition distributes over functional lifting.
 fun-comp : {A B C : Set} {f : B → C} {g : A → B}
          → fun (f ∘ g)  ⊆  fun f ∙ fun g
-fun-comp {g = g} = ⊆in (λ a _ fga → g a , fga , refl)
+fun-comp {g = g} = ⊆in (λ { a _ (cons-fun fga) → g a , cons-fun fga , cons-fun refl } )
 
 -------------------
 -- * Constants * --
