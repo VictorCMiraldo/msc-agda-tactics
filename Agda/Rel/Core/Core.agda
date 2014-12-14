@@ -188,6 +188,26 @@ p1∩ (cons-∩ (bRa , _)) = bRa
 p2∩ : {A B : Set}{R S : Rel A B}{b : B}{a : A} → (R ∩ S) b a → S b a
 p2∩ (cons-∩ (_ , bSa)) = bSa
 
+instance
+  ∩-isProp : {A B : Set}{R S : Rel A B}{{ prpR : IsProp R }}{{ prpS : IsProp S }}
+           → IsProp (R ∩ S)
+  ∩-isProp ⦃ mp pr ⦄ ⦃ mp ps ⦄ = mp (λ { b a (cons-∩ x) (cons-∩ y) 
+    → cong cons-∩ (prod-inj (pr b a (p1 x) (p1 y)) (ps b a (p2 x) (p2 y))) })
+    where
+      prod-inj : {A B : Set}{a₁ a₂ : A}{b₁ b₂ : B} → a₁ ≡ a₂ → b₁ ≡ b₂ → (a₁ , b₁) ≡ (a₂ , b₂)
+      prod-inj refl refl = refl
+
+  ∩-isDec : {A B : Set}{R S : Rel A B}{{ prpR : IsDec R }}{{ prpS : IsDec S }}
+           → IsDec (R ∩ S)
+  ∩-isDec ⦃ dec pr ⦄ ⦃ dec ps ⦄ = dec (λ b a → decide (pr b a) (ps b a))
+    where
+      decide : {A B : Set}{R S : Rel A B}{a : A}{b : B} 
+             → Dec (R b a) → Dec (S b a) → Dec ((R ∩ S) b a)
+      decide (yes p) (yes q) = yes (cons-∩ (p , q))
+      decide (yes p) (no ¬q) = no (λ z → ¬q (p2 (_∩_.un z)))
+      decide (no ¬p) (yes q) = no (λ z → ¬p (p1 (_∩_.un z)))
+      decide (no ¬p) (no ¬q) = no (λ z → ¬q (p2 (_∩_.un z)))
+
 -- Union universal
 ∪-uni-l : {A B : Set}(X R S : Rel A B)
         → R ∪ S ⊆ X 
@@ -240,6 +260,14 @@ p1∙ rs = _∙_.witness rs
 
 p2∙ : {A B C : Set}{R : Rel B C}{S : Rel A B}{c : C}{a : A}(prf : (R ∙ S) c a) → (R c (p1∙ prf)) × (S (p1∙ prf) a)
 p2∙ rs = _∙_.composes rs
+
+instance 
+  ∙-isProp : {A B C : Set}{R : Rel B C}{S : Rel A B}{{ prpR : IsProp R }}{{ prpS : IsProp S }}
+           → IsProp (R ∙ S)
+  ∙-isProp ⦃ mp pr ⦄ ⦃ mp ps ⦄ = mp (λ { c a (wx , cx) (wy , cy) → {!!} })
+    where
+      prod-inj : ∀{a}{A B : Set a}{a₁ a₂ : A}{b₁ b₂ : B} → a₁ ≡ a₂ → b₁ ≡ b₂ → (a₁ , b₁) ≡ (a₂ , b₂)
+      prod-inj refl refl = refl
 
 --------------------------
 -- * Function Lifting * --
