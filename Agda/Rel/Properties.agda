@@ -4,7 +4,7 @@ open import Data.Bool using (Bool; true; false)
 open import Relation.Binary.PropositionalEquality
 open import Data.Product using (_×_; ∃; _,_) renaming (proj₁ to p1; proj₂ to p2; map to _><_)
 open import Data.Sum using (_⊎_; [_,_]) renaming (inj₁ to i1; inj₂ to i2; [_,_]′ to case)
-open import Function using (id; _∘_)
+open import Function using (id; _∘_; _$_)
 
 open import Data.Unit using (Unit; unit)
 open import Data.Empty using (⊥; ⊥-elim)
@@ -43,13 +43,13 @@ Bot⊆R = ⊆in (λ _ _ → λ ())
 
 φ⊆Id : ∀{A : Set}{P : A → Set}
      → φ P ⊆ Id
-φ⊆Id = ⊆in (λ b b′ bφb → sym (p1 bφb))
+φ⊆Id = ⊆in (λ b b′ bφb → cons-fun $ sym (p1 (φ.un bφb)))
 
 ρ-intro : ∀{A B : Set}(R : Rel A B)
         → R ≡r ρ R ∙ R
 ρ-intro r 
-        = ⊆in (λ a b bRa → b , ((a , bRa , bRa) , refl) , bRa)
-        , ⊆in (λ a b bρRRa → subst (λ x → r x a) (p2 (p1 (p2∙ bρRRa))) (p2 (p2∙ bρRRa)))
+        = ⊆in (λ a b bRa → b , cons-∩ ((a , bRa , bRa) , cons-fun refl) , bRa)
+        , ⊆in (λ a b bρRRa → subst (λ x → r x a) (fun.un $ p2∩ (p1 (p2∙ bρRRa))) (p2 (p2∙ bρRRa)))
 
 ----------------------
 -- * Composition  * --
@@ -78,14 +78,14 @@ Bot⊆R = ⊆in (λ _ _ → λ ())
 ∙-id-l : ∀{A B}{R : Rel A B}
        → R ≡r Id ∙ R
 ∙-id-l {R = R}
-       = ⊆in (λ a b bRa → b , refl , bRa) 
-       , ⊆in (λ a b bIdRa → subst (λ x → R x a) (p1 (p2∙ bIdRa)) (p2 (p2∙ bIdRa)))
+       = ⊆in (λ a b bRa → b , cons-fun refl , bRa) 
+       , ⊆in (λ a b bIdRa → subst (λ x → R x a) (fun.un $ p1 (p2∙ bIdRa)) (p2 (p2∙ bIdRa)) )
 
 -- Id is right neutral
 ∙-id-r : ∀{A B}(R : Rel A B)
        → R ≡r R ∙ Id
-∙-id-r R = ⊆in (λ a b bRa → a , bRa , refl)
-         , ⊆in (λ a b bRIda → subst (R b) (sym (p2 (p2∙ bRIda))) (p1 (p2∙ bRIda)))
+∙-id-r R = ⊆in (λ a b bRa → a , bRa , cons-fun refl)
+         , ⊆in (λ a b bRIda → subst (R b) (sym (fun.un $ p2 (p2∙ bRIda))) (p1 (p2∙ bRIda)) )
 
 ∙-monotony : ∀{A B C}{S T : Rel B C}{Q R : Rel A B}
            → (S ⊆ T) × (Q ⊆ R) → S ∙ Q ⊆ T ∙ R
@@ -105,7 +105,7 @@ shunting-l-1 : ∀{A B C}{R : Rel A B}{f : B → C}{S : Rel A C}
              → (fun f) ∙ R ⊆ S
              → R ⊆ (fun f)ᵒ ∙ S
 shunting-l-1 {f = f} (⊆in hip)
-  = ⊆in (λ a b bRa → f b , refl , hip a (f b) (b , refl , bRa)) 
+  = ⊆in (λ a b bRa → f b , cons-fun refl , hip a (f b) (b , cons-fun refl , bRa)) 
 
 shunting-l-2 : ∀{A B C}{R : Rel A B}{f : B → C}{S : Rel A C}
              → R ⊆ (fun f)ᵒ ∙ S
@@ -115,7 +115,7 @@ shunting-l-2 {f = f}{S = S} (⊆in hip)
          let aux = hip a (p1∙ bfRa) (p2 (p2∙ bfRa))
              r   = p2 (p2∙ aux)
          in subst (λ k → S k a) (
-             subst (λ x → x ≡ c) (p1 (p2∙ aux)) (p1 (p2∙ bfRa))
+             subst (λ x → x ≡ c) (fun.un (p1 (p2∙ aux))) (fun.un (p1 (p2∙ bfRa)))
             ) r
          )
 
@@ -123,7 +123,7 @@ shunting-r-1 : ∀{A B C}{R : Rel A B}{f : A → C}{S : Rel C B}
              → R ∙ (fun f)ᵒ ⊆ S
              → R ⊆ S ∙ (fun f) 
 shunting-r-1 {f = f} (⊆in hip)
-  = ⊆in (λ a b bRa → f a , hip (f a) b (a , bRa , refl) , refl)
+  = ⊆in (λ a b bRa → f a , hip (f a) b (a , bRa , cons-fun refl) , cons-fun refl)
 
 shunting-r-2 : ∀{A B C}{R : Rel A B}{f : A → C}{S : Rel C B}
              → R ⊆ S ∙ (fun f) 
@@ -133,7 +133,7 @@ shunting-r-2 {f = f}{S = S} (⊆in hip)
          let aux = hip (p1∙ bRfa) b (p1 (p2∙ bRfa))
              r   = p1 (p2∙ aux)
          in subst (S b) (
-                  subst (λ x → x ≡ c) (p2 (p2∙ aux)) (p2 (p2∙ bRfa))
+                  subst (λ x → x ≡ c) (fun.un (p2 (p2∙ aux))) (fun.un (p2 (p2∙ bRfa)))
             ) r
          )
 
@@ -151,11 +151,11 @@ shunting-r-2 {f = f}{S = S} (⊆in hip)
 ᵒ-fun-identity-r : {A B : Set}{f : A → B}
                  → (fun f) ∙ (fun f)ᵒ ⊆ Id
 ᵒ-fun-identity-r {f = f}
-                 = ⊆in (λ b' b hip → fun-is-simple {f = f} (p1∙ hip) b b' (p1 (p2∙ hip)) (p2 (p2∙ hip)))
+                 = ⊆in (λ b' b hip → cons-fun $ fun-is-simple {f = f} (p1∙ hip) b b' (p1 (p2∙ hip)) (p2 (p2∙ hip)))
   where
     fun-is-simple : {A B : Set}{f : A → B}(a : A)(b b' : B)
                   → (fun f) b a → (fun f) b' a → id b' ≡ b
-    fun-is-simple _ _ _ bfa b'fa = trans (sym b'fa) bfa
+    fun-is-simple _ _ _ bfa b'fa = trans (sym (fun.un b'fa)) (fun.un bfa)
 
 -- Indirect equality testing
 
