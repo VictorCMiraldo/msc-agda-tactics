@@ -1,13 +1,14 @@
 module Rel.Core.Core where
 
 open import Data.Bool using (Bool; true; false)
-open import Relation.Binary.PropositionalEquality
+open import Relation.Binary.PropositionalEquality as PE
 open import Data.Product using (Σ; _×_; ∃; _,_; uncurry′; curry) renaming (proj₁ to p1; proj₂ to p2)
 open import Data.Sum using (_⊎_; [_,_]) renaming (inj₁ to i1; inj₂ to i2; [_,_]′ to case)
 open import Function using (id; _∘_)
 
 open import Data.Unit using (Unit; unit)
 open import Data.Empty using (⊥; ⊥-elim)
+open import Relation.Binary using (IsDecEquivalence; module DecSetoid)
 open import Relation.Binary.Core hiding (Rel)
 open import Relation.Nullary.Core
 open import Relation.Nullary.Decidable
@@ -153,12 +154,12 @@ data _⊆_ {A B : Set}(R S : Rel A B) : Set where
                   → R b a ≡ S b a
     case-analisys b a rs sr pr ps (yes bRa)  (yes bSa)  
       with ≈-to-≡ (lemma-332 pr bRa) | ≈-to-≡ (lemma-332 ps bSa)
-    ...| ur | us = trans ur (sym us)
+    ...| ur | us = PE.trans ur (PE.sym us)
     case-analisys b a rs sr pr ps (yes bRa) (no ¬bSa) = ⊥-elim (¬bSa (rs bRa))
     case-analisys b a rs sr pr ps (no ¬bRa) (yes bSa) = ⊥-elim (¬bRa (sr bSa))
     case-analisys b a rs sr pr ps (no ¬bRa) (no ¬bSa) 
       with ≈-to-≡ (¬lemma-332 pr ¬bRa) | ≈-to-≡ (¬lemma-332 ps ¬bSa)
-    ...| ur | us = trans ur (sym us)
+    ...| ur | us = PE.trans ur (PE.sym us)
 
 -------------------------
 -- * Other Operators * --
@@ -195,7 +196,7 @@ instance
     → cong cons-∩ (prod-inj (pr b a (p1 x) (p1 y)) (ps b a (p2 x) (p2 y))) })
     where
       prod-inj : {A B : Set}{a₁ a₂ : A}{b₁ b₂ : B} → a₁ ≡ a₂ → b₁ ≡ b₂ → (a₁ , b₁) ≡ (a₂ , b₂)
-      prod-inj refl refl = refl
+      prod-inj refl refl = PE.refl
 
   ∩-isDec : {A B : Set}{R S : Rel A B}{{ prpR : IsDec R }}{{ prpS : IsDec S }}
            → IsDec (R ∩ S)
@@ -262,12 +263,41 @@ p2∙ : {A B C : Set}{R : Rel B C}{S : Rel A B}{c : C}{a : A}(prf : (R ∙ S) c 
 p2∙ rs = _∙_.composes rs
 
 instance 
+  -- TODO: this is not looking good. Of course composition will NOT be a mere proposition, once we're
+  --       using dependent pairs to model it (and they don't preserve MP's). Should we add truncation?
+  --       should we let the user figure it out on his own?
   ∙-isProp : {A B C : Set}{R : Rel B C}{S : Rel A B}{{ prpR : IsProp R }}{{ prpS : IsProp S }}
            → IsProp (R ∙ S)
-  ∙-isProp ⦃ mp pr ⦄ ⦃ mp ps ⦄ = mp (λ { c a (wx , cx) (wy , cy) → {!!} })
+  ∙-isProp ⦃ mp pr ⦄ ⦃ mp ps ⦄ = trust-me
     where
-      prod-inj : ∀{a}{A B : Set a}{a₁ a₂ : A}{b₁ b₂ : B} → a₁ ≡ a₂ → b₁ ≡ b₂ → (a₁ , b₁) ≡ (a₂ , b₂)
-      prod-inj refl refl = refl
+      postulate
+        trust-me : {A : Set} → A
+
+-- In order to prove the decidability of a composition,
+-- we need a more constructive approach to it.
+-- We'll require the user to prove that the two relations
+-- he's trying to use are indeed composable.
+--
+-- This call is very similar to using the axiom of choice to
+-- 'choose' a B serving as a witness to the proof, but this
+-- is more constructive once it does not use any axiom.
+record Composes {A B C : Set}(R : Rel B C)(S : Rel A B) : Set
+  where constructor _,_
+        field on  : C → A → B
+              prf : ∀ c a → R c (on c a) × S (on c a) a
+
+open Composes {{...}}
+
+instance
+  ∙-isDec : {A B C : Set}{R : Rel B C}{S : Rel A B}{{ prfR : IsDec R }}{{ prfS : IsDec S }}
+            {{ prfRS : Composes R S }} → IsDec (R ∙ S) 
+  ∙-isDec ⦃ dec dR ⦄ ⦃ dec dS ⦄ ⦃ f , prf ⦄ = dec (λ c a → decide c a (f c a) (dR c (f c a)) (dS (f c a) a) (prf c a))
+    where
+      decide : {A B C : Set}{R : Rel B C}{S : Rel A B}(c : C)(a : A)(b : B)
+             → Dec (R c b) → Dec (S b a) → (R c b × S b a) → Dec ((R ∙ S) c a)
+      decide c a b (yes p) (yes p₁) (cRb , bSa) = yes (b , cRb , bSa)
+      decide c a b (no ¬p) (yes p) (cRb , bSa)  = no  (λ _ → ¬p cRb)
+      decide c a b dR (no ¬p) (cRb , bSa)       = no  (λ _ → ¬p bSa)
 
 --------------------------
 -- * Function Lifting * --
@@ -278,10 +308,24 @@ record fun {A B : Set}(f : A → B)(b : B)(a : A) : Set
   where constructor cons-fun
         field un : f a ≡ b
 
+-- As long as we have a decidable equivalence relation on B,
+-- the relational lifting of a function is decidable.
+-- It will always be a proposition also.
+instance
+  fun-isProp : {A B : Set}{f : A → B} → IsProp (fun f)
+  fun-isProp = mp (λ { ._ a (cons-fun refl) (cons-fun refl) → PE.refl })
+
+  fun-isDec : {A B : Set}{f : A → B}{{ prf : IsDecEquivalence (_≡_ {A = B}) }} → IsDec (fun f)
+  fun-isDec {f = f} {{ prf }} = dec (λ b a → decide f b a (Relation.Binary.IsDecEquivalence._≟_ prf (f a) b))
+    where
+      decide : {A B : Set}(f : A → B)(b : B)(a : A) → Dec (f a ≡ b) → Dec (fun f b a)
+      decide f₁ b a (yes p) = yes (cons-fun p)
+      decide f₁ b a (no ¬p) = no  (¬p ∘ fun.un)
+
 -- We can prove that function composition distributes over functional lifting.
 fun-comp : {A B C : Set} {f : B → C} {g : A → B}
          → fun (f ∘ g)  ⊆  fun f ∙ fun g
-fun-comp {g = g} = ⊆in (λ { a _ (cons-fun fga) → g a , cons-fun fga , cons-fun refl } )
+fun-comp {g = g} = ⊆in (λ { a _ (cons-fun fga) → g a , cons-fun fga , cons-fun PE.refl } )
 
 -------------------
 -- * Constants * --
