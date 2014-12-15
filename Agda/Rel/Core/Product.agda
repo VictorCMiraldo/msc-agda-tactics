@@ -3,6 +3,7 @@ module Rel.Core.Product where
 open import Data.Product using (_×_; ∃; _,_) renaming (proj₁ to p1; proj₂ to p2)
 open import Relation.Binary.PropositionalEquality
 open import Rel.Core.Core
+open import Rel.Core.HOTT using (isProp)
 
 --------------------
 -- ** Products ** --
@@ -19,6 +20,34 @@ open import Rel.Core.Core
 record ⟨_,_⟩ {A B C : Set}(R : Rel A B)(S : Rel A C)(bc : B × C)(a : A) : Set
   where constructor cons-⟨,⟩
         field un : (R (p1 bc) a) × (S (p2 bc) a)
+
+instance
+  ⟨,⟩-isProp : {A B C : Set}{R : Rel A B}{S : Rel A C}
+             → {{ prpR : IsProp R }} {{ prpS : IsProp S }}
+             → IsProp ⟨ R , S ⟩
+  ⟨,⟩-isProp ⦃ mp pR ⦄ ⦃ mp pS ⦄ 
+    = mp (λ { (b , c) a → prop b c a (pR b a) (pS c a)})
+    where
+      prop : {A B C : Set}{R : Rel A B}{S : Rel A C}
+           → (b : B)(c : C)(a : A) → isProp (R b a) → isProp (S c a)
+           → isProp (⟨ R , S ⟩ (b , c) a)
+      prop b c a bRa cSa (cons-⟨,⟩ (r1 , s1)) (cons-⟨,⟩ (r2 , s2)) 
+        with bRa r1 r2 | cSa s1 s2
+      prop b c a _ _ (cons-⟨,⟩ (r1 , s1)) (cons-⟨,⟩ (.r1 , .s1))| refl | refl 
+        = cong cons-⟨,⟩ refl
+
+  ⟨,⟩-isDec : {A B C : Set}{R : Rel A B}{S : Rel A C}
+            → {{ decR : IsDec R }} {{ decS : IsDec S }}
+            → IsDec ⟨ R , S ⟩
+  ⟨,⟩-isDec ⦃ dec dR ⦄ ⦃ dec dS ⦄ 
+    = dec (λ { (b , c) a → decide b c a (dR b a) (dS c a) })
+    where
+      decide : {A B C : Set}{R : Rel A B}{S : Rel A C}
+             → (b : B)(c : C)(a : A) → Dec (R b a) → Dec (S c a)
+             → Dec (⟨ R , S ⟩ (b , c) a)
+      decide b c a (yes r) (yes s) = yes (cons-⟨,⟩ (r , s))
+      decide b c a (no ¬r) _       = no (λ z → ¬r (p1 (⟨_,_⟩.un z)))
+      decide b c a _       (no ¬s) = no (λ z → ¬s (p2 (⟨_,_⟩.un z)))
 
 -- Relational product
 _*_ : {A B C D : Set} → Rel A B → Rel C D → Rel (A × C) (B × D)
