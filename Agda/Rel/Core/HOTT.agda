@@ -25,7 +25,7 @@ contr-prop : {A : Set} → isContr A → isProp A
 contr-prop (a , prf) = λ p₁ p₂ → trans (sym (prf p₁)) (prf p₂)
 
 -- Homotopy definition
-_~_ : {A : Set}{B : A → Set}(f g : (x : A) → B x) → Set
+_~_ : ∀{a b}{A : Set a}{B : A → Set b}(f g : (x : A) → B x) → Set _
 f ~ g = ∀ x → f x ≡ g x
 
 -- A homotopy is a equivalence relation
@@ -40,7 +40,7 @@ f ~ g = ∀ x → f x ≡ g x
 ~-trans fg gh = λ x → trans (fg x) (gh x)
 
 -- Equivalence definition in terms of quasi-inverses.
-isequiv : {A B : Set}(f : A → B) → Set
+isequiv : ∀{a b}{A : Set a}{B : Set b}(f : A → B) → Set _
 isequiv f = ∃ (λ g → ((f ∘ g) ~ id) × ((g ∘ f) ~ id))
 
 -- Homotopy Fiber def.
@@ -52,24 +52,24 @@ weak-eq : {A B : Set}(f : A → B) → Set
 weak-eq {B = B} f = (b : B) → isContr (hfiber f b)
 
 -- univalence
-_≈_ : (A B : Set) → Set
+_≈_ : ∀{a b}(A : Set a)(B : Set b) → Set _
 A ≈ B = ∃ (λ f → isequiv {A = A} {B = B} f)
 
 -- which is also a equivalence relation
-≈-refl : {A : Set} → A ≈ A
+≈-refl : ∀{a}{A : Set a} → A ≈ A
 ≈-refl = id , id , (λ _ → refl) , (λ _ → refl)
 
-≈-sym : {A B : Set} → A ≈ B → B ≈ A
+≈-sym : ∀{a}{A B : Set a} → A ≈ B → B ≈ A
 ≈-sym (ab , (ba , isequiv-ab)) 
   = ba , ab , p2 isequiv-ab , p1 isequiv-ab
 
-≈-trans : {A B C : Set} → A ≈ B → B ≈ C → A ≈ C
+≈-trans : ∀{a}{A B C : Set a} → A ≈ B → B ≈ C → A ≈ C
 ≈-trans (ab , (ba , isequiv-ab)) (bc , (cb , isequiv-cb))
   = bc ∘ ab , ba ∘ cb 
   , quasi-inv cb bc ba ab (p1 isequiv-cb) (p1 isequiv-ab) 
   , quasi-inv ab ba bc cb (p2 isequiv-ab) (p2 isequiv-cb)
   where
-    quasi-inv : {A B C : Set}
+    quasi-inv : ∀{a}{A B C : Set a}
                   (f : A → B)(f̅ : B → A)(g : B → C)(g̅ : C → B) 
                 → ((f̅ ∘ f) ~ id) → ((g̅ ∘ g) ~ id)
                 → (f̅ ∘ g̅ ∘ g ∘ f) ~ id
@@ -112,7 +112,7 @@ lemma-332 {P = P} prop prf = isequiv-p→1 prop prf
 
 postulate
   -- Following the steps of HoTT in Agda, we'll just postulate the univalence axiom.
-  ≈-to-≡ : {A B : Set} → (A ≈ B) → A ≡ B
+  ≈-to-≡ : ∀{a}{A B : Set a} → (A ≈ B) → A ≡ B
 
 
 ----------------------------------------------------
@@ -122,17 +122,33 @@ postulate
 -- the proof is from:
 --   http://homotopytypetheory.org/2014/02/17/another-proof-that-univalence-implies-function-extensionality/
 
-Paths : (A : Set) → Set
+Paths : ∀{a}(A : Set a) → Set _
 Paths A = Σ (A × A) (λ p → p1 p ≡ p2 p)
 
-contr-Paths : {A : Set} → Paths A ≈ A
+contr-Paths : ∀{a}{A : Set a} → Paths A ≈ A
 contr-Paths {A} = (λ pa → p1 (p1 pa)) 
                 , (λ x → (x , x) , refl) 
                 , (λ x → refl) 
                 , (λ { ((a₁ , .a₁) , refl) → refl })
 
-Homotopies : Set → Set → Set
+Homotopies : ∀{a b} → Set a → Set b → Set _
 Homotopies A B = Σ ((A → B) × (A → B)) (λ fg → (x : A) → p1 fg x ≡ p2 fg x)
+
+postulate
+  η-expand : {A B : Set}{f : A → B} → f ≡ (λ x → f x)
+
+step1 : ∀{a b}{A : Set a}{B : Set b} → Homotopies A B → (A → Paths B)
+step1 ((f1 , f2) , prf) a = (f1 a , f2 a) , prf a
+
+step2 : ∀{a b}{A : Set a}{B : Set b} → (A → Paths B) → A → B
+step2 f a = p1 (p1 (f a))
+
+step3 : ∀{a b}{A : Set a}{B : Set b} → (A → B) → Paths (A → B)
+step3 f = (f , f) , refl
+
+pre-funext : ∀{a b}{A : Set a}{B : Set b} → Homotopies A B → Paths (A → B)
+pre-funext = step3 ∘ step2 ∘ step1
+
 
 {-
   Proof is postponed for now. It is already a well estabilished proof
