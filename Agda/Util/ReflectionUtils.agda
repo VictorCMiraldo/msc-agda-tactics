@@ -25,7 +25,15 @@ unArg (arg _ x) = x
 mkArgVR : ∀{A} → A → Arg A
 mkArgVR x = arg (arg-info visible relevant) x
 
+unAbs : ∀{A} → Abs A → A
+unAbs (abs _ x) = x
+
+unType : Type → Term
+unType (el _ t) = t
+
 -- Term Abstractions
+
+{-
 
 {-# TERMINATING #-}
 runAbstr1 : Term → Term → Maybe Term
@@ -68,3 +76,5 @@ runAbstr1 ta tb = abstrTerm ta tb
 
 termErase : Term → Term → Term
 termErase = {!!}
+
+-}

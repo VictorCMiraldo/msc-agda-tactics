@@ -130,7 +130,7 @@ instead of $\releq$ (and hence the name distinction):
 
 We have to use functional extensionality anyway (here, disguised as \F{rel-ext}). But the 
 type of our goal is $R\;b\;a \equiv S\;b\;a$ and the proof get stuck since set equality is
-undecidable \warnme{is it? Be sure!}. We infact just want $R$ and $S$ to be inhabited at
+undecidable. We infact just want $R$ and $S$ to be inhabited at
 the same time.
 
 So, it's clear that we also need some encoding of $\releq$:
@@ -155,13 +155,8 @@ there are a couple places were we can insert this notion, but postulating it at 
 by far the easier to handle and introduces the least amount of boilerplate code. (Remember that
 if $a$ is a subset of $A$, that is $a : ℙ A$, stating $a\;x$ is stating $x \in a$, for any $x : A$.).
 
-There are a few other options of achieving a substitutive behavior for $\releq$, they all
-rely on it's lifting to propositional equality, though. As we shall present in the next 
-sections.
-
-\begin{TODO}
-  \item Indirect equality somewhere?
-\end{TODO}
+There are a few other options of achieving a substitutive behavior for $\releq$,  
+as we shall present in the next sections.
 
 \subsection{Hardcoded Proof Irrelevance}
 
@@ -191,7 +186,7 @@ sections.
   
   \Agda{ProofIrrel}{homotopy-def}
   
-  It's worth mentioning that \F{\_\~\_} is an equivalence relation, although we ommit the proof.
+  It's worth mentioning that \F{\_\~{}\_} is an equivalence relation, although we ommit the proof.
   We follow by defining an equivalence, which can be seen an isomorphism notion:
   
   \Agda{ProofIrrel}{isequiv-def}
@@ -249,10 +244,11 @@ sections.
   \Agda{ProofIrrel}{subrel-def}\\
   \Agda{ProofIrrel}{subrel-antisym}
   
-  Although we could arrive at the result we desired with a minimal number of postulates (relational extensionality
-  and univalence axiom), the user was heavily punished for when he wants to define a relation, not to
+  Although we could arrive at the result we desired with a minimal number of postulates (univalence axiom, only), 
+  the user was heavily punished for when he wants to define a relation, not to
   say that decidability will give problems once relational composition enters the stage. For this reasons
-  we chose not to adopt this solution, even though it's more formal than what we have.
+  we chose not to adopt this solution \emph{as is}, even though it's more formal than what we previously
+  presented.
 
 \subsubsection{Custom Universes}
 
@@ -289,5 +285,136 @@ sections.
   But there's a bigger situation happening here. If we look at the existential quantifier defined in $U$,
   it's witnesses must also come from $U$. This can be very restrictive once we start using relational
   composition (which is defined in terms of an existential).
+
+\subsubsection{The Equality Model}
+  
+  Given the options discussed above, with all their positive and negative aspects, it seems
+  a little too restrictive to adopt only one option. We indeed mixed both the $\releq$ promote
+  with $\subseteq-antisym$. The ideia is that the user not only can chose how formal he wants his model
+  to be, but this can significantly increase development speed. In the first stages of development, where
+  the base relations might change (and, if instences were written, they would consequently change) a lot,
+  the user can keep developing with the $\releq$ promotion. Once his model is stable, he can completely
+  formalize it by adding the desired instances and using subrelation anti-symmetry.
+
+\section{Constructions}
+
+\begin{TODO}
+  \item relational fold!
+\end{TODO}
+
+After estabilishing a model for relations and relational equality, we follow by presenting
+some of the important constructions here. Note that contrary to \emph{pen and paper} Mathematics,
+we provide an encoding of the constructions and then we prove that our encoding satisfy the
+universal property for the given construction, instead of adopting such property as the
+definition. This not only proves the encoding to be correct, but it's the only costructive approach
+we can use.
+
+The design adopted for the lower level constructions is somewhat heavy in it's notation. The
+main reason for this choice (which differs significantly from other Relational Algebra implementations)
+is it's ease of use when coupled with reflection techniques. If we provide all definitions
+as Agda functions, when we access a term AST, Agda will normalize and expand such definitions.
+By encapsulating it in records, we can stop this normalization process and use a (much) smaller
+AST representation.
+
+\subsection{Products}
+
+Given two relations $R : A \rightarrow B$ and $S : A \rightarrow C$, we can construct a relation
+$\langle R , S \rangle : A \rightarrow B \times C$ such that $(b,c)\;\langle R , S \rangle\;a$ if and only if $b\;R\;a \wedge c\;S\;a$.
+Without getting in too much detail of what it means to be a product, we usually write
+it in the form of a commutative diagram:
+
+\begin{displaymath}
+\xymatrix{%
+B & B \times C \ar[l]_{\pi_1} \ar[r]^{\pi_2} & C \\
+  &     A \ar@{..>}[u]|{\langle R , S \rangle} \ar[ul]^{R} \ar[ur]_{S}
+  &
+}
+\end{displaymath} 
+
+That is,
+\begin{eqnarray*}
+  R &=& \pi_1 \cdot \langle R , S \rangle \\
+  S &=& \pi_2 \cdot \langle R , S \rangle
+\end{eqnarray*}
+
+Products are unique up to isomorphism, which explains the notation without introducing any new names.
+The proof is fairly simple and can be conducted by \emph{glueing} two product diagrams.
+The diagramatic notation states the existence of a relation $\langle R , S \rangle$ and the dotted arrow
+states it's uniqueness. $\pi_1\;(b , c) = b$ and $\pi_2\;(b , c) = c$ are the canonical
+projections.\\
+
+\begin{mydef}[Split Universal]
+Given $R$ and $S$ as above, let $X : A \rightarrow B \times C$, then:
+\[
+  X \subseteq \langle R , S \rangle \Leftrightarrow \pi_1 \cdot X \subseteq R \wedge \pi_2 \cdot X \subseteq S
+\]\\
+\end{mydef}
+Encoding this in Agda is fairly simple, once we already have products (in their categorical sense)
+available. We just wrap everything inside a record:
+
+\Agda{RelationsCore}{product-final}
+
+It's universsal property can be derived from the following \emph{lemmas}
+
+\Agda{RelationsCore}{product-univ-r1}\\
+\Agda{RelationsCore}{product-univ-r2}\\
+\Agda{RelationsCore}{product-univ-l}
+
+In fact, the product of relations respects both decidability and propositionality (that is,
+given two mere propositions, their product is still a mere proposition). Therefore, such 
+instances are already defined.
+
+\subsection{Coproduct}
+
+If we flip every arrow in the diagram for products, we arive at it's dual notion, usually
+called coproduct or sum. Given two relations $R : B \rightarrow A$ and $S : C \rightarrow A$,
+we can perform a \emph{case analisys} in an element of type $B + C$ and relate it to an $A$.
+Indeed, the \emph{either} of $R$ and $S$, denoted $[R , S]$, has type $B + C \rightarrow A$
+and is depicted in the following diagram:
+
+\begin{displaymath}
+\xymatrix{%
+ B \ar[r]^{\iota_1} \ar[dr]_{R} & B + C \ar@{..>}[d]|{[R , S]} & C \ar[l]_{\iota_2} \ar[dl]^{S} \\
+   &   A   &
+}
+\end{displaymath}
+
+\begin{TODO}
+  \item Put the agda definitions here.
+  \item Present the problem with propositionality
+\end{TODO} 
+
+
+\subsection{Composition}
+
+Given two relations $R : B \rightarrow C$ and $S : A \rightarrow B$, we can construct a
+relation $R \cdot S : A \rightarrow C$, read as $R$ after $S$, and defined by:
+\[
+  R \cdot S = \{ (a, c) \in A \times C\;\mid\; \exists b \in B\;.\; a\;S\;b \wedge b\;R\;c \}
+\]
+Or, using diagrams:
+\begin{displaymath}
+  \xymatrix{ A \ar[r]^S \ar@/_1pc/[rr]_{R \cdot S} & B \ar[r]^R & C }
+\end{displaymath}
+
+As a first definition in Agda, one would expect something like:
+
+\Agda{RelationsCore}{composition-naive}
+
+And here we can start to see the dependent types shining. The existential quantification
+is just some syntax sugar for a dependent product. Therefore, for constructing a composition
+we need to provide a witness of type $B$ and a proof that $c R b \wedge b S a$, given $c$ and $a$.
+
+Yet, this suffers the problem we mentioned earlier. Agda will normalize every occurence of \F{\_after\_}
+to it's right-hand side, which is a non-linear lambda abstraction, and will make subterm matching 
+very complex to handle. An option is to use the exact definition of an existential quantifier,
+but expand it:
+
+\Agda{RelationsCore}{composition-final}
+
+
+
+
+
 
 

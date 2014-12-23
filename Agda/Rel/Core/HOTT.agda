@@ -149,7 +149,15 @@ step3 f = (f , f) , refl
 pre-funext : ∀{a b}{A : Set a}{B : Set b} → Homotopies A B → Paths (A → B)
 pre-funext = step3 ∘ step2 ∘ step1
 
+{-
+lemma-492 : ∀{a}{A B X : Set a} → A ≈ B → (X → A) ≈ (X → B)
+lemma-492 (f , f̅ , inv1 , inv2) 
+  = (λ z z₁ → f (z z₁)) 
+  , (λ x z → f̅ (x z))
+  , (λ x → {!inv1!})
+  , {!!}
 
+-}
 {-
   Proof is postponed for now. It is already a well estabilished proof
   from the univalence axiom, anyway. :-)

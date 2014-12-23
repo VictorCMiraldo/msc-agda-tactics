@@ -1,6 +1,6 @@
 \begin{code}
 open import Data.Sum using (_⊎_)
-open import Data.Product using (_×_)
+open import Data.Product using (_×_; ∃; _,_; proj₂; proj₁)
 open import Relation.Binary.PropositionalEquality using (_≡_)
 open import Function using (id; flip)
 \end{code}
@@ -89,3 +89,82 @@ naive₁ (⊆in rs) (⊆in sr)
             → s1 ≡ s2    
 \end{code}
 %</releq-lifting>
+
+%<*composition-naive>
+\begin{code}
+_after_ : {A B C : Set} → Rel B C → Rel A B → Rel A C
+R after S = λ c a → ∃ (λ b → R c b × S b a)
+\end{code}
+%</composition-naive>
+
+%<*composition-final>
+\begin{code}
+record _∙_ {A B C : Set}(R : Rel B C)(S : Rel A B)(c : C)(a : A) : Set
+  where
+    constructor _,_
+    field
+      witness  : B
+      composes : (R c witness) × (S witness a)
+\end{code}
+%</composition-final>
+
+%<*product-final>
+\begin{code}
+record ⟨_,_⟩ {A B C : Set}(R : Rel A B)(S : Rel A C)(bc : B × C)(a : A) : Set
+  where constructor cons-⟨,⟩
+        field un : (R (proj₁ bc) a) × (S (proj₂ bc) a)
+\end{code}
+%</product-final>
+
+\begin{code}
+p1∙ : {A B C : Set}{R : Rel B C}{S : Rel A B}{c : C}{a : A} → (R ∙ S) c a → B
+p1∙ rs = _∙_.witness rs
+
+p2∙ : {A B C : Set}{R : Rel B C}{S : Rel A B}{c : C}{a : A}(prf : (R ∙ S) c a) → (R c (p1∙ prf)) × (S (p1∙ prf) a)
+p2∙ rs = _∙_.composes rs
+
+π₁ : {A B : Set} → Rel (A × B) A
+π₁ a ab = fun proj₁ a ab
+
+π₂ : {A B : Set} → Rel (A × B) B
+π₂ b ab = fun proj₂ b ab
+\end{code}
+
+%<*product-univ-r1>
+\begin{code}
+prod-uni-r1 : ∀{A B C} → {X : Rel C (A × B)}
+             → (R : Rel C A) → (S : Rel C B)
+             → X ⊆ ⟨ R , S ⟩
+             → π₁ ∙ X ⊆ R
+\end{code}
+%</product-univ-r1>
+\begin{code}
+prod-uni-r1 {X = X} r s (⊆in prf)
+  = ?
+\end{code}
+%<*product-univ-r2>
+\begin{code}
+prod-uni-r2 : ∀{A B C} → {X : Rel C (A × B)}
+            → (R : Rel C A) → (S : Rel C B)
+            → X ⊆ ⟨ R , S ⟩
+            → π₂ ∙ X ⊆ S
+\end{code}
+%</product-univ-r2>
+\begin{code}            
+prod-uni-r2 = ?
+\end{code}
+%<*product-univ-l>
+\begin{code}
+prod-uni-l : ∀{A B C} → {X : Rel C (A × B)}
+           → (R : Rel C A) → (S : Rel C B)
+           → (π₁ ∙ X) ⊆ R → (π₂ ∙ X) ⊆ S
+           → X ⊆ ⟨ R , S ⟩
+\end{code}
+%</product-univ-l>
+\begin{code}           
+prod-uni-l {X = X} r s pr ps 
+  = ?
+\end{code}
+
+
+

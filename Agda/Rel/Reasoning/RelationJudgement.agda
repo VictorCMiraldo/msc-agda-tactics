@@ -18,7 +18,7 @@ open import Level using (Level; zero; suc)
 ⊆-IsPreorder : IsPreorder (_≡r_ {A = A} {B = B}) _⊆_
 ⊆-IsPreorder = record
   { isEquivalence = ≡r-IsEquivalence 
-  ; reflexive     = p1
+  ; reflexive     = _≡r_.p1
   ; trans         = ⊆-trans
   }
 

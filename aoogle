@@ -34,6 +34,7 @@ UTF8_TABLE=(
   "∀" 	"all forall"
   "∃"   "ex exist"
   "ℓ" 	"ell"
+  "≢"   "==n"
   "≡" 	"== equiv"
   "∼" 	"~ sim"
   "≤" 	"<= le"
