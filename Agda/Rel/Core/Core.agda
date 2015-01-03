@@ -10,7 +10,7 @@ open import Data.Unit using (Unit; unit)
 open import Data.Empty using (⊥; ⊥-elim)
 open import Relation.Binary using (IsDecEquivalence; module DecSetoid)
 open import Relation.Binary.Core hiding (Rel)
-open import Relation.Nullary.Core
+open import Relation.Nullary.Core public
 open import Relation.Nullary.Decidable
 
 -- Mu, Ko and Jansson encoding.
@@ -69,6 +69,11 @@ record IsDec {A B : Set}(R : Rel A B) : Set where
     
 open IsDec {{...}}
 open IsProp {{...}}
+
+-- auxiliar function for helping with decidability instances.
+dcase : {A B : Set} → (A → B) → (¬ A → B) → Dec A → B
+dcase fa ¬fa (yes p) = fa p
+dcase fa ¬fa (no ¬p) = ¬fa ¬p 
 
 --------------
 -- * Sets * --
@@ -177,6 +182,17 @@ i1∪ rba = cons-∪ (i1 rba)
 i2∪ : {A B : Set}{R S : Rel A B}{b : B}{a : A} → S b a → (R ∪ S) b a
 i2∪ sba = cons-∪ (i2 sba)
 
+instance
+  ∪-isDec : {A B : Set}{R S : Rel A B}{{ decR : IsDec R }}{{ decS : IsDec S }} → IsDec (R ∪ S)
+  ∪-isDec ⦃ dec dR ⦄ ⦃ dec dS ⦄ = dec (λ b a → decide b a (dR b a) (dS b a))
+    where
+      decide : {A B : Set}{R S : Rel A B}(b : B)(a : A)
+             → Dec (R b a) → Dec (S b a) → Dec ((R ∪ S) b a)
+      decide b a (yes p) _       = yes (i1∪ p)
+      decide b a _  (yes q)      = yes (i2∪ q)
+      decide b a (no ¬p) (no ¬q) = no (λ { (cons-∪ (i1 bRa)) → ¬p bRa 
+                                         ; (cons-∪ (i2 bSa)) → ¬q bSa})
+
 -- Relational Intersection
 infix 8 _∩_
 record _∩_ {A B : Set}(R S : Rel A B)(b : B)(a : A) : Set
@@ -261,17 +277,7 @@ p1∙ rs = _∙_.witness rs
 
 p2∙ : {A B C : Set}{R : Rel B C}{S : Rel A B}{c : C}{a : A}(prf : (R ∙ S) c a) → (R c (p1∙ prf)) × (S (p1∙ prf) a)
 p2∙ rs = _∙_.composes rs
-
-instance 
-  -- TODO: this is not looking good. Of course composition will NOT be a mere proposition, once we're
-  --       using dependent pairs to model it (and they don't preserve MP's). Should we add truncation?
-  --       should we let the user figure it out on his own?
-  ∙-isProp : {A B C : Set}{R : Rel B C}{S : Rel A B}{{ prpR : IsProp R }}{{ prpS : IsProp S }}
-           → IsProp (R ∙ S)
-  ∙-isProp ⦃ mp pr ⦄ ⦃ mp ps ⦄ = trust-me
-    where
-      postulate
-        trust-me : {A : Set} → A
+  
 
 -- In order to prove the decidability of a composition,
 -- we need a more constructive approach to it.
@@ -285,8 +291,46 @@ record Composes {A B C : Set}(R : Rel B C)(S : Rel A B) : Set
   where constructor _,_
         field on  : C → A → B
               prf : ∀ c a → R c (on c a) × S (on c a) a
-
+        -- OLD:   : ∀ c a → (R ∙ S) c a →  R c (on c a) × S (on c a) a
+        -- Is this really what I need? I'm stating that there exists a function
+        -- over (C × A) such that for all c and a I can prove R c b and S b a for
+        -- b = on c a. What if they don't compose for a particular choice of inputs?
 open Composes {{...}}
+
+{-
+open import Relation.Binary.HeterogeneousEquality
+  renaming (refl to hrefl)
+
+instance 
+  -- TODO: this is not looking good. Of course composition will NOT be a mere proposition, once we're
+  --       using dependent pairs to model it (and they don't preserve MP's). Should we add truncation?
+  --       should we let the user figure it out on his own?
+  ∙-isProp : {A B C : Set}{R : Rel B C}{S : Rel A B}{{ prpR : IsProp R }}{{ prpS : IsProp S }}
+           → IsProp (R ∙ S)
+  ∙-isProp ⦃ mp pr ⦄ ⦃ mp ps ⦄
+    = mp (λ c a e1 e2 → witness-irrelevance c a e1 e2 {!product-hinj!})
+    where
+      product-≅ : ∀{α}{A B C D : Set α}{a : A}{b : B}{c : C}{d : D}
+                → a ≅ c → b ≅ d → (a , b) ≅ (c , d)
+      product-≅ hrefl hrefl = hrefl
+
+      product-hinj : {A B C : Set}{R : Rel B C}{S : Rel A B}
+                   → (c : C)(a : A)
+                   → (∀ b → isProp (R c b))
+                   → (∀ b → isProp (S b a))
+                   → (e1 e2 : (R ∙ S) c a)
+                   → p2∙ e1 ≅ p2∙ e2
+      product-hinj c a pR pS e1 e2 with p2∙ e1 | p2∙ e2
+      ...| p2e1 | p2e2 = product-≅ (≡-to-≅ (pR (p1∙ e1) (p1 (p2∙ e1)) {!p1 (p2∙ e2)!})) {!!} -- this definetely looks like the right way to prove it.
+
+      -- How strecthy is this postulate? We're making a very dirty conversion between heterogeneous
+      -- and homogeneous equality right there. Can this break something? FIND OUT ASAP!!!!!!!!!!!!!
+      postulate
+        witness-irrelevance : {A B C : Set}{R : Rel B C}{S : Rel A B}(c : C)(a : A)
+                            → (e₁ e₂ : (R ∙ S) c a)
+                            → p2∙ e₁ ≅ p2∙ e₂ 
+                            → e₁ ≡ e₂
+-}
 
 instance
   ∙-isDec : {A B C : Set}{R : Rel B C}{S : Rel A B}{{ prfR : IsDec R }}{{ prfS : IsDec S }}

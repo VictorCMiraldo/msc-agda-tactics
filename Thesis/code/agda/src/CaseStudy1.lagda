@@ -4,7 +4,7 @@ open import Data.Bool using (Bool; true; false)
 open import Relation.Binary.PropositionalEquality
 open import Data.Product using (_×_; ∃; _,_) renaming (proj₁ to p1; proj₂ to p2)
 open import Data.Sum using (_⊎_; [_,_]) renaming (inj₁ to i1; inj₂ to i2; [_,_]′ to case)
-open import Function using (id; _∘_)
+open import Function using (id; _∘_; _$_)
 
 open import Data.Unit using (Unit; unit)
 open import Data.Empty using (⊥; ⊥-elim)
@@ -83,8 +83,8 @@ div2-twice-cancel (suc (suc b)) so
 
 evenLemma1 : ρ twiceR ⊆ evenR
 evenLemma1 = ⊆in (λ b' b bTb 
-  → let a = p1 (p1 bTb)
-    in sym (p2 bTb) , evenLemma1Aux a b (p1 (p2 (p1 bTb)))
+  → let a = p1∙ (p1∩ bTb)
+    in cons-φ $ sym (fun.un (p2∩ bTb)) , evenLemma1Aux a b (fun.un $ p1 (p2∙ (p1∩ bTb)))
   ) where 
     evenLemma1Aux : (a : ℕ) → (b : ℕ) → twice a ≡ b → So (even b)
     evenLemma1Aux a b a*2≡b 
@@ -93,17 +93,17 @@ evenLemma1 = ⊆in (λ b' b bTb
 
 evenLemma2 : evenR ⊆ ρ twiceR
 evenLemma2 = ⊆in (λ  b' b bEvena 
-  → let evenb = p2 bEvena
+  → let evenb = p2 (φ.un bEvena)
         a , btwicea = evenLemma2Aux b evenb
-    in (a , btwicea , subst (λ x → twice a ≡ x) (p1 bEvena) btwicea) 
-      , sym (p1 bEvena)
+    in cons-∩ $ (a , btwicea , cons-fun (subst (λ x → twice a ≡ x) (p1 $ φ.un bEvena) (fun.un btwicea))) 
+      , cons-fun (sym (p1 $ φ.un bEvena))
   ) where
     evenLemma2Aux : (b : ℕ) → So (even b) 
                   → ∃ (λ x → twiceR b x)
     evenLemma2Aux b so with div2 b so | div2-twice-cancel b so
     evenLemma2Aux b so | a | prf with even b
     evenLemma2Aux b () | _ | prf | false 
-    evenLemma2Aux b _  | a | prf | true = a , prf
+    evenLemma2Aux b _  | a | prf | true = a , cons-fun prf
      
 -- Finally, our lemma.
 evenLemma : ρ twiceR ≡r evenR

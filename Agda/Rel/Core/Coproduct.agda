@@ -28,6 +28,21 @@ record either {A B C : Set}(R : Rel A C)(S : Rel B C)(c : C)(ab : A ⊎ B) : Set
 ι₂ : {A B : Set} → Rel B (A ⊎ B)
 ι₂ = fun i2
 
+instance
+  either-isDec : {A B C : Set}{R : Rel A C}{S : Rel B C}{{ decR : IsDec R }}{{ decS : IsDec S }}
+               → IsDec (either R S)
+  either-isDec ⦃ dec dR ⦄ ⦃ dec dS ⦄ 
+    = dec (λ { c (i1 a) → dcase (yes ∘ cons-either) (λ h → no (h ∘ either.un)) (dR c a) 
+             ; c (i2 b) → dcase (yes ∘ cons-either) (λ h → no (h ∘ either.un)) (dS c b)
+             })  
+
+  either-isProp : {A B C : Set}{R : Rel A C}{S : Rel B C}{{ prpR : IsProp R }}{{ prpS : IsProp S }}
+                → IsProp (either R S)
+  either-isProp ⦃ mp pR ⦄ ⦃ mp pS ⦄ 
+    = mp (λ { c (i1 a) x y → cong cons-either (pR c a (either.un x) (either.un y))
+            ; c (i2 b) x y → cong cons-either (pS c b (either.un x) (either.un y))
+            }) 
+
 -- Sum
 _+_ : {A B C D : Set} → (R : Rel A B) → (S : Rel C D) → Rel (A ⊎ C) (B ⊎ D)
 R + S = either (ι₁ ∙ R) (ι₂ ∙ S)
