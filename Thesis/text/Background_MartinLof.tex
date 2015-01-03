@@ -92,39 +92,161 @@ are of the form $\lambda x\;.\;b(x)$ where $b(x) \in B(x)$ for $x \in A$.
 \subsection{Expressions}
 
 Until now we have identified the sets we'll need to express first order formulas, but we
-did not mention what an expression is. In fact, in the theory of types, and expression is a
-very abstract notion. We can define the set $\mathcal{E}$ of all expressions by induction
-with:
+did not mention what an expression is. In fact, in the theory of types, an expression is a
+very abstract notion. We are going to define the set $\mathcal{E}$ of all expressions by induction
+in a moment. 
 
+It's worth to remember that Martin-L\"{o}f's theory of types was intended to be a foundation
+for mathematics. It makes sense, therefore, to base our definitions in standard mathematical expressions.
+For intance, consider the expression $EXAMPLE$
 \begin{TODO}
-\item find a better syntax for this guy...
+  \item find a nice example, explain it here. It should contain both abstractions and applications.
 \end{TODO}
-\begin{mydef}[Expressions]
+
+\begin{mydef}[Expressions]\hfill
 \begin{description}
-  \item[Builtin's]
+  \item[Application;]
+    Let $k, e_1, \cdots, e_n \in \mathcal{E}$ be expressions of suitable arity, 
+    the application of $k$ to $e_1, \cdots, e_n$ denoted by $(k\;e_1\;\cdots\;e_n)$,
+    is also an expression.
   
-  \item[Application]
+  \item[Abstraction;]
+    Let $e \in \mathcal{E}$ be an expression with free occurences of a variable $x$.
+    We'll denote by $(x)e$ the expression where every free occurence of $x$ is
+    interpreted as a hole, or context. So, $(x)e \in \mathcal{E}$.
   
-  \item[Abstraction]
+  \item[Combinations;]
+    Expressions can also be formed by combination. This is a less common construct.
+    Let $e_1, \cdots, e_n \in \mathcal{E}$, we may form the expression:
+    \[
+      e_1,e_2,\cdots,e_n
+    \]
+    which is the combination of the $e_i$, $i \in \{1,\cdots,n\}$. 
+    This can be though of tupling things together. It's main use is for
+    handling complex objects as part of the theory. Consider the
+    scenario where one has a set $A$, an associative closed operation $\oplus$ and
+    a distinguished element $a \in A$, neutral for $\oplus$. We could talk
+    about the monoid as an expression: $A, \oplus, a$.
   
-  \item[Combinations]
+  \item[Selection;]
+    Of course, if we can tuple things together, it makes sense to be able to
+    tear it appart too. Let $e\in\mathcal{E}$ be a combination with
+    $n$ elements, then, for all $i \in \{1, \cdots, n\}$, we have the
+    selection $e.i \in \mathcal{E}$ of the $i$-th component of $e$.
   
-  \item[Selection]
+  \item[Builtin's;]
+    The builtin expressions are what makes the theory shine. Yet, 
+    they change according to the flavor of the theory of types we're handling.
+    They typically include $zero$ and $succ$ for Peano's encoding of the Naturals, 
+    together with a recursion principle $natrec$; Or $nil$, $cons$ and $listrec$
+    for lists; Products and Coproduct constructors are also builins: $\langle\_,\_\rangle$
+    and $inl, inr$ respectively.
 \end{description}
+\end{mydef}\hfill
+
+\begin{mydef}[Definitional Equality]
+Given two expressions $d, e \in \mathcal{E}$, if they are syntactical synonyms, we say
+that they are \emph{definitionally} or \emph{intensionally} equal. We'll denote it
+by $d \equiv e$.
 \end{mydef}
 
-\begin{TODO}
-  \item everything....
-\end{TODO}
+From the expression definition rules, we can see a few equalities arising:
+\begin{eqnarray*}
+  e & \equiv & ((x)e)\;x \\
+  e_i & \equiv & (e_1, \cdots, e_n).i
+\end{eqnarray*}
 
-%Type theory provides us with derivational rules to discuss the validity of judgements of
-%the following form:
-%
-%\begin{enumerate}[i)]
-%  \item $A$ is a set.
-%  \item $A$ and $B$ are equal sets.
-%  \item $a$ is an element of a set $A$.
-%  \item $a$ and $b$ are equal elements of a set $A$.
-%\end{enumerate}
+As one have probably noticed, we mentioned \emph{expressions of suitable arity}, but didn't explain
+what arity means. The notion of arity is somewhat different from what we would expect, it can
+be seen as a \emph{meta-type} of the expression, and indicates which expressions can be combined
+together.
+
+\newcommand{\arzero}{\textbf{0}}
+\newcommand{\ararr}{\twoheadrightarrow}
+\newcommand{\armul}{\otimes}
+
+Expressions are divided in a couple classes. It is either \emph{combined}, from which we
+might select components from it, or it is \emph{single}. In additition, an expression
+can be either \emph{saturated} or \emph{unsaturated}. A single saturated expression
+have arity $\arzero$, therefore, neither selection nor application can be performed.
+Unsaturated expressions on the other hand, have arities of the form $\alpha \ararr \beta$,
+where $\alpha$ and $\beta$ are itself arities. The meaning of such arity is \emph{give me an expression
+of arity $\alpha$ and I give an expression of arity $\beta$}, just like normal Haskell types. 
+
+For example, the builtin $succ$ has arity $\arzero \ararr \arzero$; the list constructor
+$cons$ has arity $(\arzero \armul \arzero) \ararr \arzero$, since it takes two expressions
+of arity $\arzero$ and returns an expression. We'll not go into much more detail 
+on arities. It is easy to see how they're inductively defined. We refer the reader
+to chapter 3 of \cite{nords90}.
+
+Evaluation of expressions in the theory of types is performed in a lazy fashion, the semantics
+are based in the notion of \emph{canonical expression}. These canonical expressions are the values
+of programs and, for each set, they have different formation conditions. The common property is
+that they must be closed and saturated. It is closely related to the weak-head normal form concept in
+lambda calculus.  
+
+\begin{center}
+\begin{table}[h]
+\begin{tabular}{p{3cm} p{3cm} p{3cm} p{3cm}}
+  Canonical & Noncanonical & Evaluated & Fully Evaluated \\  
+  $12$ & $fst\;\langle a , b \rangle$ & $succ\;zero$ & $true$ \\
+  $false$ & $3 \times 3$ & $succ\;(3 + 3)$ & $succ\;zero$ \\
+  $(\lambda x . x)$ & $(\lambda x . snd\;x) p$ & $cons(4, app(nil, nil))$ & $4$
+\end{tabular}
+\caption{Expression Evaluation State}
+\end{table}
+\end{center}
+
+\subsection{Judgement Forms}
+Standing on top of the basic constructos of the theory of types, we can start to discuss
+what kind of judgements forms we can express and derive. In fact, Agda boils down to a tool
+that does not allow us to make incorrect derivations. Type theory provides us with derivational 
+rules to discuss the validity of judgements of the following form:
+
+\begin{center}
+\begin{table}[h]
+\begin{tabular}{c l l}
+       & Sets & Propositions \\ \hline
+  i)   & $A$ is a set. & $A$ is a proposition. \\
+  ii)  & $A$ and $B$ are equal sets. & $A$ and $B$ are equivalent propositions. \\
+  iii) & $a$ is an element of a set $A$. & $a$ is a proof of $A$. \\
+  iv)  & $a$ and $b$ are equal elements of a set $A$. & $a$ and $b$ are the same proof. \\  
+\end{tabular}
+\caption{Judgement Forms}
+\end{table}
+\end{center}
+
+When reading a set as a proposition, we might simplify $iii$ to \emph{$A$ is true}, disregarding
+the proof. What maters is the existence of the proof.
+
+But then, let's take $i$ as an example. What it means to be a set? To know $A$ is a set is
+to know how to form the canonical elements of $A$ and under what conditions two canonical
+elements are equal. Therefore, do construct a set, we need to give a syntatical description
+of it's canonical elements and provide means to decide whether or not two canonical elements
+are equal. Let us take another look at the Peano Naturals:
+
+\Agda{Basic}{NAT}
+
+We're infact defining a \D{Set}, whose canonical elements are either \IC{zero} or
+\IC{succ} applied to something. Equality in \D{Nat} is indeed decidable, therefore we have a set
+in the theory of types sense.
+
+The third form of judgement might also be slightly tricky. Given that $A$ is a set, 
+to know $a$ is an element of $A$ is to know that, when evaluated, $a$ yields a canonical element in $A$
+as value. Making the parallel to Agda again, this is what allows we to pattern match on terms.
+
+To know that two sets are equal is to know that they have the same canonical elemets, and
+equal canonical elements in $A$ are also equal canonical elements in $B$. Two elements are
+equal in a set when their evaluation yields equal canonical elements.
+
+For a proper presentation of the theory of types, we should generalize these judgement forms
+to cover hypothesis. Yet, we don't want to delve into too much detail but what's necessary for 
+a stable understanding of Agda. we refer the reader to Martin-L\"{o}f's thesis \cite{lof84,lof85}.
+
+\subsection{General Rules}
+
+\begin{TODO}
+  \item Present the general form of deduction. Define Nat. close backgroun.
+\end{TODO}
 
 

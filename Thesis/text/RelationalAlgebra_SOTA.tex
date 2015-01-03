@@ -1,0 +1,28 @@
+The current developments within Relational Algebra in Agda vary a lot, mainly due to
+different goals. One has a plethora of options when developing a library. It is therefore
+important to weight the options with the goals. As far as we know, at the time
+of writing this thesis, there was no library that fitted our specific goals, which
+are: (A) An expressive encoding of relational algebra; and (B) easy to handle in the meta-level,
+for automatic rewritting.
+
+The library constructed by Kahl, \cite{RATHAgda}, is not specific to Relational Algebra, but
+instead he chose to construct a library for Category Theory, from which one can use
+the specific category of relations, \catname{Rel}. The theories in RATH-Agda are intended
+for a high-level programming, not so much focused on theorem proving. We can see that
+the equality problem we ran into is not handled in Kahl's library, it is not even needed there.
+\begin{TODO}
+  \item How about using Kahl's library as our backend? And, later on, providing just
+        a wrapper to prevent evaluation and use Kahl's?
+\end{TODO}
+
+Another interesting library is the one developed by Jansson, Mu and Ko at \cite{Jansson09}. 
+Their goal, however, still is very different from both RATH-Agda and this project.
+Mu, et al., are focussing on deriving programs given specifications, which is a big merit of
+functional programming. Indeed, they explore the equational reasoning of programs in order to keep
+\emph{refining} programs. They also avoid the non-extensional equality problem by defining
+another equality type and proving it's substitutiveness whenever necessary. Their main focus
+is on subrelation-reasoning, though.
+
+\begin{TODO}
+  \item Expand this... maybe a few excerpts from both libraries?
+\end{TODO}

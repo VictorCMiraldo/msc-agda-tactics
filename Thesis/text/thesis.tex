@@ -20,6 +20,7 @@
 \usepackage{multirow}
 \usepackage{moreverb}
 \usepackage{proof}
+\usepackage[all]{xy}
 \usepackage{catchfilebetweentags}
 
 \usepackage{agda} 
@@ -85,10 +86,13 @@
 %therefore we have to define them here.
 \newcommand{\textrho}{$\rho$}
 \newcommand{\textLambda}{$\Lambda$}
+\newcommand{\textpi}{$\pi$}
 
 % And some others that actually require the unicode declaration
 \DeclareUnicodeCharacter {10627}{\{\hspace {-.2em}[}
 \DeclareUnicodeCharacter {10628}{]\hspace {-.2em}\}}
+\DeclareUnicodeCharacter {8759}{::}
+\DeclareUnicodeCharacter {8718}{$\square$}
 
 \title{Victor's Thesis Template}
 \author{Victor}
@@ -139,8 +143,16 @@
   \input{text/Background_MartinLof}
   
 \chapter{Relational Algebra in Agda}
-\label{chap:relationalalgebra}
+\label{chap:relationalalgebrainagda}
 \input{text/RelationalAlgebra_prelude}
+
+  \section{State of the Art}
+  \label{sec:relalg_sota}
+  \input{text/RelationalAlgebra_SOTA}
+
+  \section{Encoding Relations}
+  \label{chap:relationalalgebra}
+  \input{text/RelationalAlgebra_body}
   
 \chapter{Notes on Reflection}
 \label{chap:reflection}

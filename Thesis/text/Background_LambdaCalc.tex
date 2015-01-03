@@ -50,7 +50,7 @@ for instance $\lambda x . x$ and $\lambda y . y$, we say that they are $\alpha$-
 
 \begin{mydef}[Substitution] Let $M$ and $N$ be lambda-terms where $x$ has a free occurence
 in $M$. The substitution of $x$ by $N$ in $M$, denoted by $[N/x]M$ is, informally, the result
-of replacing every $x$ in $M$ by $N$. It is defined by induction on $M$ by:
+of replacing every free occurence of $x$ in $M$ by $N$. It is defined by induction on $M$ by:
 \begin{eqnarray*}
    {[N/x]} x & = & N \\
    {[N/x]} y & = & y, \; y \neq x \\

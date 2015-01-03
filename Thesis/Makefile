@@ -15,6 +15,7 @@ TEXT_PARTS=Agda_prelude \
            Background_LambdaCalc \
            Background_MartinLof \
            RelationalAlgebra_prelude \
+           RelationalAlgebra_SOTA \
            Problem \
            Intro \
            Reflection_prelude
