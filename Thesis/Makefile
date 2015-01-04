@@ -14,6 +14,7 @@ TEXT_PARTS=Agda_prelude \
            Background_prelude \
            Background_LambdaCalc \
            Background_MartinLof \
+           Background_MartinLof_Derivation \
            RelationalAlgebra_prelude \
            RelationalAlgebra_SOTA \
            Problem \
@@ -29,6 +30,7 @@ CODE_AGDA_STDLIB=/home/victor/Documents/UU/Thesis/agda-stdlib/src
 CODE_AGDA_REL=/home/victor/Documents/UU/Thesis/msc-agda-tactics/Agda
 
 CODE_AGDA_MODULES=Basic\
+                  MartinLof\
                   CaseStudy1\
                   RelationsCore\
                   ProofIrrel\

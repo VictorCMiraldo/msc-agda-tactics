@@ -1,0 +1,33 @@
+Let us denote the set $Id(A, \ite{x}{a}{a}, a)$ by $\phi(x)$, for any given set $A$ and
+element $a \in A$. The (partially ommited) derivation follows.
+
+\[
+\infer[\BB_{elim}]
+      {\ite{b}{id(a)}{id(a)} \in \phi(b) }
+      { b \in \BB 
+      & \infer*{\withhip{v \in \BB}{\isset{\phi(v)}}}{}
+%              { \infer[Id_{form}]
+%                      {\isset{Id(A, \ite{b}{a}{a}, a)}}
+%                      { \isset{A}
+%                      & \ite{b}{a}{a} \in A
+%                      & a \in A
+%                      }
+%              }
+      & \infer[Id_{intro}]
+              {id(a) \in \phi(true)}
+              { \infer[\BB_{eq_1}]
+                      {\ite{true}{a}{a} = a \in A}
+                      {\isset{A}
+                      & a \in A
+                      } 
+              }
+      & \infer[Id_{intro}]
+              {id(a) \in \phi(false)}
+              { \infer[\BB_{eq_2}]
+                      {\ite{false}{a}{a} = a \in A}
+                      {\isset{A}
+                      & a \in A
+                      } 
+              }
+      }
+\] 

@@ -245,8 +245,147 @@ a stable understanding of Agda. we refer the reader to Martin-L\"{o}f's thesis \
 
 \subsection{General Rules}
 
-\begin{TODO}
-  \item Present the general form of deduction. Define Nat. close backgroun.
-\end{TODO}
+A thorough explanation of the rules for the theory of types is outside the scope of this section. 
+This is just a simple illustration that might help unfamiliar readers to grasp Agda with
+some confort, since they got a taste of what's happening behind the curtains. I'll present the
+general notion of rule, their syntax, and give a simple example.
 
+In the theory of types there are some general rules regarding equality and substitution, 
+which can be justified by the defined semantics, then, for each set forming operation, there
+are rules for reasoning about the set and it's elements. These foremost class of rules
+are divided into four kinds:
+
+\begin{enumerate}[i)]
+  \item \emph{Formation} rules for $A$ describe the conditions under which $A$ is a set and
+        when another set $B$ is equal to $A$.
+        
+  \item \emph{Introduction} rules for $A$ are used to construct the canonical elements. They
+        describe how they are formed and when two canonical elements of $A$ are equal.
+        
+  \item \emph{Elimination} rules act as an \emph{structural induction principle} for elements of $A$.
+        They allow us to prove propositions about arbitrary elements.
+        
+  \item \emph{Equality} rules gives us the equalities which are associated with $A$.
+\end{enumerate}
+
+\newcommand{\isset}[1]{#1 \; \text{set}}
+\newcommand{\withhip}[2]{#2 \; [ #1 ] }
+\newcommand{\BB}{\mathbb{B}}
+\newcommand{\ite}[3]{(#1 \; ? \; #2 \; : \; #3)}
+The snytax will follow a natural deduction style, so, for example: 
+\[
+  \infer{\isset{\Pi(A , B)}}{\isset{A} & \withhip{x \in A}{\isset{B(x)}}}
+\]
+Represents the formation rule for $\Pi$, and can be applied whenever $A$ and $B(x)$ are sets,
+assuming that $x \in A$. Judgements may take the form $p = a \in A$, and they only mean 
+that if we compute the program $p$, we get the canonical element $a \in A$ as a result.
+
+Well, so far so good, but how do we use all these rules and interpretations? I hope to take the
+remaining fog out of how Martin-L\"{o}f's theory \emph{is} Agda with the next example. For this,
+I'll need the set of booleans and the set of intentional equality.
+
+\subsubsection{Boolean Values}
+
+The set of boolean values, or, $\{ true, false \}$, is nothing more than an enumeration set.
+There are generic rules to handle enumeration sets, yet, for simplicity's sake I'm going to use an instantiated
+version of those rules.
+
+\[ 
+\begin{array}{c c c}
+    \infer[\BB_{form}]{ \isset{\BB} }{} 
+  & \infer[\BB_{intro_1}]{true \in \BB}{}
+  & \infer[\BB_{intro_2}]{false \in \BB}{}
+\end{array}
+\]
+\[
+    \infer[\BB_{eq_1}]
+          {\ite{true}{c}{d} = c \in C(true)}
+          {\withhip{b \in \BB}{\isset{C(b)}}
+          & c \in C(true)
+          & d \in C(false)
+          }
+\] 
+\vspace{2mm}
+\[
+    \infer[\BB_{eq_2}]
+          {\ite{false}{c}{d} = d \in C(false)}
+          {\withhip{b \in \BB}{\isset{C(b)}}
+          & c \in C(true)
+          & d \in C(false)
+          }
+\] 
+\vspace{2mm}
+\[
+    \infer[\BB_{elim}]
+          {\ite{b}{c}{d} \in C(b)}
+          { b \in \BB
+          & \withhip{v \in \BB}{\isset{C(v)}}
+          & c \in C(true)
+          & d \in C(false)
+          }
+\]
+\vspace{2mm}
+
+\subsubsection{Intensional Equality}
+
+The set $Id(A, p, a)$, for $Id$ a primitive constant (with arity $\arzero \armul \arzero \armul \arzero \ararr \arzero$),
+represents the judgement $p = a \in A$. Put into words, it means that the program $p$ evaluates to $a$,
+which is a canonical element of $A$. The elimination and equality rules for $Id$ will not be presented here.
+
+\[
+  \infer[Id_{form}]
+        {\isset{Id(A, a, b)}}
+        { \isset{A}
+        & a \in A
+        & b \in A
+        }
+\]
+\[
+\begin{array}{c c}
+  \infer[Id_{intro_1}]
+        {id(a) \in Id(A, a, a)}
+        {a \in A}
+&
+  \infer[Id_{intro_2}]
+        {id(a) \in Id(A, a, b)}
+        {a = b \in A}
+\end{array}
+\]
+
+From the introduction rules, we should be able to tell which are the canonical elements of $Id$.
+As an exercise, the reader should compare the set $Id$ with Agda's \emph{Relation.Binary.PropositionalEquality}.
+
+\subsection{Epilogue}
+
+At this point we have briefly discussed the Curry-Howard isomorphism in it's simply-typed
+version and in it's dependently typed flavor. We have presented (the very surface of) the theory
+of types and which kind of logical judgements we can handle with it. But how does all this connects 
+to Agda and verification in general?
+
+Software Verification with a functional language is somewhat different from imperative languages. 
+If one is using C, for example, one would write the program and anotate it with logical expressions.
+They are twofold. We can use pre-conditions, post-conditions and invariants to deductively verify a program
+(these are in fact a variation of Hoare's logic). Or, we can use Software Model Checking, proving
+that for some bound of traces $k$, our formulas are satisfied.
+
+When we arrive at the functional realm, our code is correct \emph{by construction}. The type-system
+provides both the \emph{annotation language} and you can construct a program that either type-checks,
+therefore respects it's specification, or doesn't pass through the compiler. Remember that Agda's
+type system is the intensional variant of Martin-L\"{o}f's theory of types, which we just presented
+in this chapter.
+
+Let us now prove that, for any set $A$ and $a \in A$, given a $b \in \BB$ we have
+that $\ite{b}{a}{a} = a$. Translating it to a more formal version, we want to prove that:
+\[
+  \withhip{b \in \BB, a \in A}{Id(A, \ite{b}{a}{a}, a)} \text{ is inhabited.}
+\]
+
+Well, it sufices to show the existence of some element in the aforementioned set.
+
+\input{text/Background_MartinLof_Derivation}
+
+Now, take a look at the same proof, encoded in Agda without anything from the standard library.
+Note how some rules (like $\BB_{elim}$) are built into the language, as pattern-matching, for instance.
+
+\Agda{MartinLof}{proof}
 
