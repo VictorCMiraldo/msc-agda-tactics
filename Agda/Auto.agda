@@ -300,37 +300,6 @@ module Auto where
       unel : Type → AgTerm
       unel (el _ t) = t
 
-
-  {-
-  -- convert an Agda name to a rule.
-  name2rule : Name → Error (∃ Rule)
-  name2rule nm with name2term nm
-  ... | inj₁ msg             = inj₁ msg
-  ... | inj₂ (n , t)         with split t
-  ... | (k , ts)             with initLast ts
-  ... | (prems , concl , _)  = inj₂ (n , rule (name nm) concl (Vec.toList prems))
-
-  -- function which reifies untyped proof terms (from the
-  -- `ProofSearch` module) to untyped Agda terms.
-  mutual
-    reify : Proof → AgTerm
-    reify (con (rvar i) ps) = var i []
-    reify (con (name n) ps) with definition n
-    ... | function x   = def n (reifyChildren ps)
-    ... | constructor′ = con n (reifyChildren ps)
-    ... | data-type x  = unknown
-    ... | record′ x    = unknown
-    ... | axiom        = unknown
-    ... | primitive′   = unknown
-
-    reifyChildren : List Proof → List (Arg AgTerm)
-    reifyChildren [] = []
-    reifyChildren (p ∷ ps) = toArg (reify p) ∷ reifyChildren ps
-      where
-        toArg : AgTerm → Arg AgTerm
-        toArg = arg (arg-info visible relevant)
-  -}
-
   -- data-type `Exception` which is used to unquote error messages to
   -- the type-level so that `auto` can generate descriptive type-errors.
 
@@ -359,11 +328,16 @@ module Auto where
   test : {A B : Set} → Rel ℕ ℕ → Message ⊎ (∃ PsTerm)
   test s = agda2term (quoteTerm (sucR ∙ s))
 
+  unRight : {A B : Set} → A ⊎ B → B
+  unRight (inj₁ a) = err "wtf?"
+    where postulate err : {A : Set} → String → A
+  unRight (inj₂ a) = a
+
   goalTest1 : {A B : Set}(R : Rel A B) → (R ⊆ R ∙ Id) ⇐ Unit
   goalTest1 R 
     = begin
       R ⊆ R ∙ Id
-    ⇐⟨(quoteGoal g in {!agda2term g!}) ⟩
+    ⇐⟨(quoteGoal g in {! agda2term (quoteTerm (R ⊆ R ∙ Id))!}) ⟩
       R ⊆ R
     ⇐⟨ (λ _ → ⊆-refl) ⟩
       Unit

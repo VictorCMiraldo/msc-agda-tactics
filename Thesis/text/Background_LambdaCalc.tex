@@ -12,14 +12,14 @@ that there were ways of making it consistent again, with the help of types.
 
 The notion of type is paramount for this thesis as a whole. This notion arises when we want 
 to combine different terms in a given language, for instance, it makes no sense to try
-to compute $\int \mathbb{N}\;\mathrm{d}x$. Although syntatically correct, it's subterms have
+to compute $\int \mathbb{N}\;\mathrm{d}x$. Although syntactically correct, it's subterms have
 different \emph{types} and, therefore, are not compatible. A type can be seen as a
 categorization of terms.
 
-For a torough introduction of the lambda-calculus, the reader is directed to \cite{Barendregt01,Hindley01}.
+For a thorough introduction of the lambda-calculus, the reader is directed to \cite{Barendregt01,Hindley01}.
 The goal of this chapter is to make it easier to the reader to see how Martin-Löf's type theory
 was born. There are a lot of connections with it's cousin the $\lambda$-calculus and seeing this
-connections might give a better understanting. 
+connections might give a better understanding. 
 
 \subsection{The $\lambda$-calculus}
 
@@ -37,20 +37,20 @@ inductively defined by:
 \end{description}
 \end{mydef}
 
-Let's make some conventions that will be usefull throughout this document. We'll usually denote
-terms by uppercase letters $M, N, O, P, \cdots$ and variables by lowercases $x, y, z, \cdots$.
+Let's make some conventions that will be useful throughout this document. We'll usually denote
+terms by uppercase letters $M, N, O, P, \cdots$ and variables by lower cases $x, y, z, \cdots$.
 Application is left associative, that is, the term $M N O$ represents $((M N) O)$ whereas
 abstractions are right associative, so, $\lambda x y. K$ represents $(\lambda x . (\lambda y.K))$.
 
 Suppose we have a term $\lambda yz.x(yz)$, we say that variables $y$ and $z$ are bounded variables
-and $x$ is a free variable (there is no abtraction binding it visible). For now on, we'll 
-use Barendregt's convenssion for variables and assume that terms do not have any name clashing.
+and $x$ is a free variable (there is no abstraction binding it visible). For now on, we'll 
+use Barendregt's convention for variables and assume that terms do not have any name clashing.
 In fact, whenever we have two terms $M$ and $N$ that only differ in the naming of their variables,
 for instance $\lambda x . x$ and $\lambda y . y$, we say that they are $\alpha$-convertible.\\
 
-\begin{mydef}[Substitution] Let $M$ and $N$ be lambda-terms where $x$ has a free occurence
+\begin{mydef}[Substitution] Let $M$ and $N$ be lambda-terms where $x$ has a free occurrence
 in $M$. The substitution of $x$ by $N$ in $M$, denoted by $[N/x]M$ is, informally, the result
-of replacing every free occurence of $x$ in $M$ by $N$. It is defined by induction on $M$ by:
+of replacing every free occurrence of $x$ in $M$ by $N$. It is defined by induction on $M$ by:
 \begin{eqnarray*}
    {[N/x]} x & = & N \\
    {[N/x]} y & = & y, \; y \neq x \\
@@ -59,9 +59,9 @@ of replacing every free occurence of $x$ in $M$ by $N$. It is defined by inducti
 \end{eqnarray*}
 \end{mydef}
 
-\subsection{Beta reduction and Confluency}
+\subsection{Beta reduction and Confluence}
 
-We are now equiped with both a notion of term and a formal definition of substitution, we can
+We are now equipped with both a notion of term and a formal definition of substitution, we can
 model the notion of computation. The intuitive meaning is very simple. Imagine a normal
 function $f(x) = x + 3$ and suppose we want to compute $f(2)$. All we have to do is to
 substitute $x$ for $2$ in the body of $f(x)$, resulting in $2+3$.
@@ -103,7 +103,7 @@ exists a term $Z$ such that $M \betarightright Z$ and $N \betarightright Z$.
 \end{thm}
 
 Note that the aforementioned results are of enormous relevance not only for the $\lambda$-calculus,
-but for similar formalisms too. They allow us to prove that, for instance, the normal form
+but for similar formalism's too. They allow us to prove that, for instance, the normal form
 of a lambda-term (if it exists\footnote{%
 %%%%% BEGIN FOOTNOTE
 There are terms that do not have a normal form. A classical example is $(\lambda x . xx)(\lambda x . xx)$.
@@ -115,7 +115,7 @@ The reader is invited to compute a few $\beta$-reductions on it.
 
 \begin{mydef}[Type]
 Let $\mathcal{C}_{\mathcal{T}} = \{ \sigma, \sigma', \cdots \}$ be a set of atomic types,
-we define the set $\mathbb{T}$ of simple types by indution:
+we define the set $\mathbb{T}$ of simple types by induction:
 \begin{enumerate}[i)]
   \item $\mathcal{C}_{\mathcal{T}} \subset \mathbb{T}$
   \item $\forall \sigma, \tau \in \mathbb{T}. \; (\sigma \rightarrow \tau) \in \mathbb{T}$.
@@ -161,7 +161,7 @@ We define the set of all type derivations by induction in the target lambda-term
 
 \begin{mydef}[Derivability]
 Let $\Gamma$ be a context, $M$ a lambda-term and $\sigma$ a type. We say that
-the sequent $\Gamma \vdash M : \sigma$ is derivable is there exsits a derivation with
+the sequent $\Gamma \vdash M : \sigma$ is derivable is there exists a derivation with
 such sequent as it's conclusion.
 \end{mydef}
 
@@ -174,13 +174,14 @@ though. We want to explore it's connection with Mathematical logic. In the next 
 we'll explore this connection.
 
 \subsection{The Curry-Howard Isomorphism}
+\label{sec:background:curryhoward}
 
 On one hand we have the models of computation, on the other hand we have the proof systems.
-A a first glance, they look like very different formalisms, but they turned out to be
+A a first glance, they look like very different formalism's, but they turned out to be
 structurally the same. Let $M$ be a term and $\Gamma$ a context such that
 $\Gamma \vdash M : \sigma$ is derivable. We can look at $\sigma$ as a propositional formula\footnote{
 %%%% BEGIN FOOTNOTE
-Remeber that the implication, here denoted by $\subset$, forms a minimal complete connective set
+Remember that the implication, here denoted by $\subset$, forms a minimal complete connective set
 and is, therefore, enough to express the whole propositional logic.
 %%%% END FOOTNOTE
 } and to $M$ as a proof of such formula. There are other ways to show this connection,
@@ -204,7 +205,7 @@ $\supset$-introduction rules from Natural Deduction;
 \end{align*} 
 \end{center}
 
-This semingly shallow equivalence is a remarkable result in Computing Science, discovered
+This seemingly shallow equivalence is a remarkable result in Computing Science, discovered
 by Curry and Howard in \cite{Curry01,Howard01}. This was the starting point for the
 first proof checkers, since checking a proof is the same as typing a lambda-term. If the
 term is typeable, then the proof is valid. Up to this point we only presented the simpler

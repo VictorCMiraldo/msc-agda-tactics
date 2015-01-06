@@ -1,8 +1,8 @@
 Unlike most programming languages, an encoding of Relational Algebra in a dependently typed 
 language allows one to truly see the advantage of dependent types in action. Most of the definitions
 happens at the \emph{type level} (remember that there is no difference between types and values in Agda,
-this is just a mnemonic to help understanting the \emph{functions}). The encoding presented
-here is based on \cite{Jansson09}, with most of it's significant differences beeing due to
+this is just a mnemonic to help understanding the \emph{functions}). The encoding presented
+here is based on \cite{Jansson09}, with most of it's significant differences being due to
 extensional equality.
 
 Long story short, a binary relation $R$ of type $A \rightarrow B$ can be thought of in terms of several mathematical objects.
@@ -22,7 +22,7 @@ returns the subset of $B$ that is related to $a$ trough $R$.
 \[ (\Lambda\; R)\; a = \{ b \in B \;\mid\; b\;R\;a \} \]
 
 For our Agda encoding of Relations, we shall use a slight modification of the $\powerset$ approach.
-Let's begin, in fact, by encoding set theoretic notions. The most important of all beeing undoubtly
+Let's begin, in fact, by encoding set theoretic notions. The most important of all being undoubtedly
 the membership notion $\cdot \in \cdot$. One way of encoding a subset of a set $A$ is using a function $f$
 of type $A \rightarrow Bool$, the subset is obtained by $\{\; a \in A\; |\; f\;a\; \}$. Yet, in Agda, this would
 force that we deal only with decidable domains, which is not a problem if everything is finite, but
@@ -51,7 +51,7 @@ to help in their definition and to illustrate usage.
 
 \Agda{RelationsCore}{relation-def}
 
-And the operations are defined just as we would expect them. Note that \D{\_⊎\_} represents a disjoin union of sets
+And the operations are defined just as we would expect them. Note that \D{\_⊎\_} represents a disjoint union of sets
 (equivalent to Either in Haskell) and \D{\_×\_} represents the usual cartesian product. The function
 lifting might look like the less intuitive construction, but it's a very simple one. $fun\;f$ is a relation,
 therefore it takes a $b$ and a $a$ and should return a type that is inhabited if and only if $(a, b) \in fun\;f$,
@@ -89,7 +89,7 @@ And $\releq$ is an equivalence relation (reflexive, transitive and symmetric).\\
 
 So far so good, at first sight one would believe that there are no problems with such definitions
 (and in fact there won't be any problem as long as we keep away from Agda, but then it wouldn't be fun, right?). 
-Ignore the boilerplate code, we wraped both definitions
+Ignore the boilerplate code, we wrapped both definitions
 as datatypes in Agda to prevent expansion when using reflection.
 
 \Agda{RelationsCore}{subrelation}
@@ -102,14 +102,14 @@ such proof though, it's existence is what matters. In more formal terms, we woul
 that $\D{Rel}$ returned a proof irrelevant set. In Coq this would be \texttt{\small Prop}, but
 Agda has no set of propositions.
 
-We can see such problem comming to the surface if we try to use Agda's propositional equality 
+We can see such problem coming to the surface if we try to use Agda's propositional equality 
 instead of $\releq$ (and hence the name distinction):
 
 \Agda{RelationsCore}{releq-is-not-propeq}
 
 We have to use functional extensionality anyway (here, disguised as \F{rel-ext}). But the 
 type of our goal is $R\;b\;a \equiv S\;b\;a$ and the proof get stuck since set equality is
-undecidable. We infact just want $R$ and $S$ to be inhabited at
+undecidable. We in fact just want $R$ and $S$ to be inhabited at
 the same time.
 
 So, it's clear that we also need some encoding of $\releq$:
@@ -126,8 +126,8 @@ and postulating the proof-irrelevant notion of set equality (as in Set Theory):
 
 \Agda{RelationsCore}{releq-lifting}
 
-The powerset transpose postulate is pretty much function-extensionality with some syntatic sugar, and it is
-known to not introduce any contractiction. But $ℙ-ext$ on the other hand, have to be justified.
+The powerset transpose postulate is pretty much function-extensionality with some syntactic sugar, and it is
+known to not introduce any contradiction. But $ℙ-ext$ on the other hand, have to be justified.
 The reason for such postulate is just because somewhere in our library, we gotta have a notion
 of proof-irrelevance to be able to state relational equality. As we'll discuss in the next section,
 there are a couple places were we can insert this notion, but postulating it at the subsets ($ℙ$) level is
@@ -150,22 +150,22 @@ as we shall present in the next sections.
   we say that $a$ is a point in space $A$. Objects are seen as points in a space and the type $a = b$ is seen as a path from $a$ to $b$.
   It's obvious that for all $a$ there is a path from $a$ to $a$, therefore $a = a$, giving us reflexivity.
   If we have a path from $a$ to $b$, we also have one from $b$ to $a$, resulting in symmetry.
-  \emph{Glueing} of paths together corresponds to transitivity. So we have an equivalence relation $=$.
+  \emph{Gluing} of paths together corresponds to transitivity. So we have an equivalence relation $=$.
   
   Even more important, if we have a proof of $P a$ and $a = b$, for a predicate $P$, we can
   transport this proof along the path $a = b$ and arrive at a proof of $P b$. This corresponds to
   the substitutive behavior of standard equality. Note though, that in classical mathematics,
   once an equality $x = y$ has been proved, we can just switch $x$ and $y$ whenever we want. 
   In HoTT, however, there might be more than one path from $x$ to $y$, and they might yield different
-  results, it is important to state which path is beeing \emph{walked} when we use substitutivity.
+  results, it is important to state which path is being \emph{walked} when we use substitutivity.
   
   The first important notion is that of homotopy. Traditionally, we take that two functions are
-  the same if they agree onall inputs. A homotopy between two functions is very close to that
+  the same if they agree on all inputs. A homotopy between two functions is very close to that
   classical notion:
   
   \Agda{ProofIrrel}{homotopy-def}
   
-  It's worth mentioning that \F{\_\~{}\_} is an equivalence relation, although we ommit the proof.
+  It's worth mentioning that \F{\_\~{}\_} is an equivalence relation, although we omit the proof.
   We follow by defining an equivalence, which can be seen an isomorphism notion:
   
   \Agda{ProofIrrel}{isequiv-def}
@@ -179,7 +179,7 @@ as we shall present in the next sections.
   
   \Agda{ProofIrrel}{univalence-def}
   
-  Following the common pracice when encoding HoTT in Agda, we have to postulate the Univalence
+  Following the common practice when encoding HoTT in Agda, we have to postulate the Univalence
   axiom, which in short says that univalence and equivalence coincide:
   
   \Agda{ProofIrrel}{univalence-axiom}
@@ -195,20 +195,20 @@ as we shall present in the next sections.
   
   \Agda{ProofIrrel}{isprop-def}
   
-  This allows us to state some very usefull properties, which allows us to handle propositions
-  as both true or false, depending on wether or not they're inhabited. These corresponds to
+  This allows us to state some very useful properties, which allows us to handle propositions
+  as both true or false, depending on whether or not they're inhabited. These corresponds to
   lemma 3.3.2 in \cite{hottbook}.
   
   \Agda{ProofIrrel}{lemma-332}\\
   \Agda{ProofIrrel}{not-lemma-332}
   
-  Which are both provable in Agda, but the proofs are ommited here.
+  Which are both provable in Agda, but the proofs are omitted here.
   
   \subsubsection{Adding Relations to the mix}
   
   Now, to exploit such finer treatment of equality in our favor, we need to add
   relation and a few other details to the mix. We'll keep the relation definition
-  as before, and push to the user the responsability of proving that his relations
+  as before, and push to the user the responsibility of proving that his relations
   are both mere propositions and decidable.
   
   This can be easily done with Agda's instance mechanism:
@@ -269,9 +269,9 @@ as we shall present in the next sections.
   
   Given the options discussed above, with all their positive and negative aspects, it seems
   a little too restrictive to adopt only one option. We indeed mixed both the $\releq$ promote
-  with $\subseteq-antisym$. The ideia is that the user not only can chose how formal he wants his model
+  with $\subseteq-antisym$. The idea is that the user not only can chose how formal he wants his model
   to be, but this can significantly increase development speed. In the first stages of development, where
-  the base relations might change (and, if instences were written, they would consequently change) a lot,
+  the base relations might change (and, if instances were written, they would consequently change) a lot,
   the user can keep developing with the $\releq$ promotion. Once his model is stable, he can completely
   formalize it by adding the desired instances and using subrelation anti-symmetry.
 
@@ -281,11 +281,11 @@ as we shall present in the next sections.
   \item relational fold!
 \end{TODO}
 
-After estabilishing a model for relations and relational equality, we follow by presenting
+After establishing a model for relations and relational equality, we follow by presenting
 some of the important constructions here. Note that contrary to \emph{pen and paper} Mathematics,
 we provide an encoding of the constructions and then we prove that our encoding satisfy the
 universal property for the given construction, instead of adopting such property as the
-definition. This not only proves the encoding to be correct, but it's the only costructive approach
+definition. This not only proves the encoding to be correct, but it's the only constructive approach
 we can use.
 
 The design adopted for the lower level constructions is somewhat heavy in it's notation. The
@@ -317,8 +317,8 @@ That is,
 \end{eqnarray*}
 
 Products are unique up to isomorphism, which explains the notation without introducing any new names.
-The proof is fairly simple and can be conducted by \emph{glueing} two product diagrams.
-The diagramatic notation states the existence of a relation $\langle R , S \rangle$ and the dotted arrow
+The proof is fairly simple and can be conducted by \emph{gluing} two product diagrams.
+The diagrammatic notation states the existence of a relation $\langle R , S \rangle$ and the dotted arrow
 states it's uniqueness. $\pi_1\;(b , c) = b$ and $\pi_2\;(b , c) = c$ are the canonical
 projections.\\
 
@@ -333,7 +333,7 @@ available. We just wrap everything inside a record:
 
 \Agda{RelationsCore}{product-final}
 
-It's universsal property can be derived from the following \emph{lemmas}
+It's universal property can be derived from the following \emph{lemmas}
 
 \Agda{RelationsCore}{product-univ-r1}\\
 \Agda{RelationsCore}{product-univ-r2}\\
@@ -345,9 +345,9 @@ instances are already defined.
 
 \subsection{Coproduct}
 
-If we flip every arrow in the diagram for products, we arive at it's dual notion, usually
+If we flip every arrow in the diagram for products, we arrive at it's dual notion, usually
 called coproduct or sum. Given two relations $R : B \rightarrow A$ and $S : C \rightarrow A$,
-we can perform a \emph{case analisys} in an element of type $B + C$ and relate it to an $A$.
+we can perform a \emph{case analysis} in an element of type $B + C$ and relate it to an $A$.
 Indeed, the \emph{either} of $R$ and $S$, denoted $[R , S]$, has type $B + C \rightarrow A$
 and is depicted in the following diagram:
 
@@ -384,7 +384,7 @@ And here we can start to see the dependent types shining. The existential quanti
 is just some syntax sugar for a dependent product. Therefore, for constructing a composition
 we need to provide a witness of type $B$ and a proof that $c R b \wedge b S a$, given $c$ and $a$.
 
-Yet, this suffers the problem we mentioned earlier. Agda will normalize every occurence of \F{\_after\_}
+Yet, this suffers the problem we mentioned earlier. Agda will normalize every occurrence of \F{\_after\_}
 to it's right-hand side, which is a non-linear lambda abstraction, and will make subterm matching 
 very complex to handle. An option is to use the exact definition of an existential quantifier,
 but expand it:

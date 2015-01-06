@@ -1,14 +1,14 @@
 Although functional languages have been receiving great attention
 and a fast evolution in recent years, one of the biggest jumps
 have been the introduction of dependent types. Agda\cite{norell07} is one of such languages, with some other 
-big names beeing \emph{Epigram} \cite{mcbride05} and \emph{Coq} \cite{bertot06}. 
+big names being \emph{Epigram} \cite{mcbride05} and \emph{Coq} \cite{bertot06}. 
 
-In languages like Haskell or ML, where a Hindley-Milner based algorihm is used
+In languages like Haskell or ML, where a Hindley-Milner based algorithm is used
 for type checking, values and types are clearly separated. Within dependent
 types, though, the story changes. A type can depend on any value the programmer
-whishes for. A classical example are the fixed size vectors \inlagda{Vec A n}, where \inlagda{A}
+wishes for. A classical example are the fixed size vectors \inlagda{Vec A n}, where \inlagda{A}
 is the type of the elements and \inlagda{n} is the length of the vector. The reader familiar
-with C may think: but I also hve fixed size arrays in C. The difference is that
+with C may think: but I also have fixed size arrays in C. The difference is that
 this \inlagda{n} need not to be known at compile time, it can be an arbitrary term (as long
 as it has type \inlagda{Nat}). That is, there is no difference between types and values,
 they are all sets, as shall see in chapter \ref{sec:background:martinlof}).
@@ -23,10 +23,10 @@ presented in section \ref{sec:background:lambdacalculus}.
 \subsection{Peano Naturals}
 
 In terms of programing, Agda and Haskell are very close. Agda's syntax was
-inspired by Haskell and, beeing also a functional language, a lot of
+inspired by Haskell and, being also a functional language, a lot of
 the programming techniques we need to use in Haskell also apply for an Agda program.
 Knowledge of Haskell is not strictly necessary, but of a great value for a better
-understanting of Agda.\\
+understating of Agda.\\
 
 The \emph{Hello World} program in Agda is to encode Peano's Natural numbers:
 
@@ -72,9 +72,9 @@ Implicit parameters are enclosed in brackets, this can be read as universal quan
 the type level.
 %%%%% END FOOTNOTE
 }, $\bot \rightarrow A$. Which exactly captures
-the notion of \emph{Reductio ad absurdum} in logic. It's definition is trikier, though.
+the notion of \emph{Reductio ad absurdum} in logic. It's definition is trickier, though.
 Agda's empty pattern, \inlagda{()}, is used to discharge a contradiction. It tells
-that there is no possible pattern in such equation, and we're discharged of writting
+that there is no possible pattern in such equation, and we're discharged of writing
 a right-hand side.
 
 The top set, $\top$, on the other
@@ -101,7 +101,7 @@ we have four kinds of rules:
   \item \emph{Formation} rules for $D$ express the conditions under which $D$ is a set.
         In our example, whenever $A$ and $B$ are sets, then so is \inlagda{A /\symbol{92} B}.
   \item \emph{Introduction} rules for $D$ define the set $D$, that is, they specify how the
-        cannonical elements of $D$ are constructed. For the conjunction case, 
+        canonical elements of $D$ are constructed. For the conjunction case, 
         the elements of \inlagda{A /\symbol{92} B} have the form \inlagda{< a , b >}, where $a \in A$
         and $b \in B$. 
   \item \emph{Elimination} rules show how to prove a proposition about an arbitrary element in $D$.
@@ -132,7 +132,7 @@ interesting part right away.
 \Agda{Basic}{IN-LIST}
 
 Now, let's look closely to this data. We have a set forming operation \D{In}, that receives
-one implicid parameter $A$ and is indexed by an element of $A$ and a $List A$. Indeed, \DArgs{In}{y\; l}
+one implicit parameter $A$ and is indexed by an element of $A$ and a $List A$. Indeed, \DArgs{In}{y\; l}
 is the proposition that states that $x$ is an element of $l$. How do we construct such a proof?
 There are two ways of doing so! Either $y$ is in $l$'s head, that's captured by the \IC{InHead}
 constructor, or it is in $l$'s tail, and for that we require a proof of such statement, in the \IC{InTail}
@@ -147,7 +147,7 @@ The proposition is stated as follows,
 \Agda{Basic}{inDistr-decl}
 
 The variables enclosed in normal parenthesis are called \emph{telescopes}, and they introduce
-the dependent function type $(x : A) \rightarrow B\;x$, that is, $x$ can appear on the righ-hand side of
+the dependent function type $(x : A) \rightarrow B\;x$, that is, $x$ can appear on the right-hand side of
 the function type constructor, $\rightarrow$. Therefore, we need an implicit set $A$, two lists of $A$,
 an element of $A$ and a proof that such element is in the concatenation of the two lists.
 The proof follows by \emph{induction} on the first list. 
@@ -161,7 +161,7 @@ is just what we need to create a disjunction.
 
 If it's not empty, though, then it has a head and a tail. Now we have to also pattern-match
 on $prf$. If it says that our element is in the head of our list, the result is also very simple.
-The repetition of the symbol $x$ in the left hand side is allowed as long as all duplicate occurences
+The repetition of the symbol $x$ in the left hand side is allowed as long as all duplicate occurrences
 are preceded by a dot. They're called dotted patterns and tell Agda that this is \emph{the only possible}
 value for that pattern. We can see that by reasoning with \IC{InHead} type, \DArgs{In}{x\; (x :: l)}. 
 So, if $l_1 = (x :: l)$ and we have $prf = In\; x\; (x :: l)$, that is, a proof that $x$ is in $l_1$'s head,
@@ -177,7 +177,7 @@ Note that we pass a \emph{smaller} proof to the recursive call.
 In this small introduction to Agda we could see a tiny bit of what the language is capable of,
 both in it's programming side and it's proof assistant side. All the concepts were introduced
 informally here, with the intention of not overwhelming a unfamiliar reader. A lot of resources
-are available in the internet at the Agda Wiki page \cite{AgdaTutorials}. 
+are available in the Internet at the Agda Wiki page \cite{AgdaTutorials}. 
 
 
 

@@ -1,5 +1,5 @@
 We're taking Relational Algebra\cite{Bird97} as our main case study for a couple of reasons. One of the most
-important beeing it's expressive power and it's unquestionable advantage as a framework for
+important being it's expressive power and it's unquestionable advantage as a framework for
 reasoning about software, in an equational fashion. Relational Algebra is in fact a discipline that
 allows us to speak of software engineering through unambiguous equations, giving a definite meaning
 to the \emph{engineering} part of software engineering.
@@ -9,7 +9,7 @@ that deserve to be mentioned and compared to what we are doing here. The first, 
 basis for our work, is due to Mu et al, at \cite{Jansson09}. The second, which is more abstract,
 is due to Kahl, at \cite{RATHAgda}.
 
-In this chapter we will present both approeaches mentioned above, 
+In this chapter we will present both approaches mentioned above, 
 then introduce a basic encoding for relations. We'll follow with the discussion of several 
 further options that would change the handling of equality, which turned out to be a very
 delicate matter. The problem imposed by Agda's (intensional) equality is that it implies
@@ -17,5 +17,5 @@ convertibility. As we shall see later, we don't really care about convertibility
 but that they're inhabited at the same time. We can borrow some notions from Homotopy Type Theory\cite{hottbook}
 in order to hardcode a proof irrelevance notion, but this adds a very complex layer of boilerplate
 code for the end-user. Another option is to postulate some axioms that will allow us to \emph{trick}
-Agda's equality, beeing always carefull not to introduce a contradiction. 
+Agda's equality, being always careful not to introduce a contradiction. 
 There are a lot of options for this later case too, we shall discuss a few of them.

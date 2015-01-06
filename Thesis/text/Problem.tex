@@ -14,12 +14,12 @@ uses.
 %%%% END FOOTNOTE
 } would write on paper. One of the main downsides to it, which is also inherent to Agda in general,
 is the need to specify every single detail of the demonstration, even the trivial ones. Note the
-trivial, yet explicit, $(\IC{\_∷\_} x)$ congruence beeing stated.
+trivial, yet explicit, $(\IC{\_∷\_} x)$ congruence being stated.
 
 Aiming somewhat higher, we could actually generalize the congruences to substitutions, as long as the
-underlying equality exibits a substitutive behavior. We can borrow a excerpt from a relational
+underlying equality exhibits a substitutive behavior. We can borrow a excerpt from a relational
 proof that the relation twice, defined by $ (a, 2\times a) \in twice $ for all $a \in \mathbb{N}$,
-preserves even numbers. (the actual code is much larger and will be ommited, this is for illustration
+preserves even numbers. (the actual code is much larger and will be omitted, this is for illustration
 purposes only)
 
 \Agda{CaseStudy1}{twice-even-proof}
@@ -27,7 +27,7 @@ purposes only)
 Besides the obvious Agda boilerplate, it's simple to see how the substitutive\footnote{
 %%% BEGIN FOOTNOTE
 As we shall see later, this is not the case, and this example was heavily modified due to
-the encoding of relational equality not beeing a substitutive relation in Agda.
+the encoding of relational equality not being a substitutive relation in Agda.
 %%% END FOOTNOTE
 } behavior of Relational
 Equality can become a burden to write in every single step, but such factor is also what
@@ -35,7 +35,7 @@ allows us to rewrite arbitrary terms in a formula. The main idea is to provide a
 mechanism to infer the first argument for the \F{substitute} function, making equational reasoning much
 cleaner in Agda.
 
-Alongisde the development of such functionality, based on Agda's reflection capabilities (that is,
+Alongside the development of such functionality, based on Agda's reflection capabilities (that is,
 to access and modify a program AST in compile time), we also want to develop a library for
 Relational Algebra, focused on it's equational reasoning aspect. Both tasks have to walk
 with hands tied, since their design is mutually dependent as I shall illustrate later.
