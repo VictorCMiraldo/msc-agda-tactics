@@ -57,14 +57,6 @@ lifting might look like the less intuitive construction, but it's a very simple 
 therefore it takes a $b$ and a $a$ and should return a type that is inhabited if and only if $(a, b) \in fun\;f$,
 or, to put it another way, if $b = f\;a$, almost like it's textbook definition.
 
-\begin{TODO}
-  \item Fix the definition of composition in the library. Explain it here.
-  \item Add a few universals. Explain how we're taking the road in the "wrongway".
-        We first give a definition then we prove it satisfies the universals, instead
-        of using universals as definitions.
-  \item Explain Agda's propositional equality?
-\end{TODO}
-
 \section{Relational Equality}
 
 A notion of convertibility is paramount to any form of rewriting. In out scenario, whenever
@@ -277,10 +269,6 @@ as we shall present in the next sections.
 
 \section{Constructions}
 
-\begin{TODO}
-  \item relational fold!
-\end{TODO}
-
 After establishing a model for relations and relational equality, we follow by presenting
 some of the important constructions here. Note that contrary to \emph{pen and paper} Mathematics,
 we provide an encoding of the constructions and then we prove that our encoding satisfy the
@@ -294,6 +282,35 @@ is it's ease of use when coupled with reflection techniques. If we provide all d
 as Agda functions, when we access a term AST, Agda will normalize and expand such definitions.
 By encapsulating it in records, we can stop this normalization process and use a (much) smaller
 AST representation.
+
+
+\subsection{Composition}
+
+Given two relations $R : B \rightarrow C$ and $S : A \rightarrow B$, we can construct a
+relation $R \cdot S : A \rightarrow C$, read as $R$ after $S$, and defined by:
+\[
+  R \cdot S = \{ (a, c) \in A \times C\;\mid\; \exists b \in B\;.\; a\;S\;b \wedge b\;R\;c \}
+\]
+Or, using diagrams:
+\begin{displaymath}
+  \xymatrix{ A \ar[r]^S \ar@/_1pc/[rr]_{R \cdot S} & B \ar[r]^R & C }
+\end{displaymath}
+
+As a first definition in Agda, one would expect something like:
+
+\Agda{RelationsCore}{composition-naive}
+
+And here we can start to see the dependent types shining. The existential quantification
+is just some syntax sugar for a dependent product. Therefore, for constructing a composition
+we need to provide a witness of type $B$ and a proof that $c R b \wedge b S a$, given $c$ and $a$.
+
+Yet, this suffers the problem we mentioned earlier. Agda will normalize every occurrence of \F{\_after\_}
+to it's right-hand side, which is a non-linear lambda abstraction, and will make subterm matching 
+very complex to handle. An option is to use the exact definition of an existential quantifier,
+but expand it:
+
+\Agda{RelationsCore}{composition-final}
+
 
 \subsection{Products}
 
@@ -358,39 +375,28 @@ and is depicted in the following diagram:
 }
 \end{displaymath}
 
-\begin{TODO}
-  \item Put the agda definitions here.
-  \item Present the problem with propositionality
-\end{TODO} 
+In Agda, we have:
 
+\Agda{RelationsCore}{coproduct-final}\\
+\Agda{RelationsCore}{coproduct-uni-r1}\\
+\Agda{RelationsCore}{coproduct-uni-r2}\\
+\Agda{RelationsCore}{coproduct-uni-l}
 
-\subsection{Composition}
+The coproduct has instances already defined for decidability and mere propositionality.
 
-Given two relations $R : B \rightarrow C$ and $S : A \rightarrow B$, we can construct a
-relation $R \cdot S : A \rightarrow C$, read as $R$ after $S$, and defined by:
-\[
-  R \cdot S = \{ (a, c) \in A \times C\;\mid\; \exists b \in B\;.\; a\;S\;b \wedge b\;R\;c \}
-\]
-Or, using diagrams:
-\begin{displaymath}
-  \xymatrix{ A \ar[r]^S \ar@/_1pc/[rr]_{R \cdot S} & B \ar[r]^R & C }
-\end{displaymath}
+\section{The Library}
 
-As a first definition in Agda, one would expect something like:
+The constructions and workarouns explained here do not constitute a full description of the library.
+There are still modules for equational reasoning and a few more constructs implemented.
+All the code is available in my GitHub repository ( \texttt{ \small https://github.com/VictorCMiraldo/msc-agda-tactics/tree/master/Agda/Rel} ). It is compliant with Agda's version 2.4.2.2; standard library version 0.9.
 
-\Agda{RelationsCore}{composition-naive}
+\subsection{Next Versions}
 
-And here we can start to see the dependent types shining. The existential quantification
-is just some syntax sugar for a dependent product. Therefore, for constructing a composition
-we need to provide a witness of type $B$ and a proof that $c R b \wedge b S a$, given $c$ and $a$.
-
-Yet, this suffers the problem we mentioned earlier. Agda will normalize every occurrence of \F{\_after\_}
-to it's right-hand side, which is a non-linear lambda abstraction, and will make subterm matching 
-very complex to handle. An option is to use the exact definition of an existential quantifier,
-but expand it:
-
-\Agda{RelationsCore}{composition-final}
-
+Our Relational Algebra in Agda library is no diferent from any library. It always has some
+feature to be implemented and requries constant maintenance work, to comply with the latest
+Agda standard library. Yet, there are two very important constructs that have not been implemented so far.
+We would like to have both a relational fold and shrinking in the library. This would give us the
+expressivity we're looking for.
 
 
 

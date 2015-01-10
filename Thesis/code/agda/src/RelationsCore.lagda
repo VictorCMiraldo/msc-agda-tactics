@@ -1,6 +1,7 @@
 \begin{code}
 open import Data.Sum using (_⊎_)
 open import Data.Product using (_×_; ∃; _,_; proj₂; proj₁)
+open import Data.Sum using (_⊎_; [_,_]) renaming (inj₁ to i1; inj₂ to i2; [_,_]′ to case)
 open import Relation.Binary.PropositionalEquality using (_≡_)
 open import Function using (id; flip)
 \end{code}
@@ -167,4 +168,55 @@ prod-uni-l {X = X} r s pr ps
 \end{code}
 
 
+%<*coproduct-final>
+\begin{code}
+record either {A B C : Set}(R : Rel A C)(S : Rel B C)(c : C)(ab : A ⊎ B) : Set
+  where constructor cons-either
+        field un : case (R c) (S c) ab
+\end{code}
+%</coproduct-final>
+
+\begin{code}
+ι₁ : {A B : Set} → Rel A (A ⊎ B)
+ι₁ = fun i1
+
+ι₂ : {A B : Set} → Rel B (A ⊎ B)
+ι₂ = fun i2
+\end{code}
+
+%<*coproduct-uni-r1>
+\begin{code}
+coprod-uni-r1 : ∀{A B C}{X : Rel (A ⊎ B) C}
+              → (R : Rel A C) → (S : Rel B C)
+              → (X ≡r either R S) 
+              → R ≡r X ∙ ι₁
+\end{code}
+%</coproduct-uni-r1>
+\begin{code}
+coprod-uni-r1 = ?
+\end{code}
+
+%<*coproduct-uni-r2>
+\begin{code}
+coprod-uni-r2 : ∀{A B C}{X : Rel (A ⊎ B) C}
+              → (R : Rel A C) → (S : Rel B C)
+              → (X ≡r either R S) 
+              → S ≡r X ∙ ι₂
+\end{code}
+%</coproduct-uni-r2>
+\begin{code}
+coprod-uni-r2 = ?
+\end{code}
+
+%<*coproduct-uni-l>
+\begin{code}
+coprod-uni-l : ∀{A B C}{X : Rel (A ⊎ B) C}
+             → (R : Rel A C) → (S : Rel B C)
+             → (R ≡r X ∙ ι₁) → (S ≡r X ∙ ι₂)
+             → X ≡r either R S
+\end{code}
+%</coproduct-uni-l>
+\begin{code}
+coprod-uni-l = ?
+\end{code}
 
