@@ -13,10 +13,10 @@ we can look at sets from a \emph{specification} angle, and this is the most inte
 A given element $a$ of a set $A$ can be viewed as: a proof for proposition $A$; a program satisfying the
 specification $A$; or even a solution to problem $A$.
 
-In this chapter we'll explain the basics of the theory of types (in it's \emph{intensional} variation)
+In this chapter we'll explain the basics of the theory of types (in its \emph{intensional} variation)
 trying to establish connections with the Agda language. We'll begin by providing some basic notions
 and the interpretation of propositional logic into set theory. We'll follow with the notion of arity,
-which differs from it's canonical meaning, finishing with a small discussion on the dependent product
+which differs from the canonical meaning, finishing with a small discussion on the dependent product
 and sums operators, which closes the gap to first order logic. The interested reader should continue
 with \cite{nords90} or, for a more practical view, \cite{wouter08,bove2009}
 
@@ -69,7 +69,7 @@ The elements of $A \times B$ are of the form $(a, b)$, where $a \in A$ and $b \i
 of $A \vee B$ is either a proof of $A$ or a proof of $B$. The elements of $A + B$ are of the
 form $\ione\; a$ and $\itwo\; b$ with $a \in A$ and $b \in B$.
 
-\paragraph{Negation,} $\neg A$, can be identified relying on it's definition
+\paragraph{Negation,} $\neg A$, can be identified relying on its definition
 on the minimal logic, $A \supset \bot$
 
 Until now, we defined propositional logic using sets (types) that are available in almost every
@@ -100,7 +100,7 @@ It's worth to remember that Martin-L\"{o}f's theory of types was intended to be 
 for mathematics. It makes sense, therefore, to base our definitions in standard mathematical expressions.
 For instance, consider the syntax of an expression: $E \sim \Sigma \{ a.E' \;\mid\; E \xrightarrow{\;a\;} E' \}$\footnote{%
 %%% FOOTNOTE
-Expansion Lemma for CCS; States that every process (roughly a LTS) is equivalent to the sum of it's derivatives.
+Expansion Lemma for CCS; States that every process (roughly a LTS) is equivalent to the sum of its derivatives.
 The notation $E \xrightarrow{\;a\;} E'$ states a transition from $E$ to $E'$ through label $a$.
 %%% END FOOTNOTE
 }; We have a large range of syntactical elements that we don't usually think about when writing
@@ -229,7 +229,7 @@ the proof. What matters is the existence of the proof.
 But then, let's take $i$ as an example. What it means to be a set? To know $A$ is a set is
 to know how to form the canonical elements of $A$ and under what conditions two canonical
 elements are equal. Therefore, do construct a set, we need to give a syntactical description
-of it's canonical elements and provide means to decide whether or not two canonical elements
+of its canonical elements and provide means to decide whether or not two canonical elements
 are equal. Let us take another look at the Peano Naturals:
 
 \Agda{Basic}{NAT}
@@ -259,7 +259,7 @@ general notion of rule, their syntax, and give a simple example.
 
 In the theory of types there are some general rules regarding equality and substitution, 
 which can be justified by the defined semantics, then, for each set forming operation, there
-are rules for reasoning about the set and it's elements. These foremost class of rules
+are rules for reasoning about the set and its elements. These foremost class of rules
 are divided into four kinds:
 
 \begin{enumerate}[i)]
@@ -364,8 +364,8 @@ As an exercise, the reader should compare the set $Id$ with Agda's \emph{Relatio
 
 \subsection{Epilogue}
 
-At this point we have briefly discussed the Curry-Howard isomorphism in it's simply-typed
-version and in it's dependently typed flavor. We have presented (the very surface of) the theory
+At this point we have briefly discussed the Curry-Howard isomorphism in both the simply-typed
+version and the dependently typed flavor. We have presented (the very surface of) the theory
 of types and which kind of logical judgements we can handle with it. But how does all this connects 
 to Agda and verification in general?
 
@@ -377,7 +377,7 @@ that for some bound of traces $k$, our formulas are satisfied.
 
 When we arrive at the functional realm, our code is correct \emph{by construction}. The type-system
 provides both the \emph{annotation language} and you can construct a program that either type-checks,
-therefore respects it's specification, or doesn't pass through the compiler. Remember that Agda's
+therefore respects its specification, or doesn't pass through the compiler. Remember that Agda's
 type system is the intensional variant of Martin-L\"{o}f's theory of types, which we just presented
 in this chapter.
 

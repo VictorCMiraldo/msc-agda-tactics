@@ -2,7 +2,7 @@ Unlike most programming languages, an encoding of Relational Algebra in a depend
 language allows one to truly see the advantage of dependent types in action. Most of the definitions
 happens at the \emph{type level} (remember that there is no difference between types and values in Agda,
 this is just a mnemonic to help understanding the \emph{functions}). The encoding presented
-here is based on \cite{Jansson09}, with most of it's significant differences being due to
+here is based on \cite{Jansson09}, with most of its significant differences being due to
 extensional equality.
 
 Long story short, a binary relation $R$ of type $A \rightarrow B$ can be thought of in terms of several mathematical objects.
@@ -55,7 +55,7 @@ And the operations are defined just as we would expect them. Note that \D{\_⊎\
 (equivalent to Either in Haskell) and \D{\_×\_} represents the usual cartesian product. The function
 lifting might look like the less intuitive construction, but it's a very simple one. $fun\;f$ is a relation,
 therefore it takes a $b$ and a $a$ and should return a type that is inhabited if and only if $(a, b) \in fun\;f$,
-or, to put it another way, if $b = f\;a$, almost like it's textbook definition.
+or, to put it another way, if $b = f\;a$, almost like its textbook definition.
 
 \section{Relational Equality}
 
@@ -90,7 +90,7 @@ Allow us to take a deeper look into what this definition say, though.
 Let $R : \D{Rel}\;A\;B$, for $A$ and $B$ \D{Set}s, $a : A$ and $b : B$. When we
 state $R\;b\;a$ we're obtaining a \D{Set}, and an element $r : R\;b\;a$ represents
 a proof that $b$ is related to $a$ trough $R$. We have no interest in the contents of
-such proof though, it's existence is what matters. In more formal terms, we would like
+such proof though, its existence is what matters. In more formal terms, we would like
 that $\D{Rel}$ returned a proof irrelevant set. In Coq this would be \texttt{\small Prop}, but
 Agda has no set of propositions.
 
@@ -232,7 +232,7 @@ as we shall present in the next sections.
   relations over $U$, which is less expressive than $Set$. The additional code boilerplate is also big,
   once we have to define a language and all operations that we'll need to perform with it.
   
-  A universe and it's interpretation are defined as:
+  A universe and its interpretation are defined as:
   
   \Agda{Universes}{data-U}
   
@@ -254,7 +254,7 @@ as we shall present in the next sections.
   straight forward (but in a few, rare, complicated cases)! Well, the changes were not only for the best.
   A new, minor, problem is the verbosity introduced by $U$, everything is harder to write and read.
   But there's a bigger situation happening here. If we look at the existential quantifier defined in $U$,
-  it's witnesses must also come from $U$. This can be very restrictive once we start using relational
+  its witnesses must also come from $U$. This can be very restrictive once we start using relational
   composition (which is defined in terms of an existential).
 
 \subsubsection{The Equality Model}
@@ -276,9 +276,9 @@ universal property for the given construction, instead of adopting such property
 definition. This not only proves the encoding to be correct, but it's the only constructive approach
 we can use.
 
-The design adopted for the lower level constructions is somewhat heavy in it's notation. The
+The design adopted for the lower level constructions has a somewhat heavy notation. The
 main reason for this choice (which differs significantly from other Relational Algebra implementations)
-is it's ease of use when coupled with reflection techniques. If we provide all definitions
+is its ease of use when coupled with reflection techniques. If we provide all definitions
 as Agda functions, when we access a term AST, Agda will normalize and expand such definitions.
 By encapsulating it in records, we can stop this normalization process and use a (much) smaller
 AST representation.
@@ -305,7 +305,7 @@ is just some syntax sugar for a dependent product. Therefore, for constructing a
 we need to provide a witness of type $B$ and a proof that $c R b \wedge b S a$, given $c$ and $a$.
 
 Yet, this suffers the problem we mentioned earlier. Agda will normalize every occurrence of \F{\_after\_}
-to it's right-hand side, which is a non-linear lambda abstraction, and will make subterm matching 
+to its right-hand side, which is a non-linear lambda abstraction, and will make subterm matching 
 very complex to handle. An option is to use the exact definition of an existential quantifier,
 but expand it:
 
@@ -336,7 +336,7 @@ That is,
 Products are unique up to isomorphism, which explains the notation without introducing any new names.
 The proof is fairly simple and can be conducted by \emph{gluing} two product diagrams.
 The diagrammatic notation states the existence of a relation $\langle R , S \rangle$ and the dotted arrow
-states it's uniqueness. $\pi_1\;(b , c) = b$ and $\pi_2\;(b , c) = c$ are the canonical
+states its uniqueness. $\pi_1\;(b , c) = b$ and $\pi_2\;(b , c) = c$ are the canonical
 projections.\\
 
 \begin{mydef}[Split Universal]
@@ -362,7 +362,7 @@ instances are already defined.
 
 \subsection{Coproduct}
 
-If we flip every arrow in the diagram for products, we arrive at it's dual notion, usually
+If we flip every arrow in the diagram for products, we arrive at a dual notion, usually
 called coproduct or sum. Given two relations $R : B \rightarrow A$ and $S : C \rightarrow A$,
 we can perform a \emph{case analysis} in an element of type $B + C$ and relate it to an $A$.
 Indeed, the \emph{either} of $R$ and $S$, denoted $[R , S]$, has type $B + C \rightarrow A$

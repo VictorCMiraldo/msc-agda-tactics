@@ -12,14 +12,14 @@ that there were ways of making it consistent again, with the help of types.
 
 The notion of type is paramount for this thesis as a whole. This notion arises when we want 
 to combine different terms in a given language, for instance, it makes no sense to try
-to compute $\int \mathbb{N}\;\mathrm{d}x$. Although syntactically correct, it's subterms have
+to compute $\int \mathbb{N}\;\mathrm{d}x$. Although syntactically correct, the subterms have
 different \emph{types} and, therefore, are not compatible. A type can be seen as a
 categorization of terms.
 
 For a thorough introduction of the lambda-calculus, the reader is directed to \cite{Barendregt01,Hindley01}.
-The goal of this chapter is to make it easier to the reader to see how Martin-Löf's type theory
-was born. There are a lot of connections with it's cousin the $\lambda$-calculus and seeing this
-connections might give a better understanding. 
+The goal of this chapter is to provide a minimal understanting of the $\lambda$-calculus, which
+will allow a better understanding of Martin-L\"{o}f's type theory and how logic is encoded
+in such formalisms.
 
 \subsection{The $\lambda$-calculus}
 
@@ -161,8 +161,8 @@ We define the set of all type derivations by induction in the target lambda-term
 
 \begin{mydef}[Derivability]
 Let $\Gamma$ be a context, $M$ a lambda-term and $\sigma$ a type. We say that
-the sequent $\Gamma \vdash M : \sigma$ is derivable is there exists a derivation with
-such sequent as it's conclusion.
+the sequent $\Gamma \vdash M : \sigma$ is derivable if there exists a derivation with
+such sequent as its conclusion.
 \end{mydef}
 
 The simply-typed $\lambda$-calculus is a model of computation. It has the same expressive power as
@@ -170,8 +170,7 @@ the Turing Machine for expressing computability notions. This is a very well stu
 and the references provided in this chapter are a compilation of everything that
 has been studied so far. For more typed variations of the $\lambda$-calculus we refer the reader
 to \cite{Barendregt03}. We're not interested in that aspect of the $\lambda$-calculus, 
-though. We want to explore it's connection with Mathematical logic. In the next subsection
-we'll explore this connection.
+though. We want to explore the connection with Mathematical logic.
 
 \subsection{The Curry-Howard Isomorphism}
 \label{sec:background:curryhoward}

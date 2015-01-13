@@ -32,14 +32,7 @@ The \emph{Hello World} program in Agda is to encode Peano's Natural numbers:
 
 \Agda{Basic}{NAT}
 
-The data declarations in Agda are very similar to a GADTs\footnote{
-%%%% BEGIN FOOTNOTE
-Generalized Algebraic Data Types
-\begin{TODO}
-  \item cite this?
-\end{TODO}
-%%%% END FOOTNOTE
-} in Haskell. Remember that in Agda types and values are the same thing.
+The data declarations in Agda are very similar to a GADTs\cite{Xi2003} in Haskell. Remember that in Agda types and values are the same thing.
 The data declaration above states that \inlagda{Nat} is \emph{of type} 
 \inlagda{Set}. This \inlagda{Set} is the type of types, to be defined later. 
 For now, think of it as Haskell's $*$ kind.
@@ -90,12 +83,8 @@ conjunction as a first candidate. We begin by declaring the set that represents 
 
 So, \D{A /\symbol{92} B} contains elements with a proof of $A$ and a proof of $B$. It's elements
 can only be constructed with the \IC{<\_,\_>} constructor. The reader familiar with Natural Deduction
-might recognize the following trivial properties:
+might recognize the following trivial properties. Given that $D$ is a set:
 
-
-As we shall see in section \ref{sec:background:martinlof}, these properties come for free whenever we introduce 
-a new set forming operation, or, a data declaration in Agda. In fact, for each set forming operation $D$
-we have four kinds of rules:
 \begin{enumerate}[i)]
   \item \emph{Formation} rules for $D$ express the conditions under which $D$ is a set.
         In our example, whenever $A$ and $B$ are sets, then so is \D{A /\symbol{92} B}.
@@ -112,20 +101,28 @@ we have four kinds of rules:
         and \inlagda{b == b'}.
 \end{enumerate}
 
+As we shall see in section \ref{sec:background:martinlof}, these properties come for free whenever we introduce 
+a new set forming operation, or, a data declaration in Agda. In fact, for each set forming operation $D$
+we have those four kinds or rules.
+
 An analogous technique can be employed to encode disjunction. Note the similarity with
-Haskell's \D{Either} datatype (they're the same, in fact). The elimination rules for
-disjunction is a proof by cases. As a trivial example, we can prove that conjunction distributes
-over disjunction.
+Haskell's \D{Either} datatype (they are the same, in fact). The elimination rules for
+disjunction is a proof by cases. 
 
 \Agda{Basic}{DISJUNCTION}
 
+As a trivial example, we can prove that conjunction distributes
+over disjunction.
+
+\Agda{Basic}{DISTR}
+
 Using our fragment of natural deduction, we can start proving things. Let's consider a simple
-proposition saying that an element of a nonempty list $l_1 ++ l_2$, where $++$ is concatenation, is
-in $l_1$ or in $l_2$. For that we'll need to encode lists, provide a definition for $++$,
+proposition saying that an element of a nonempty list $l_1 \conc l_2$, where $\conc$ is concatenation, is
+in $l_1$ or in $l_2$. For this all that is required is: to encode lists, provide a definition for $\conc$,
 encode a \emph{view} of the elements in a list and finally prove our proposition.
 
 Defining the type of lists is a boring task, and the definition is just like
-it's Haskell counterpart. Let us just import the standard library and go to the
+its Haskell counterpart. Let us just import the standard library and go to the
 interesting part right away.
 
 \Agda{Basic}{IN-LIST}
@@ -140,7 +137,7 @@ just from the types, that we cannot construct such statement. The result of both
 are non-empty list and they are the only constructors we are allowed to use. So, the \emph{non-empty list}
 requirement in the proposition we're trying to prove comes for free.
 
-Let us see the proposition statement and it's proof step by step, as this is an interesting example.
+Let us see the proposition statement and its proof step by step, as this is an interesting example.
 The proposition is stated as follows,
 
 \Agda{Basic}{inDistr-decl}
@@ -153,7 +150,7 @@ The proof follows by \emph{induction} on the first list.
 
 \Agda{Basic}{inDistr-1}
 
-If the first list is empty, $[] ++ l_2$ reduces to $l_2$. So, prf has type \DArgs{In}{x\; l_2}, which
+If the first list is empty, $[] \conc l_2$ reduces to $l_2$. So, prf has type \DArgs{In}{x\; l_2}, which
 is just what we need to create a disjunction.
 
 \Agda{Basic}{inDistr-2}
@@ -168,13 +165,14 @@ we can only be looking for $x$.
 
 \Agda{Basic}{inDistr-3}
 
-In case our element is not in $l_1$'s head, it might be either in the rest of $l_1$ or it's in $l_2$.
-Note that we pass a \emph{smaller} proof to the recursive call.
+In case our element is not in $l_1$'s head, it might be either in the rest of $l_1$ or in $l_2$.
+Note that we pass a \emph{structurally smaller} proof to the recursive call. This is a condition required by
+Agda's termination checker.
 
 \subsection{Closing Remarks}
 
 In this small introduction to Agda we could see a tiny bit of what the language is capable of,
-both in it's programming side and it's proof assistant side. All the concepts were introduced
+both in its programming side and its proof assistant side. All the concepts were introduced
 informally here, with the intention of not overwhelming a unfamiliar reader. A lot of resources
 are available in the Internet at the Agda Wiki page \cite{AgdaTutorials}. 
 
