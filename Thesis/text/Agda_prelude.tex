@@ -1,22 +1,22 @@
 Although functional languages have been receiving great attention
 and a fast evolution in recent years, one of the biggest jumps
-have been the introduction of dependent types. Agda\cite{norell07} is one of such languages, with some other 
-big names being \emph{Epigram} \cite{mcbride05} and \emph{Coq} \cite{bertot06}. 
+has been the introduction of dependent types. Agda\cite{norell07} is one such language, other 
+big contributions being \emph{Epigram} \cite{mcbride05} and \emph{Coq} \cite{bertot06}. 
 
 In languages like Haskell or ML, where a Hindley-Milner based algorithm is used
 for type checking, values and types are clearly separated. Within dependent
 types, though, the story changes. A type can depend on any value the programmer
-wishes for. A classical example are the fixed size vectors \inlagda{Vec A n}, where \inlagda{A}
-is the type of the elements and \inlagda{n} is the length of the vector. The reader familiar
-with C may think: but I also have fixed size arrays in C. The difference is that
+wishes for. A classical example are the fixed size vectors \inlagda{Vec\; A\; n}, where \inlagda{A}
+is the type of the elements and \inlagda{n} is the length of the vector. Readers familiar
+with C may think C also has fixed size arrays. The difference is that
 this \inlagda{n} need not to be known at compile time, it can be an arbitrary term (as long
 as it has type \inlagda{Nat}). That is, there is no difference between types and values,
-they are all sets, as shall see in chapter \ref{sec:background:martinlof}).
+they are all sets, explained in the sequel).
 
-In this chapter I'll introduce the basics of Agda and show some examples in both
+In this chapter introduces the basics of Agda and show some examples in both
 the programming and the proof theoretic sides of the language. Later on, in 
-chapter \ref{sec:background:martinlof}, we will see the theory in which Agda is built 
-on top of, and a lot of concepts introduced here will become clearer. 
+section \ref{sec:background:martinlof}, we will see the theory in which Agda is built 
+on top of, and whereby a number of concepts introduced below will become clearer. 
 Some background on the $\lambda$-calculus and the Curry-Howard isomorphism is
 presented in section \ref{sec:background:lambdacalculus}.
 
@@ -39,14 +39,13 @@ Generalized Algebraic Data Types
   \item cite this?
 \end{TODO}
 %%%% END FOOTNOTE
-} in Haskell. Remember that in Agda types and values are the same thing, 
-in this data declaration we're stating that \inlagda{Nat} is \emph{of type} 
-\inlagda{Set}. This \inlagda{Set} is the type of types, later on we'll
-see it's formal definition and why it is needed. For now, think of it
-as Haskell's $*$ kind.
+} in Haskell. Remember that in Agda types and values are the same thing.
+The data declaration above states that \inlagda{Nat} is \emph{of type} 
+\inlagda{Set}. This \inlagda{Set} is the type of types, to be defined later. 
+For now, think of it as Haskell's $*$ kind.
 
 
-As it was expected, definitions are made by structural induction over the
+As expected, definitions are made by structural induction over the
 data type. Pattern matching is the mechanism of choice here.
 
 \Agda{Basic}{PLUS-MUL}
@@ -66,13 +65,13 @@ We first need two sets for representing the truth values:
 
 The absurd is modeled as a set with no constructors, therefore no elements. In the theory of types,
 this means that there is no proof for the proposition $\bot$, as expected. Note the definition
-of \N{$\bot-elim$}, it's type is, for all sets $A$\footnote{
+of \N{$\bot-elim$}, its type is, for all sets $A$\footnote{
 %%%%% BEGIN FOOTNOTE
 Implicit parameters are enclosed in brackets, this can be read as universal quantification in
 the type level.
 %%%%% END FOOTNOTE
 }, $\bot \rightarrow A$. Which exactly captures
-the notion of \emph{Reductio ad absurdum} in logic. It's definition is trickier, though.
+the notion of proof by contradiction in logic. The definition is trickier, though.
 Agda's empty pattern, \inlagda{()}, is used to discharge a contradiction. It tells
 that there is no possible pattern in such equation, and we're discharged of writing
 a right-hand side.
@@ -84,13 +83,13 @@ Following Agda's standard library notation, let's call it \D{Unit}.
 
 \Agda{Basic}{UNIT}
 
-This allows us to start encoding some interesting propositional logic constructions. Let's take
-conjunctions as a first candidate. We begin by declaring the set that represents conjunctions:
+Let us now show how to encode a fragment of propositional logic in this framework. Let's take
+conjunction as a first candidate. We begin by declaring the set that represents conjunctions:
 
 \Agda{Basic}{CONJUNCTION}
 
-So, \inlagda{A /\symbol{92} B} contains elements with a proof of $A$ and a proof of $B$. It's elements
-can only be constructed with the \inlagda{<\_,\_>} constructor. The reader familiar with Natural Deduction
+So, \D{A /\symbol{92} B} contains elements with a proof of $A$ and a proof of $B$. It's elements
+can only be constructed with the \IC{<\_,\_>} constructor. The reader familiar with Natural Deduction
 might recognize the following trivial properties:
 
 
@@ -99,22 +98,22 @@ a new set forming operation, or, a data declaration in Agda. In fact, for each s
 we have four kinds of rules:
 \begin{enumerate}[i)]
   \item \emph{Formation} rules for $D$ express the conditions under which $D$ is a set.
-        In our example, whenever $A$ and $B$ are sets, then so is \inlagda{A /\symbol{92} B}.
+        In our example, whenever $A$ and $B$ are sets, then so is \D{A /\symbol{92} B}.
   \item \emph{Introduction} rules for $D$ define the set $D$, that is, they specify how the
         canonical elements of $D$ are constructed. For the conjunction case, 
-        the elements of \inlagda{A /\symbol{92} B} have the form \inlagda{< a , b >}, where $a \in A$
+        the elements of \D{A /\symbol{92} B} have the form \IC{< a , b >}, where $a \in A$
         and $b \in B$. 
   \item \emph{Elimination} rules show how to prove a proposition about an arbitrary element in $D$.
         They're very closely related to structural induction. The Agda equivalent is pattern matching,
         where we deconstruct, or eliminate, an element until we find the first constructor. Note that
-        the proofs of \inlagda{/\symbol{92}-elim} are simply pattern matching.
+        the proofs of \F{/\symbol{92}-elim} are simply pattern matching.
   \item \emph{Equality} rules gives us the equalities which are associated with $D$. Without diving
         too much, in our simple case, \inlagda{< a , b > == < a' , b' >} whenever \inlagda{a == a'}
         and \inlagda{b == b'}.
 \end{enumerate}
 
 An analogous technique can be employed to encode disjunction. Note the similarity with
-Haskell's \inlagda{Either} datatype (they're the same, in fact). The elimination rules for
+Haskell's \D{Either} datatype (they're the same, in fact). The elimination rules for
 disjunction is a proof by cases. As a trivial example, we can prove that conjunction distributes
 over disjunction.
 
