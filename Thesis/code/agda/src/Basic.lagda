@@ -54,18 +54,26 @@ data _\/_ (A B : Set) : Set where
 \/-elim : {A B C : Set} → (A → C) → (B → C) → A \/ B → C
 \/-elim p₁ p₂ (inl x) = p₁ x
 \/-elim p₁ p₂ (inr x) = p₂ x
-
-\/-/\-dist : {A B C : Set} → A /\ (B \/ C) → (A /\ B) \/ (A /\ C)
-\/-/\-dist < x , y > = \/-elim (λ b → inl < x , b >) (λ c → inr < x , c >) y
 \end{code}
 %</DISJUNCTION>
 
+%<*DISTR>
+\begin{code}
+\/-/\-dist : {A B C : Set} → A /\ (B \/ C) → (A /\ B) \/ (A /\ C)
+\/-/\-dist < x , y > = \/-elim (λ b → inl < x , b >) (λ c → inr < x , c >) y
+\end{code}
+%</DISTR>
+
 %<*IN-LIST>
 \begin{code}
-open import Data.List using (List; _∷_; []; _++_)
+open import Data.List using (List; _∷_; [])
+
+_++_ : ∀{a}{A : Set a} → List A → List A → List A
+[]       ++ l = l
+(x ∷ xs) ++ l = x ∷ (xs ++ l)
 
 data In {A : Set} : A → List A → Set where
-    InHead : {xs : List A}{y : A} → In y (y ∷ xs)
+    InHead : {xs : List A}{x : A} → In x (x ∷ xs)
     InTail : {x : A}{xs : List A}{y : A} → In y xs → In y (x ∷ xs)
 \end{code}
 %</IN-LIST>
