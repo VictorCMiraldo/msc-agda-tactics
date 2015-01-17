@@ -9,11 +9,13 @@ The library constructed by Kahl, \cite{RATHAgda}, is not specific to Relational 
 instead he chose to construct a library for Category Theory, from which one can use
 the specific category of relations, \catname{Rel}. The theories in RATH-Agda are intended
 for a high-level programming, not so much focused on theorem proving. We can see that
-the equality problem we ran into is not handled in Kahl's library, it is not even needed there.
-\begin{TODO}
-  \item How about using Kahl's library as our backend? And, later on, providing just
-        a wrapper to prevent evaluation and use Kahl's?
-\end{TODO}
+the equality problem we ran into is not handled in Kahl's library. RATH-Agda has both a equality up to
+isomorphism and intensional equality, not interchangeable. Later on, the library
+defines the relational operations on top of the categorical basis, also provided by the library.
+Relational Equality is defined by mutual inclusion, and, since no rewriting was intended,
+substitutivity of relational equality is not provided. Another problem we would run into
+if we had used RATH-Agda is the quoted representation of terms. In Kahl's library every
+construction is defined as a top-level function, therefore it is expanded upon quoting. 
 
 Another interesting library is the one developed by Jansson, Mu and Ko at \cite{Jansson09}. 
 Their goal, however, still is very different from both RATH-Agda and this project.
@@ -22,7 +24,3 @@ functional programming. Indeed, they explore the equational reasoning of program
 \emph{refining} programs. They also avoid the non-extensional equality problem by defining
 another equality type and proving its substitutiveness whenever necessary. Their main focus
 is on subrelation-reasoning, though.
-
-\begin{TODO}
-  \item Expand this... maybe a few excerpts from both libraries?
-\end{TODO}

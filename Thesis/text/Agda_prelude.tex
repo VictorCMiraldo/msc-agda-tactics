@@ -8,7 +8,7 @@ for type checking, values and types are clearly separated. Within dependent
 types, though, the story changes. A type can depend on any value the programmer
 wishes for. A classical example are the fixed size vectors \inlagda{Vec\; A\; n}, where \inlagda{A}
 is the type of the elements and \inlagda{n} is the length of the vector. Readers familiar
-with C may think C also has fixed size arrays. The difference is that
+with C may argue that C also has fixed size arrays. The difference is that
 this \inlagda{n} need not to be known at compile time, it can be an arbitrary term (as long
 as it has type \inlagda{Nat}). That is, there is no difference between types and values,
 they are all sets, explained in the sequel).
@@ -56,7 +56,8 @@ We first need two sets for representing the truth values:
 
 \Agda{Basic}{TOP-BOT}
 
-The absurd is modeled as a set with no constructors, therefore no elements. In the theory of types,
+The truth proposition has only one proof, and this proof is trivial. So we define $\top$ as a set
+with a single, constant, constructor. The absurd is modeled as a set with no constructors, therefore no elements. In the theory of types,
 this means that there is no proof for the proposition $\bot$, as expected. Note the definition
 of \N{$\bot-elim$}, its type is, for all sets $A$\footnote{
 %%%%% BEGIN FOOTNOTE
@@ -69,12 +70,12 @@ Agda's empty pattern, \inlagda{()}, is used to discharge a contradiction. It tel
 that there is no possible pattern in such equation, and we're discharged of writing
 a right-hand side.
 
-The top set, $\top$, on the other
-hand, is written as a set with only one constructor, proving $\top$ is trivial. Yet, for reasons that will be clear 
-later, we chose to encode $\top$ as a record with no fields, and therefore only one constructor, \inlagda{record\{\}} in Agda's syntax.
-Following Agda's standard library notation, let's call it \D{Unit}.
+%The top set, $\top$, on the other
+%hand, is written as a set with only one constructor, proving $\top$ is trivial. Yet, for reasons that will be clear 
+%later, we chose to encode $\top$ as a record with no fields, and therefore only one constructor, \inlagda{record\{\}} in Agda's syntax.
+%Following Agda's standard library notation, let's call it \D{Unit}.
 
-\Agda{Basic}{UNIT}
+%\Agda{Basic}{UNIT}
 
 Let us now show how to encode a fragment of propositional logic in this framework. Let's take
 conjunction as a first candidate. We begin by declaring the set that represents conjunctions:
@@ -122,27 +123,27 @@ in $l_1$ or in $l_2$. For this all that is required is: to encode lists, provide
 encode a \emph{view} of the elements in a list and finally prove our proposition.
 
 Defining the type of lists is a boring task, and the definition is just like
-its Haskell counterpart. Let us just import the standard library and go to the
+its Haskell counterpart. Let us just import from the standard library and go to the
 interesting part right away.
 
 \Agda{Basic}{IN-LIST}
 
-Now, let's look closely to this data. We have a set forming operation \D{In}, that receives
-one implicit parameter $A$ and is indexed by an element of $A$ and a $List A$. Indeed, \DArgs{In}{y\; l}
+Looking closely to this code: we have a set forming operation \D{In}, that receives
+one implicit parameter $A$ and is indexed by an element of $A$ and a $List\ A$. Indeed, \DArgs{In}{x\; l}
 is the proposition that states that $x$ is an element of $l$. How do we construct such a proof?
-There are two ways of doing so! Either $y$ is in $l$'s head, that's captured by the \IC{InHead}
+There are two ways of doing so! Either $y$ is in $l$'s head, as captured by the \IC{InHead}
 constructor, or it is in $l$'s tail, and for that we require a proof of such statement, in the \IC{InTail}
-constructor. How about the statement \DArgs{In}{y\; []}, which is clearly impossible. It is possible to see,
-just from the types, that we cannot construct such statement. The result of both of \IC{In} constructors
-are non-empty list and they are the only constructors we are allowed to use. So, the \emph{non-empty list}
+constructor. The reader may wonder about the statement \DArgs{In}{y\; []}, which should be impossible. One can see,
+just from the types, that we cannot construct such a statement. The result of both of \IC{In} constructors
+involve non-empty list and they are the only constructors we are allowed to use. So, the \emph{non-empty list}
 requirement in the proposition we're trying to prove comes for free.
 
-Let us see the proposition statement and its proof step by step, as this is an interesting example.
+We proceed to showing how to state the proposition mentioned above and carry out its proof step by step, as this is an interesting example.
 The proposition is stated as follows,
 
 \Agda{Basic}{inDistr-decl}
 
-The variables enclosed in normal parenthesis are called \emph{telescopes}, and they introduce
+The variables enclosed in normal parentheses are called \emph{telescopes}, and they introduce
 the dependent function type $(x : A) \rightarrow B\;x$, that is, $x$ can appear on the right-hand side of
 the function type constructor, $\rightarrow$. Therefore, we need an implicit set $A$, two lists of $A$,
 an element of $A$ and a proof that such element is in the concatenation of the two lists.

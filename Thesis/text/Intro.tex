@@ -1,24 +1,31 @@
-With the beginning of formal logic being traced back to Aristotle, most of the
-groundbreaking work was done around the end of the 19th and early 20th centirues.
-We saw the specification of propositional calculus; what we now know as predicate logic; between others. The quest for bootstrapping Mathematics, that is, formalize Mathematics in Formal Logic, was
+Although formal logic can be traced back to Aristotle, most of the
+groundbreaking work was done around the end of the 19th and early 20th centurues:
+the specification of propositional calculus; what we now know as predicate logic and other developments. The quest for bootstrapping Mathematics, that is, formalizing Mathematics in Formal Logic, was
 being porsued by many. A notorious atempt was made by Russel and Whitehead in \emph{Principia Mathematica} (1910), where they believed that all mathematical truths
-could be derived from inference rules and axioms, therefore opening up the question of automated reasoning. Yet, in 1931, Kurt G\"{o}del published his famous first and second incompletness theorems. In a (very small) nutshell, they state that there are some truths that are not provable, regardless of the axiomatic system chosen. This question was further addressed by Alonzo Church and Alan Turing, in the late 1930s. That's when we saw a definite notion of computability arising (in fact they gave two, independent, definitions). 
+could be derived from inference rules and axioms, therefore opening up the question of automated reasoning. Yet, in 1931, Kurt G\"{o}del published his famous first and second incompletness theorems. In a (very small) nutshell, they state that there are some truths that are not provable, regardless of the axiomatic system chosen. This question was further addressed by Alonzo Church and Alan Turing, in the late 1930s. That's when a definite notion of computability arises (in fact they gave two, independent, definitions). 
 
 Given a formula in a logic system, the question of whether or not such formula is true can vary from trivial to impossible. The simplest case is, of course, propositional logic, where validity is decidable but not at all that interesting
-for software verification in general. We need formal systems that are more expressive in order to encode software specifications, as they usually involve quantification or even modal aspects. 
+for software verification in general. We need formal systems that are more expressive in order to encode software specifications, as they usually involve quantification or even modal aspects.  A \emph{holy grail} for formal verification would be the construction of a fully automatic theorem prover, which is very hard (if not impossible) to achieve. Instead, whenever the task requires a expressive we could only provide a guiding hand to our fellow mathematicians. That's what we call a \emph{Proof Assistant}.
 
-\begin{TODO}
-  \item some glue here...
-  \item tools evolved given the presentation of more expressive systems?
-\end{TODO}
+Proof Assistants are highly depentend on which logic they can understand. With the development of more
+expressive logics, comes the development of better proof assistants. Such tools are used to mitigate
+simple mistakes, automate trivial operations, and make sure the mathematician is not working
+on any incongruence. There exists a couple tools available, each of them constructed on a diferent
+basis. 
 
-Instead of completely automated reasoning, which is very hard (if not impossible) to achieve, we could only provide a guiding hand to our fellow mathematicians. That's infact what we call a \emph{Proof Assistant}.
+The tool of choice for this project is the Agda language, developed at Chalmers. Agda uses a intensional
+variant of Martin-L\"{o}f's theory of types and provides a nice interactive construction feature. After
+the Curry-Howard isomorphism, interactive program construction and assisted theorem proving are essentialy
+the same thing. The usual routine of an Agda programmer is to write some code, with some \emph{holes} for
+the unfinished parts, and then ask the typechecker which types should such \emph{holes} have. This is done
+interactively. Yet, trivial operations to write on paper usually requires aditional code
+for discharging in Agda. One such example is it's failure to automaticaly recognize $i + 1$ and
+$1 + i$ as returning the same value. The usual strategy is to rewrite this subterm of our goal
+using a comutativity proof for $+$. 
 
-\begin{TODO}
-  \item finish...
-\end{TODO}
-
-\begin{TODO}
-  \item Assisted program construction became the same thing as assisted theorem proving.
-  \item And that's what we're doing here! :-)
-\end{TODO}
+Small rewrites are quite simple to perform using the \K{rewrite} keyword. If we need to perform
+equational reasoning over complex formulas, though, we are going to need to specify the
+substitutions manually in order to apply a theorem to a subterm. The main objective of this project is
+to work around this limitation and provide a smarter rewriting mechanism for Agda. Our main 
+case study is the equational proofs for Relational Algebra, which also involves
+the construction of a Relational Algebra library suited for rewriting.
