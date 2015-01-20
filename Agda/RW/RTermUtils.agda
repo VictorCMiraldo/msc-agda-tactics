@@ -120,13 +120,19 @@ module RTermUtils
     ...| yes _ = just (ovar (fromℕ o) ∷ (map (o+1≡suco ∘ inject 1) as))
     ...| no  _ = (_∷_ (o+1≡suco (inject 1 a))) <$> as -* t 
 
-  {-
-  -- Will only maintain constructors that have at least one ivar applied to it.
-  -- linearize (x ∷ (0 ++ 1)) would yield (x ∷ 0)
-  mutual
-    linearize : ∀{i o} → RTerm i o → RTerm i o
-    linearize rt = {!!}
 
-    linearize* : ∀{i o} → List (RTerm i o) → List (RTerm i o)
-    linearize* = {!!}
-  -}
+  -- Term Deconstruction.
+  --
+  --   Given a term with a 'rcon' in it's head, return the name
+  --   and list of arguments.
+  rconDecons : ∀{i o} → RTerm i o → Maybe (Name × List (RTerm i o))
+  rconDecons (rcon n a) = just (n , a)
+  rconDecons _          = nothing
+
+  -- Binary Constructors
+  --
+  --  Most of the cases we'll need to take the two arguments
+  --  of a binary constructor. This makes it easy to unwrap it.
+  isBinary : ∀{i o} → List (RTerm i o) → Maybe (RTerm i o × RTerm i o)
+  isBinary (a ∷ b ∷ []) = just (a , b)
+  isBinary _            = nothing

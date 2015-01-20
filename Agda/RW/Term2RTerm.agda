@@ -1,6 +1,6 @@
 open import Level using (Level)
 open import Function using (_∘_; id; flip)
-open import Data.Fin as Fin using (Fin; fromℕ; fromℕ≤) renaming (zero to fz; suc to fs)
+open import Data.Fin as Fin using (Fin; fromℕ; fromℕ≤; toℕ) renaming (zero to fz; suc to fs)
 open import Data.Nat as Nat using (ℕ; suc; zero; _+_; _⊔_; decTotalOrder; _<_; _≤_; s≤s; z≤n; _∸_) renaming (_≟_ to _≟-ℕ_)
 open import Data.Nat.Properties.Simple using (+-comm)
 open import Data.Nat.Properties as ℕ-Props
@@ -16,7 +16,7 @@ open import Data.Integer as Int using (ℤ; -[1+_]; +_) renaming (_≟_ to _≟-
 open import Relation.Nullary using (Dec; yes; no)
 open import Relation.Binary using (module DecTotalOrder)
 open import Relation.Binary.PropositionalEquality as PropEq using (_≡_; refl; cong; sym; subst)
-open import Reflection renaming (Term to AgTerm; _≟_ to _≟-AgTerm_)
+open import Reflection as R renaming (Term to AgTerm; _≟_ to _≟-AgTerm_)
 open import Algebra using (module CommutativeSemiring; module DistributiveLattice)
 open import Data.Empty using (⊥; ⊥-elim)
 
@@ -29,6 +29,7 @@ module Term2RTerm where
   -- An error postulate for unsuported syntax;
   postulate
     unsuportedSyntax : ∀{a}{A : Set a} → String → A
+    error            : ∀{a}{A : Set a} → String → A
 
   -- In the same fashion as "Auto in Agda", we'll define
   -- implication (or, "→") as a Name, so we can easily
@@ -174,6 +175,23 @@ module Term2RTerm where
   ...| (i1 , o1) , t1' | (i2 , o2) , t2' with match t1' t2'
   ...| mt1 , mt2 with matchInternal mt1 mt2
   ...| r1 , r2 = (i1 ∧ i2 , o1 ∧ o2) , r1 , r2
+
+  -- We also need to convert RTerms back into AgTerms
+  mutual
+    trevnoc : ∀{i o} → RTerm i o → AgTerm
+    trevnoc {i} {o} (ivar x) = var (toℕ x) []
+    trevnoc {i} {o} (ovar x) = var (toℕ x + o) []
+    trevnoc (rcon (name n) ts) = con n (trevnocChildren ts)
+    trevnoc (rcon impl (t1 ∷ t2 ∷ [])) = pi (arg (arg-info visible relevant) (el (set (trevnoc t2)) (trevnoc t1)))
+                                         (abs "_" (el (set (trevnoc t2)) (trevnoc t2)))
+    trevnoc (rcon impl _) = error "Impl should have two arguments... something terribly wrong happened."
+    trevnoc (rlit l) = lit l
+    trevnoc (rlam rt) = lam visible (abs "_" (trevnoc rt))
+
+    trevnocChildren : ∀{i o} → List (RTerm i o) → List (Arg AgTerm)
+    trevnocChildren [] = []
+    trevnocChildren (r ∷ rs) with trevnoc r
+    ...| r' = (arg (arg-info visible relevant) r') ∷ trevnocChildren rs
 
     
   showAgTerm : ℕ → AgTerm → String
