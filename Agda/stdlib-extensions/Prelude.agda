@@ -12,6 +12,10 @@
 --
 module Prelude where
 
+  open import Data.Unit
+    using (Unit; unit)
+    public
+
   open import Function 
     using (_∘_; _$_; flip; id; const; _on_) 
     public
@@ -31,7 +35,7 @@ module Prelude where
     public
 
   open import Data.List 
-    using (List; _∷_; []; map; _++_)
+    using (List; _∷_; []; map; _++_; zip)
     public
 
   open import Data.Product
@@ -58,3 +62,13 @@ module Prelude where
   open import Relation.Binary.PropositionalEquality
     using (_≡_; refl; sym; trans; cong; cong₂; subst)
     public
+
+  isTrue : ∀{a}{A : Set a} → Dec A → Bool
+  isTrue (yes _) = true
+  isTrue _       = false
+
+  takeWhile : ∀{a}{A : Set a} → (A → Bool) → List A → List A
+  takeWhile _ [] = []
+  takeWhile f (x ∷ xs) with f x
+  ...| true = x ∷ takeWhile f xs
+  ...| _    = takeWhile f xs

@@ -121,6 +121,7 @@ postulate
 
 -- the proof is from:
 --   http://homotopytypetheory.org/2014/02/17/another-proof-that-univalence-implies-function-extensionality/
+{-
 
 Paths : ∀{a}(A : Set a) → Set _
 Paths A = Σ (A × A) (λ p → p1 p ≡ p2 p)
@@ -135,7 +136,33 @@ Homotopies : ∀{a b} → Set a → Set b → Set _
 Homotopies A B = Σ ((A → B) × (A → B)) (λ fg → (x : A) → p1 fg x ≡ p2 fg x)
 
 postulate
-  η-expand : {A B : Set}{f : A → B} → f ≡ (λ x → f x)
+  η-expand : ∀{a b}{A : Set a}{B : Set b}
+              (f : A → B) → f ≡ (λ x → f x)
+
+step1' : ∀{a b}{A : Set a}{B : Set b} → Homotopies A B → (A → Paths B)
+step1' ((f1 , f2) , prf) a = (f1 a , f2 a) , prf a
+
+step2' : ∀{a b}{A : Set a}{B : Set b} → (A → Paths B) ≈ (A → B)
+step2' = (λ x a → p1 contr-Paths (x a)) 
+       , (λ x a → p1 (p2 contr-Paths) (x a)) 
+       , (λ x → p1 (p2 (p2 contr-Paths)) x) 
+       , (λ x → {!p2 (p2 (p2 contr-Paths)) !})
+
+step3' : ∀{a b}{A : Set a}{B : Set b} → (A → B) ≈ Paths (A → B)
+step3' = {!!}
+
+step23' : ∀{a b}{A : Set a}{B : Set b} → (A → Paths B) ≈ Paths (A → B)
+step23' = ≈-trans step2' step3'
+
+pre-funext : ∀{a b}{A : Set a}{B : Set b} → Homotopies A B → Paths (A → B)
+pre-funext = p1 step23' ∘ step1'
+
+funext : ∀{a b}{A : Set a}{B : Set b}{f g : A → B}
+       → (∀ x → f x ≡ g x)
+       → f ≡ g
+funext {f = f} {g = g} prf = {!p2 (pre-funext ((f , g) , prf))!}
+
+{-
 
 step1 : ∀{a b}{A : Set a}{B : Set b} → Homotopies A B → (A → Paths B)
 step1 ((f1 , f2) , prf) a = (f1 a , f2 a) , prf a
@@ -148,6 +175,33 @@ step3 f = (f , f) , refl
 
 pre-funext : ∀{a b}{A : Set a}{B : Set b} → Homotopies A B → Paths (A → B)
 pre-funext = step3 ∘ step2 ∘ step1
+
+pre-funext-pi : ∀{a b}{A : Set a}{B : Set b}(f g : A → B)(prf : ∀ x → f x ≡ g x)
+              → p1 (pre-funext ((f , g) , prf)) ≡ (f , g)
+pre-funext-pi f g prf with pre-funext ((f , g) , prf)
+...| ((f' , g') , h) = {!!}
+
+funext' : ∀{a b}{A : Set a}{B : Set b}(f g : A → B)
+        → (∀ x → f x ≡ g x) ≈ (f ≡ g)
+funext' f g = {!p2 ∘ pre-funext!} , {!!} , {!!}
+
+funext : ∀{a b}{A : Set a}{B : Set b}{f g : A → B}
+       → (∀ x → f x ≡ g x)
+       → f ≡ g
+funext {f = f} {g = g} prf with pre-funext ((f , g) , prf)
+...| (p , res) = {!!}
+
+-}
+
+step1 : ∀{a b}{A : Set a}{B : Set b} → Paths (A → B) → (A → B) × (A → B)
+step1 = p1
+
+step2 : ∀{a b}{A : Set a}{B : Set b} → (A → B) × (A → B) → (A → Paths B)
+step2 (f , g) a = (f a , g a) , {!!}
+
+step3 : ∀{a b}{A : Set a}{B : Set b} → (A → Paths B) → Homotopies A B
+step3 f = ({!!} , {!!}) , {!!}
+-}
 
 {-
 lemma-492 : ∀{a}{A B X : Set a} → A ≈ B → (X → A) ≈ (X → B)
@@ -162,7 +216,6 @@ lemma-492 (f , f̅ , inv1 , inv2)
   Proof is postponed for now. It is already a well estabilished proof
   from the univalence axiom, anyway. :-)
 -}
-
 postulate
   fun-ext : ∀{a b}{A : Set a}{B : Set b}{f g : A → B}
           → (∀ x → f x ≡ g x)
