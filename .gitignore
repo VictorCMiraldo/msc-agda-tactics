@@ -1,3 +1,16 @@
+# UM specific formating #
+#########################
+
+Thesis/appendix
+Thesis/chapters
+Thesis/def
+Thesis/img
+Thesis/font
+Thesis/*_um.*
+Thesis/text/*_um.*
+Thesis/dissertation.sty
+
+
 # Compiled source #
 ###################
 *.com

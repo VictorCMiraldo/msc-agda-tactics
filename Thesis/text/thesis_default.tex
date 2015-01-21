@@ -25,102 +25,24 @@
 
 \usepackage{agda} 
 
-%\setmainfont{XITS}
-%\setmathfont{XITS Math}
-
-\long\def\red#1{\color{red} #1 \color{black}}
-
-\newenvironment{TODO}{%
-  \color{blue} \itshape \begin{itemize}
-}{%
-  \end{itemize}
-}
-
-\newcommand{\warnme}[1]{{\color{red} \textbf{$[$} #1 \textbf{$]$}}}
-
-% empty env, maybe later we can add some style to it.
-\newenvironment{agdacode}{%
-\vspace{.5em}
-\hspace{1em}
-\begin{minipage}[t]{.8\textwidth}
-}{%
-\end{minipage}
-\vspace{.5em}
-}
-
-\newcommand{\Agda}[2]{%
-\begin{agdacode}
-\ExecuteMetaData[code/agda/excerpts/#1.tex]{#2}
-\end{agdacode}
-}
-
-
-\newenvironment{agdacodeInd}{%
-\vspace{.5em}
-\hspace{-1em}
-\begin{minipage}[t]{.8\textwidth}
-}{%
-\end{minipage}
-\vspace{.5em}
-}
-
-\long\def\ignore#1{}
-
-%% Notation
-\newcommand{\inlagda}[1]{$\mathsf{\small #1}$}
-\newcommand{\catname}[1]{\textbf{#1}}
-
-%%%% Relational Notation
-\newcommand{\releq}{\equiv_r}
-
-%% Agda shortcuts
-\newcommand{\D}[1]{\AgdaDatatype{#1}}
-\newcommand{\F}[1]{\AgdaFunction{#1}}
-\newcommand{\K}[1]{\AgdaKeyword{#1}}
-\newcommand{\N}[1]{\AgdaSymbol{#1}}
-\newcommand{\IC}[1]{\AgdaInductiveConstructor{#1}}
-\newcommand{\ICArgs}[2]{\AgdaInductiveConstructor{#1}$\; #2 $}
-\newcommand{\DArgs}[2]{\D{#1}$\; #2 $}
-
-%% Operations
-\def\conc{++}
-
-%for some reasons, LaTeX does not like unicode chars outside math mode.
-%therefore we have to define them here.
-\newcommand{\textrho}{$\rho$}
-\newcommand{\textLambda}{$\Lambda$}
-\newcommand{\textpi}{$\pi$}
-
-% And some others that actually require the unicode declaration
-\DeclareUnicodeCharacter {10627}{\{\hspace {-.2em}[}
-\DeclareUnicodeCharacter {10628}{]\hspace {-.2em}\}}
-\DeclareUnicodeCharacter {8759}{::}
-\DeclareUnicodeCharacter {8718}{$\square$}
-
 \title{Proof by Rewriting in Agda\\ \small{Pre Dissertation Report}}
 \author{Victor Cacciari Miraldo\\[2cm] %
 \small{supervised by} \\
 Prof. José Nuno Oliveira and Prof. Wouter Swierstra \\
 University of Minho and Utrecht University}
 
+%% For some, yet unkown, reason... University of Minho decided
+%% to also change the math font for it's own templace.
+%% This three commands became obsolete... ¬¬"
+\newcommand{\textrho}{$\rho$}
+\newcommand{\textLambda}{$\Lambda$}
+\newcommand{\textpi}{$\pi$}
 
 \begin{document}
 \maketitle
 \tableofcontents
 
-\theoremstyle{plain}
-\newtheorem{thm}{Theorem}[chapter]
-\newtheorem{crl}{Corolary}[chapter]
-\newtheorem{prob}{Problem}[chapter]
-\newtheorem{prop}{Proposition}[chapter]
-
-\theoremstyle{definition}
-\newtheorem{lemma}{Lemma}[chapter]
-\newtheorem{mydef}{Definition}[chapter]
-\newtheorem{notation}{Notation}[chapter]
-
-\theoremstyle{remark}
-\newtheorem{nota}{Note}[chapter]
+\input{text/thesis_core}
 
 \chapter{Prelude}
 \label{chap:prelude}

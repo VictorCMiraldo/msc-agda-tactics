@@ -7,7 +7,8 @@ LATEXMKOPTS=-pdf -f -quiet
 TEXT_PARTS_SRC_ROOT=text
 TEXT_PARTS_SRC_GENTEX=$(TEXT_PARTS_SRC_ROOT)
 
-MAINTEX=$(TEXT_PARTS_SRC_ROOT)/$(MAIN_NAME).tex
+MAINTEX=$(TEXT_PARTS_SRC_ROOT)/$(MAIN_NAME)_default.tex
+UMTEX=$(TEXT_PARTS_SRC_ROOT)/$(MAIN_NAME)_um.tex
 MAINPDF=./$(MAIN_NAME).pdf
 REFERENCES=$(REFERENCES_NAME).bib
 TEXT_PARTS=Agda_prelude \
@@ -19,7 +20,8 @@ TEXT_PARTS=Agda_prelude \
            RelationalAlgebra_SOTA \
            Problem \
            Intro \
-           Reflection_prelude
+           Reflection_prelude \
+           thesis_core
 
 
 CODE_AGDA_ROOT=code/agda
@@ -48,16 +50,31 @@ $(MAINPDF): \
 	$(CODE_AGDA_MODULES:%=$(CODE_AGDA_EXCERPTS)/%.tex)
 	$(COMPILER) $(MAINTEX) #latexmk $(LATEXMKOPTS) $(MAINTEX)
 	
+$(UMTEX):  \
+	$(REFERENCES) $(UMTEX) \
+	$(TEXT_PARTS:%=$(TEXT_PARTS_SRC_GENTEX)/%.tex) \
+	$(CODE_AGDA_STY) \
+	$(CODE_AGDA_MODULES:%=$(CODE_AGDA_EXCERPTS)/%.tex)
+	$(COMPILER) $(UMTEX) #latexmk $(LATEXMKOPTS) $(MAINTEX)
+  
+	
 force:
 	$(COMPILER) $(MAINTEX)
+	
+um:
+	$(COMPILER) $(UMTEX)
 
 $(CODE_AGDA_EXCERPTS)/%.tex: $(CODE_AGDA_SRC)/%.lagda
 	$(DIRGUARD); agda --allow-unsolved-metas -i $(CODE_AGDA_STDLIB) -i $(CODE_AGDA_SRC) \
 		-i $(CODE_AGDA_REL) --latex-dir=$(CODE_AGDA_EXCERPTS) --latex $<
 
 bib: $(REFERENCES)
-	rm -f thesis.bbl
-	bibtex thesis
+	rm -f thesis_default.bbl
+	bibtex thesis_default
+	
+bibum : $(REFERENCES)
+	rm -f thesis_um.bbl
+	bibtex thesis_um
 
 clean:
 	rm -f *.log
@@ -67,9 +84,10 @@ clean:
 	rm -f *.blg
 	
 cleanall: clean
-	rm -f thesis.pdf
+	rm -f thesis_default.pdf
+	rm -f thesis_um.pdf
 
-veryclean: clean
+veryclean: cleanall
 	cd code/agda/excerpts && \
 	rm -f *.tex
 
