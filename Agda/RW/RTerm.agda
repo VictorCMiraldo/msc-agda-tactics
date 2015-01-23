@@ -86,7 +86,7 @@ module RTerm where
   -- The phantom A will allow us to use multiple representations
   -- for unification variables and still prove termination
   -- by using a (Fin n), before unifying.
-  data RTerm (A : Set) : Set where
+  data RTerm {a}(A : Set a) : Set a where
     -- Out-of-bound variables. We use a phantom type A
     -- to be able to (almost) seamless convert from
     -- ℕ to (Fin n).
@@ -107,20 +107,20 @@ module RTerm where
 
   -- Equality Rules induced by RTerm's constructors
 
-  ovar-inj : ∀{A x y} → ovar {A} x ≡ ovar {A} y → x ≡ y
+  ovar-inj : ∀{a}{A : Set a}{x y : A} → ovar {a} {A} x ≡ ovar {a} {A} y → x ≡ y
   ovar-inj refl = refl
 
-  ivar-inj : ∀{A x y} → ivar {A} x ≡ ivar {A} y → x ≡ y
+  ivar-inj : ∀{a A x y} → ivar {a} {A} x ≡ ivar {a} {A} y → x ≡ y
   ivar-inj refl = refl
 
-  rlit-inj : ∀{A x y} → rlit {A} x ≡ rlit {A} y → x ≡ y
+  rlit-inj : ∀{a A x y} → rlit {a} {A} x ≡ rlit {a} {A} y → x ≡ y
   rlit-inj refl = refl
 
-  rlam-inj : ∀{A x y} → rlam {A} x ≡ rlam {A} y → x ≡ y
+  rlam-inj : ∀{a A x y} → rlam {a} {A} x ≡ rlam {a} {A} y → x ≡ y
   rlam-inj refl = refl
 
-  rapp-inj : ∀{A n₁ n₂ l₁ l₂}
-           → rapp {A} n₁ l₁ ≡ rapp {A} n₂ l₂
+  rapp-inj : ∀{a A n₁ n₂ l₁ l₂}
+           → rapp {a} {A} n₁ l₁ ≡ rapp {a} {A} n₂ l₂
            → n₁ ≡ n₂ × l₁ ≡ l₂
   rapp-inj refl = refl , refl
 
@@ -191,7 +191,7 @@ module RTerm where
   -- Term Replacement Functions
 
   {-# TERMINATING #-}
-  replace : ∀{A B}
+  replace : ∀{a b}{A : Set a}{B : Set b}
           → (ovar-f : A → RTerm B)
           → (ivar-f : ℕ → RTerm B)
           → RTerm A → RTerm B
@@ -202,17 +202,19 @@ module RTerm where
   replace f g (rapp n ts) = rapp n (map (replace f g) ts)  
 
   -- This is basically fmap...
-  replace-A : ∀{A B} → (A → RTerm B) → RTerm A → RTerm B
+  replace-A : ∀{a b}{A : Set a}{B : Set b} 
+            → (A → RTerm B) → RTerm A → RTerm B
   replace-A f = replace f ivar
 
-  replace-ivar : ∀{A} → (ℕ → RTerm A) → RTerm A → RTerm A
+  replace-ivar : ∀{a}{A : Set a} 
+               → (ℕ → RTerm A) → RTerm A → RTerm A
   replace-ivar f = replace ovar f
 
   ----------------------
   -- Counting utilities
   
   {-# TERMINATING #-}
-  count : ∀{A} → RTerm A → ℕ × ℕ
+  count : ∀{a}{A : Set a} → RTerm A → ℕ × ℕ
   count (ovar _) = 1 , 0
   count (ivar _) = 0 , 1
   count (rlit _) = 0 , 0
@@ -224,10 +226,10 @@ module RTerm where
       sum2 ((a , b) ∷ xs) with sum2 xs
       ...| a' , b' = a + a' , b + b'
 
-  #-A : ∀{A} → RTerm A → ℕ
+  #-A : ∀{a}{A : Set a} → RTerm A → ℕ
   #-A = p1 ∘ count
 
-  #-ivar : ∀{A} → RTerm A → ℕ
+  #-ivar : ∀{a}{A : Set a} → RTerm A → ℕ
   #-ivar = p2 ∘ count
 
   -----------------------------------
@@ -297,9 +299,26 @@ module RTerm where
       -- We'll keep a counter on the number of
       -- ovar's we find. We might need to add the correct number of
       -- lambdas around.
-      trevnoc' : RTerm ℕ → ST ℕ AgTerm
-      trevnoc' (ovar x) = count >>= return (var x [])
-      trevnoc' (ivar n) = {!!}
-      trevnoc' (rlit l) = {!!}
-      trevnoc' (rlam t) = {!!}
-      trevnoc' (rapp n ts) = {!!}
+      trevnoc' : RTerm ℕ → ℕ × AgTerm
+      trevnoc' (ovar x) = 1 , var x []
+      trevnoc' (ivar n) = 0 , var n []
+      trevnoc' (rlit l) = 0 , lit l
+      trevnoc' (rlam t) with trevnoc' t
+      ...| (r , t') = r , lam visible (abs "_" t')
+      trevnoc' (rapp (rcon x) ts) with trevnocChildren ts
+      ...| (r , a)  = r , con x a
+      trevnoc' (rapp (rdef x) ts) with trevnocChildren ts
+      ...| (r , a)  = r , def x a
+      trevnoc' (rapp impl (t1 ∷ t2 ∷ []))
+        with trevnoc' t1 | trevnoc' t2
+      ...| (r1 , t1') | (r2 , t2') = r1 + r2 , pi (arg (arg-info visible relevant) (el unknown t1')) 
+                                                  (abs "_" (el unknown t2'))
+      trevnoc' (rapp impl _) = error "impl should have two arguments... always."
+
+      trevnocChildren : List (RTerm ℕ) → ℕ × List (Arg AgTerm)
+      trevnocChildren [] = 0 , []
+      trevnocChildren (x ∷ xs) with trevnoc' x | trevnocChildren xs
+      ...| (r , x') | (rs , xs') = r + rs , arg (arg-info visible relevant) x' ∷ xs'
+
+  R2AgTerm : RTerm ℕ → AgTerm
+  R2AgTerm = p2 ∘ trevnoc'
