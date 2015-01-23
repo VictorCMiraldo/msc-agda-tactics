@@ -1,6 +1,5 @@
 open import Prelude
 open import Level using (Level) renaming (zero to lz; suc to ls)
-open import Reflection renaming (Term to AgTerm; Type to AgType)
 open import Data.List.Properties as ListProps renaming (∷-injective to ∷-inj)
 open import Data.Maybe using (Maybe; just; nothing)
 open import Data.String
@@ -8,6 +7,9 @@ open import Data.Nat as Nat using (decTotalOrder; _≤_; s≤s; z≤n)
 open import Relation.Binary using (module DecTotalOrder)
 
 module RTerm where
+  
+  open import Reflection renaming (Term to AgTerm; Type to AgType)
+    public
 
   open DecTotalOrder Nat.decTotalOrder using (total)
 
@@ -205,6 +207,11 @@ module RTerm where
   replace-A : ∀{a b}{A : Set a}{B : Set b} 
             → (A → RTerm B) → RTerm A → RTerm B
   replace-A f = replace f ivar
+
+  _◇-A_ : ∀{a b c}{A : Set a}{B : Set b}{C : Set c}
+        → (B → RTerm C) → (A → RTerm B)
+        → A → RTerm C
+  f ◇-A g = replace-A f ∘ g
 
   replace-ivar : ∀{a}{A : Set a} 
                → (ℕ → RTerm A) → RTerm A → RTerm A

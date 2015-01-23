@@ -198,7 +198,7 @@ module Test2 where
    goalTest1 R 
      = begin
        R ⊆ R ∙ Id
-     ⇐⟨(quoteGoal g in {! (t1 ∩↑ t2) - t2!}) ⟩
+     ⇐⟨(quoteGoal g in {! Ag2RTerm (quoteTerm (λ x → δ x ∙ R))!}) ⟩
        R ⊆ R
      ⇐⟨ (λ _ → ⊆-refl) ⟩
        Unit

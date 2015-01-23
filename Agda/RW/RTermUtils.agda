@@ -71,4 +71,3 @@ module RTermUtils where
   x - y with x ≟-RTerm (replace-A (ovar ∘ just) y)
   ...| yes _ = just []
   ...| no  _ = nothing
-  
