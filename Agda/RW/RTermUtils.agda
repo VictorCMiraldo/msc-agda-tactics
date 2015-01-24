@@ -14,7 +14,7 @@ module RTermUtils where
   --   Holes will be represented by a nothing;
   pattern hole = ovar nothing
 
-  isHole : ∀{A} → RTerm (Maybe A) → Bool
+  isHole : ∀{a}{A : Set a} → RTerm (Maybe A) → Bool
   isHole (ovar nothing) = true
   isHole _              = false
 
@@ -43,7 +43,7 @@ module RTermUtils where
   --  Will translate every definition with only holes as arguments
   --  into a single hole.
   {-# TERMINATING #-}
-  _↑ : ∀{A} → RTerm (Maybe A) → RTerm (Maybe A)
+  _↑ : ∀{a}{A : Set a} → RTerm (Maybe A) → RTerm (Maybe A)
   _↑ (rapp x ax) with all isHole ax
   ...| true   = ovar nothing
   ...| false  = rapp x (map _↑ ax)
@@ -71,3 +71,29 @@ module RTermUtils where
   x - y with x ≟-RTerm (replace-A (ovar ∘ just) y)
   ...| yes _ = just []
   ...| no  _ = nothing
+
+  -- Term Subtraction, single result.
+  _-↓_ : ∀{A} ⦃ eqA : Eq A ⦄ → RTerm (Maybe A) → RTerm A → Maybe (RTerm A)
+  t -↓ u with t - u
+  ...| just []      = nothing
+  ...| just (x ∷ _) = just x
+  ...| nothing      = nothing
+
+  -- Structural Manipulation
+
+  -- Opens a term representing a binary application.
+  forceBinary : ∀{a}{A : Set a} 
+              → RTerm A → Maybe (RTermName × RTerm A × RTerm A)
+  forceBinary (rapp n (a₁ ∷ a₂ ∷ [])) = just (n , a₁ , a₂)
+  forceBinary _                       = nothing
+
+
+  -- Given a 'impl' chain, return it's result.
+  typeResult : ∀{a}{A : Set a}
+             → RTerm A → Maybe (RTerm A)
+  typeResult (rapp impl (t1 ∷ t2 ∷ [])) = aux t2
+    where
+      aux : ∀{a}{A : Set a} → RTerm A → Maybe (RTerm A)
+      aux (rapp impl (t1 ∷ t2 ∷ [])) = aux t2
+      aux t                          = just t
+  typeResult _ = nothing

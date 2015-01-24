@@ -20,6 +20,7 @@ open import Reflection renaming (Term to AgTerm; _≟_ to _≟-AgTerm_)
 open import Algebra using (module CommutativeSemiring; module DistributiveLattice)
 
 open import RTerm
+open import Unification hiding (_++_)
 
 module Testing where
 
@@ -27,29 +28,30 @@ module Testing where
 module Test where
 
     open import RTermUtils
+    open import RW
     open import Relation.Binary.PropositionalEquality
     open import Data.List
 
     t1 : RTerm ℕ
     t1 = rapp (rcon (quote List._∷_))
-              ( ivar 3 
+              ( ovar 3 
               ∷ rapp (rdef (quote _++_))
                      ( rapp (rdef (quote _++_))
-                            ( ivar 2 
-                            ∷ ivar 1
+                            ( ovar 2 
+                            ∷ ovar 1
                             ∷ [])
-                     ∷ ivar 0
+                     ∷ ovar 0
                      ∷ [])
               ∷ [])
 
     t2 : RTerm ℕ
     t2 = rapp (rcon (quote List._∷_))
-              ( ivar 3
+              ( ovar 3
               ∷ rapp (rdef (quote _++_))
-                     ( ivar 2
+                     ( ovar 2
                      ∷ rapp (rdef (quote _++_))
-                            ( ivar 1
-                            ∷ ivar 0
+                            ( ovar 1
+                            ∷ ovar 0
                             ∷ [])
                      ∷ [])
               ∷ [])
@@ -111,7 +113,7 @@ module Test where
                  (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
       ++-assoc [] ys zs = refl
       ++-assoc (x ∷ xs) ys zs -- = cong (λ l → x ∷ l) (++-assoc xs ys zs)
-               = quoteGoal g in {!(t1 ∩↑ t2) - t2!}
+               = quoteGoal g in {!RW (quote ++-assoc) g!}
  
     open ≡-Reasoning
 
@@ -164,32 +166,38 @@ module Test2 where
 
    t1 : RTerm ℕ
    t1 = rapp (f (quote _⊆_))
-             (ivar 0 ∷ ivar 0 ∷ [])
+             (ovar 0 ∷ ovar 0 ∷ [])
+
+   t21 : RTerm ℕ
+   t21 = ovar 0
+
+   t22 : RTerm ℕ
+   t22 = rapp (f (quote _∙_))
+              ( ovar 0 
+              ∷ rapp (f (quote fun))
+                     ((rlam (ivar 0))
+                     ∷ [])
+              ∷ [])
 
    t2 : RTerm ℕ
-   t2 = rapp (f (quote _⊆_))
-             ( ivar 0 
-             ∷ rapp (f (quote _∙_))
-               ( ivar 0 
-               ∷ rapp (f (quote fun))
-                      ((rlam (ivar 0))
-                      ∷ [])
-               ∷ [])
-             ∷ [])
+   t2 = rapp (f (quote _⊆_)) (t21 ∷ t22  ∷ [])
 
    tG : RTerm ℕ
    tG = rapp impl (t1 ∷ t2 ∷ [])
 
+   tA1 : RTerm ℕ
+   tA1 = ivar 0
+
+   tA2 : RTerm ℕ
+   tA2 = rapp (f (quote _∙_))
+              ( ivar 0
+              ∷ rapp (f (quote fun))
+                     (rlam (ivar 0)
+                     ∷ [])
+              ∷ [])
+
    tA : RTerm ℕ
-   tA = rapp (f (quote _≡r_))
-             ( ivar 0
-             ∷ rapp (f (quote _∙_))
-                    ( ivar 0
-                    ∷ rapp (f (quote fun))
-                           (rlam (ivar 0)
-                           ∷ [])
-                    ∷ [])
-             ∷ [])
+   tA = rapp (f (quote _≡r_)) (tA1 ∷ tA2 ∷ [])
 
    unel : Type → AgTerm
    unel (el _ t) = t
@@ -198,7 +206,7 @@ module Test2 where
    goalTest1 R 
      = begin
        R ⊆ R ∙ Id
-     ⇐⟨(quoteGoal g in {! Ag2RTerm (quoteTerm (λ x → δ x ∙ R))!}) ⟩
+     ⇐⟨(quoteGoal g in {! unify tA2 t22!}) ⟩
        R ⊆ R
      ⇐⟨ (λ _ → ⊆-refl) ⟩
        Unit

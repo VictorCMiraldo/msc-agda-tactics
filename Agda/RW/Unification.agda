@@ -1,4 +1,4 @@
-open import Prelude hiding (_++_)
+open import Prelude renaming (_++_ to _++-List_)
 open import Data.Maybe using (Maybe; just; nothing)
 open import Data.Nat using (ℕ; suc; zero; _+_; _≤_; z≤n; s≤s) renaming (decTotalOrder to decTotalOrder-ℕ)
 open import Data.Nat.Properties as ℕ-Props
@@ -130,6 +130,11 @@ module Unification where
   _ <$> nothing  = nothing
   f <$> (just x) = just (f x)
 
+  _<*>_ : ∀{a b}{A : Set a}{B : Set b}
+        → Maybe (A → B) → Maybe A → Maybe B
+  just f <*> just x = just (f x)
+  _      <*> _      = nothing
+
   --------------------------------------------------
   -- Unification Algorithm
   --
@@ -242,6 +247,21 @@ module Unification where
   
   RSubst : Set
   RSubst = List (ℕ × RTerm ℕ)
+
+  private
+    overlaps : (ℕ × RTerm ℕ) → RSubst → Maybe RSubst
+    overlaps r [] = just (r ∷ [])
+    overlaps (i , ti) ((j , tj) ∷ s)
+      with i ≟-ℕ j | ti ≟-RTerm tj
+    ...| yes _ | yes _ = just []
+    ...| yes _ | no  _ = nothing
+    ...| no  _ | _     = overlaps (i , ti) s
+
+  _++ᵣ_ : RSubst → RSubst → Maybe RSubst
+  [] ++ᵣ s       = just s
+  (r ∷ rs) ++ᵣ s with overlaps r s
+  ...| nothing = nothing
+  ...| just l  = (_++-List_ l) <$> (rs ++ᵣ s)
 
   private
     projSubst : ∀{n m} → Subst n m → RSubst
