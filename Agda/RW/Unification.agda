@@ -249,6 +249,21 @@ module Unification where
   RSubst = List (ℕ × RTerm ℕ)
 
   private
+    projSubst : ∀{n m} → Subst n m → RSubst
+    projSubst nil = []
+    projSubst (snoc s t x) = (toℕ x , Fin2RTerm t) ∷ projSubst s
+
+  sortSubst : RSubst → RSubst
+  sortSubst [] = []
+  sortSubst ((i , t) ∷ s) = insert (i , t) (sortSubst s)
+    where
+      insert : (ℕ × RTerm ℕ) → RSubst → RSubst
+      insert (i , t) [] = (i , t) ∷ []
+      insert (i , t) (x ∷ xs) with total i (p1 x)
+      ...| i1 i≤x = (i , t) ∷ x ∷ xs
+      ...| i2 i>x = x ∷ insert (i , t) xs
+
+  private
     overlaps : (ℕ × RTerm ℕ) → RSubst → Maybe RSubst
     overlaps r [] = just (r ∷ [])
     overlaps (i , ti) ((j , tj) ∷ s)
@@ -263,12 +278,7 @@ module Unification where
   ...| nothing = nothing
   ...| just l  = (_++-List_ l) <$> (rs ++ᵣ s)
 
-  private
-    projSubst : ∀{n m} → Subst n m → RSubst
-    projSubst nil = []
-    projSubst (snoc s t x) = (toℕ x , Fin2RTerm t) ∷ projSubst s
-
   unify : (t₁ t₂ : RTerm ℕ) → Maybe RSubst
   unify t₁ t₂ with R2FinTerm t₁ | R2FinTerm t₂
   ...| (_ , f₁) | (_ , f₂) with match f₁ f₂
-  ...| r₁ , r₂ = (projSubst ∘ p2) <$> unifyFin r₁ r₂
+  ...| r₁ , r₂ = (sortSubst ∘ projSubst ∘ p2) <$> unifyFin r₁ r₂

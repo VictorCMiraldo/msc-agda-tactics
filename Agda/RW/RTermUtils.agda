@@ -1,6 +1,6 @@
 open import Prelude
 open import RTerm
-open import Data.Maybe using (Maybe; just; nothing; is-just)
+open import Data.Maybe using (Maybe; just; nothing; is-just) renaming (maybe′ to maybe)
 open import Reflection using (_≟-Lit_; _≟-Name_)
 open import Monads
 
@@ -54,6 +54,16 @@ module RTermUtils where
   _∩↑_ : ∀{A} ⦃ eqA : Eq A ⦄ 
        → RTerm A → RTerm A → RTerm (Maybe A)
   v ∩↑ u = (v ∩ u) ↑
+
+  -- Converting Holes to Abstractions
+  --
+  --  Will replace holes for "var 0", and increment every other variable.
+  holeElim : ∀{a}{A : Set a} → A → (A → A) → RTerm (Maybe A) → RTerm A
+  holeElim hZ hF = replace-A (maybe (ovar ∘ hF) (ovar hZ))
+
+  -- Specialized version for handling indexes.
+  hole2Abs : RTerm (Maybe ℕ) → RTerm ℕ
+  hole2Abs = holeElim zero suc
 
   -- Term Subtraction
   {-# TERMINATING #-}

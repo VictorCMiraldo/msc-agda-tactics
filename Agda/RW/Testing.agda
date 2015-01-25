@@ -113,7 +113,7 @@ module Test where
                  (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
       ++-assoc [] ys zs = refl
       ++-assoc (x ∷ xs) ys zs -- = cong (λ l → x ∷ l) (++-assoc xs ys zs)
-               = quoteGoal g in {!RW (quote ++-assoc) g!}
+               = tactic ? -- (RW (quote ++-assoc))
  
     open ≡-Reasoning
 
@@ -135,7 +135,7 @@ module Test where
               ≡⟨ refl ⟩
                 x ∷ ((xs ++ ys) ++ zs)
            -- ≡⟨ mycong (_∷_ x) (++-assocH xs ys zs) ⟩
-              ≡⟨ {!!} ⟩ --  quoteGoal g in unquote (RW (quoteTerm ++-assocH xs ys zs) g) ⟩ 
+              ≡⟨ (quoteGoal g in unquote (RW (quote ++-assocH) g)) ⟩ 
            -- ≡⟨ cong (_∷_ x) (++-assocH xs ys zs) ⟩
                 x ∷ (xs ++ (ys ++ zs))
               ≡⟨ refl ⟩
@@ -149,6 +149,7 @@ module Test where
 module Test2 where
   
    open import RTermUtils
+   open import RW
    open import Relation.Binary.PropositionalEquality
    open import Data.List
 
@@ -206,7 +207,7 @@ module Test2 where
    goalTest1 R 
      = begin
        R ⊆ R ∙ Id
-     ⇐⟨(quoteGoal g in {! unify tA2 t22!}) ⟩
+     ⇐⟨(quoteGoal g in {! RW (quote ∙-id-r) g!}) ⟩
        R ⊆ R
      ⇐⟨ (λ _ → ⊆-refl) ⟩
        Unit
