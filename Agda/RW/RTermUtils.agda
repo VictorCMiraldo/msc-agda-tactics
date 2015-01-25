@@ -63,7 +63,7 @@ module RTermUtils where
 
   -- Specialized version for handling indexes.
   hole2Abs : RTerm (Maybe ℕ) → RTerm ℕ
-  hole2Abs = holeElim zero suc
+  hole2Abs = rlam ∘ holeElim zero suc
 
   -- Term Subtraction
   {-# TERMINATING #-}

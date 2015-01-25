@@ -113,7 +113,7 @@ module Test where
                  (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
       ++-assoc [] ys zs = refl
       ++-assoc (x ∷ xs) ys zs -- = cong (λ l → x ∷ l) (++-assoc xs ys zs)
-               = tactic ? -- (RW (quote ++-assoc))
+               = quoteGoal g in unquote (RW (quote ++-assoc) g)
  
     open ≡-Reasoning
 
@@ -135,7 +135,7 @@ module Test where
               ≡⟨ refl ⟩
                 x ∷ ((xs ++ ys) ++ zs)
            -- ≡⟨ mycong (_∷_ x) (++-assocH xs ys zs) ⟩
-              ≡⟨ (quoteGoal g in unquote (RW (quote ++-assocH) g)) ⟩ 
+              ≡⟨ {!!} ⟩ -- (quoteGoal g in unquote (RW (quote ++-assocH) g)) ⟩ 
            -- ≡⟨ cong (_∷_ x) (++-assocH xs ys zs) ⟩
                 x ∷ (xs ++ (ys ++ zs))
               ≡⟨ refl ⟩

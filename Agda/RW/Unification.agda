@@ -260,8 +260,8 @@ module Unification where
       insert : (ℕ × RTerm ℕ) → RSubst → RSubst
       insert (i , t) [] = (i , t) ∷ []
       insert (i , t) (x ∷ xs) with total i (p1 x)
-      ...| i1 i≤x = (i , t) ∷ x ∷ xs
-      ...| i2 i>x = x ∷ insert (i , t) xs
+      ...| i1 i≤x = x ∷ insert (i , t) xs -- (i , t) ∷ x ∷ xs
+      ...| i2 i>x = (i , t) ∷ x ∷ xs -- x ∷ insert (i , t) xs
 
   private
     overlaps : (ℕ × RTerm ℕ) → RSubst → Maybe RSubst
