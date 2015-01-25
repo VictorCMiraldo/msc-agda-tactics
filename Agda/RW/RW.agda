@@ -33,16 +33,17 @@ module RW where
               → RSubst                -- Unification result.
               → RTerm ℕ
   selectStrat pat-≡ pat-≡ g□ act σ
-    {- = rapp (rdef (quote cong))
+    = rapp (rdef (quote cong))
            ( hole2Abs g□
            ∷ makeApp act σ
            ∷ [])
-    -}
+    {-
     = rapp (rdef (quote subst)) 
            ( hole2Abs g□ 
            ∷ makeApp act σ 
            ∷ rapp (rcon (quote refl)) [] 
            ∷ [])
+    -}
   -- selectStrat pat-→ pat-≡r g□ act σ
   --  = {!!}
   selectStrat _ _ _ _ _
