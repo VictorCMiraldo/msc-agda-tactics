@@ -207,7 +207,7 @@ module Test2 where
    goalTest1 R 
      = begin
        R ⊆ R ∙ Id
-     ⇐⟨(quoteGoal g in {! RW (quote ∙-id-r) g!}) ⟩
+     ⇐⟨(quoteGoal g in unquote (RW (quote ∙-id-r) g)) ⟩
        R ⊆ R
      ⇐⟨ (λ _ → ⊆-refl) ⟩
        Unit

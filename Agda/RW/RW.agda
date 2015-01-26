@@ -12,14 +12,6 @@ module RW where
   open import Monads
   open Monad {{...}}
 
-  {-
-  rw-≡r : RTerm (Maybe ℕ) → Maybe (RTerm ℕ) → RSubst → RTerm ℕ
-  rw-≡r g□ action σ = {!!}
-
-  rw-≡ : RTerm (Maybe ℕ) → Maybe (RTerm ℕ) → RSubst → RTerm ℕ
-  rw-≡ g□ action σ = {!!}
-  -}
-
   pattern pat-≡  = (rdef (quote _≡_))
   pattern pat-≡r = (rdef (quote _≡r_))
   pattern pat-→  = impl
@@ -30,22 +22,18 @@ module RW where
   selectStrat : RTermName → RTermName -- We need both heads to decide what to do
               → RTerm (Maybe ℕ)       -- A term with a hole, or our abs.
               → Name                  -- Action name.
-              → RSubst                -- Unification result.
+              → RSubst                -- Unification result; sorted.
               → RTerm ℕ
   selectStrat pat-≡ pat-≡ g□ act σ
     = rapp (rdef (quote cong))
            ( hole2Abs g□
            ∷ makeApp act σ
            ∷ [])
-    {-
+  selectStrat pat-→ pat-≡r g□ act σ
     = rapp (rdef (quote subst)) 
-           ( hole2Abs g□ 
-           ∷ makeApp act σ 
-           ∷ rapp (rcon (quote refl)) [] 
+           ( hole2Abs g□
+           ∷ rapp (rdef (quote ≡r-promote)) (makeApp act σ ∷ [])
            ∷ [])
-    -}
-  -- selectStrat pat-→ pat-≡r g□ act σ
-  --  = {!!}
   selectStrat _ _ _ _ _
     = error "Not yet implemented"
 
