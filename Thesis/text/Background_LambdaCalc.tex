@@ -1,17 +1,17 @@
-What we call $\lambda$-calculus is a collection of various formal systems based 
-in the notation invented by Alonzo Church in \cite{Church01,Church02}. 
-Church solved the famous \textit{Entscheidungsproblem} (from German, \textit{decision problem}) 
+What is known as the $\lambda$-calculus is a collection of various formal systems based 
+on the notation invented by Alonzo Church in \cite{Church01,Church02}. 
+Church solved the famous \textit{Entscheidungsproblem} (the German for \textit{decision problem}) 
 proposed by David Hilbert, in 1928. The challenge consisted in providing an algorithm capable
 of determining whether or not a given mathematical fact was valid in a given language. 
-Church proved that there is no solution for such problem, that is, it's an undecidable problem.
+Church proved that there is no solution for such problem, that is, it is an undecidable problem.
 
 One of Church's main objectives was to build a formal system for the foundations of
-Mathematics, just like Martin-Löf's type theory, which was be presented later, around 1970. 
+Mathematics, just like Martin-Löf's type theory, which was to be presented much later, around 1970. 
 Church dropped his work when his basis was found to be inconsistent. Later on it was found
 that there were ways of making it consistent again, with the help of types.
 
-The notion of type is paramount for this thesis as a whole. This notion arises when we want 
-to combine different terms in a given language, for instance, it makes no sense to try
+The notion of type is paramount for this dissertation as a whole. This notion arises when we want 
+to combine different terms in a given language. For instance, it makes no sense to try
 to compute $\int \mathbb{N}\;\mathrm{d}x$. Although syntactically correct, the subterms have
 different \emph{types} and, therefore, are not compatible. A type can be seen as a
 categorization of terms.
@@ -37,13 +37,12 @@ inductively defined by:
 \end{description}
 \end{mydef}
 
-Let's make some conventions that will be useful throughout this document. We'll usually denote
-terms by uppercase letters $M, N, O, P, \cdots$ and variables by lower cases $x, y, z, \cdots$.
+Let us adopt some conventions that will be useful throughout this document. Terms will usually be denoted by uppercase letters $M, N, O, P, \cdots$ and variables by lower cases $x, y, z, \cdots$.
 Application is left associative, that is, the term $M N O$ represents $((M N) O)$ whereas
 abstractions are right associative, so, $\lambda x y. K$ represents $(\lambda x . (\lambda y.K))$.
 
-Suppose we have a term $\lambda yz.x(yz)$, we say that variables $y$ and $z$ are bounded variables
-and $x$ is a free variable (there is no abstraction binding it visible). For now on, we'll 
+Suppose we have a term $\lambda yz.x(yz)$. We say that variables $y$ and $z$ are bounded variables
+and $x$ is a free variable (as there is no visible abstraction binding it). From now on, we'll 
 use Barendregt's convention for variables and assume that terms do not have any name clashing.
 In fact, whenever we have two terms $M$ and $N$ that only differ in the naming of their variables,
 for instance $\lambda x . x$ and $\lambda y . y$, we say that they are $\alpha$-convertible.\\
@@ -61,7 +60,7 @@ of replacing every free occurrence of $x$ in $M$ by $N$. It is defined by induct
 
 \subsection{Beta reduction and Confluence}
 
-We are now equipped with both a notion of term and a formal definition of substitution, we can
+Equipped with both a notion of term and a formal definition of substitution, we can now
 model the notion of computation. The intuitive meaning is very simple. Imagine a normal
 function $f(x) = x + 3$ and suppose we want to compute $f(2)$. All we have to do is to
 substitute $x$ for $2$ in the body of $f(x)$, resulting in $2+3$.
@@ -85,11 +84,11 @@ over $\Lambda$ defined by induction on $M$.
   \end{center}
 \end{mydef}
 
-We denote by $M \betarightright N$ when $N$ is obtained through zero or more $\beta$-reductions 
+We use the notation by $M \betarightright N$ when $N$ is obtained through zero or more $\beta$-reductions 
 from $M$.\\
 
 \begin{mydef}[$\beta$-equality]
-Let $M$ and $N$ be lambda terms, we say that $M$ and $N$ are $\beta$-equal, and denote by 
+Let $M$ and $N$ be lambda terms, $M$ and $N$ are said to be $\beta$-equal, and denote this by 
 $M =_{\beta} N$ if $M \betarightright N$ or $N \betarightright M$.\\
 \end{mydef}
 
@@ -98,12 +97,12 @@ Let $M, N_1$ and $N_2$ be lambda terms. If $M \betaright N_1$ and $M \betaright 
 exists a term $Z$ such that $N_i \betarightright Z$, for $i \in \{1, 2\}$.\\
 \end{thm}
 
-\begin{thm}[Church-Rosser]. Let $M$ and $N$ be lambda-terms such that $M =_{\beta} N$. Then there
+\begin{thm}[Church-Rosser] Let $M$ and $N$ be lambda-terms such that $M =_{\beta} N$. Then there
 exists a term $Z$ such that $M \betarightright Z$ and $N \betarightright Z$.
 \end{thm}
 
 Note that the aforementioned results are of enormous relevance not only for the $\lambda$-calculus,
-but for similar formalism's too. They allow us to prove that, for instance, the normal form
+but for similar formalisms too. They allow us to prove that, for instance, the normal form
 of a lambda-term (if it exists\footnote{%
 %%%%% BEGIN FOOTNOTE
 There are terms that do not have a normal form. A classical example is $(\lambda x . xx)(\lambda x . xx)$.
@@ -114,26 +113,26 @@ The reader is invited to compute a few $\beta$-reductions on it.
 \subsection{Simply typed $\lambda$-calculus}
 
 \begin{mydef}[Type]
-Let $\mathcal{C}_{\mathcal{T}} = \{ \sigma, \sigma', \cdots \}$ be a set of atomic types,
-we define the set $\mathbb{T}$ of simple types by induction:
-\begin{enumerate}[i)]
+Given $\mathcal{C}_{\mathcal{T}} = \{ \sigma, \sigma', \cdots \}$ a set of atomic types,
+we define the set $\mathbb{T}$ of simple types by induction, as the least set built by the clauses:
+\begin{enumerate} %[i)]
   \item $\mathcal{C}_{\mathcal{T}} \subset \mathbb{T}$
   \item $\forall \sigma, \tau \in \mathbb{T}. \; (\sigma \rightarrow \tau) \in \mathbb{T}$.
 \end{enumerate}
 \end{mydef}
 
-In a programming context, we're surrounded by variable declarations. Some languages (the strongly-typed ones)
-expect some information about the type of such variables. This is what we call a context.
+In any programming context, one is always surrounded by variable declarations. Some languages (the strongly-typed ones)
+expect some information about the type of such variables. This is what we call a \emph{context}.
 Formally, a context is a set $\Gamma \subseteq \mathcal{V} \times \mathbb{T}$, whose elements
 are denoted by $(x : \sigma)$.
 
-This allows us to define the notion of derivation and derivability, and we're almost closing the
+This allows us to define the notions of derivation and derivability, almost closing the
 gap between programming and logic.\\
 
 \begin{mydef}[Derivation]
 \label{def:simpletypederivation}
 We define the set of all type derivations by induction in the target lambda-term:
-\begin{enumerate}[i)]
+\begin{enumerate} %[i)]
   \item
     \[\vcenter{\infer[(Ax)]{\Gamma \vdash x:\sigma}{}} \]
     
@@ -170,7 +169,7 @@ the Turing Machine for expressing computability notions. This is a very well stu
 and the references provided in this chapter are a compilation of everything that
 has been studied so far. For more typed variations of the $\lambda$-calculus we refer the reader
 to \cite{Barendregt03}. We're not interested in that aspect of the $\lambda$-calculus, 
-though. We want to explore the connection with Mathematical logic.
+though. We rather want to explore the connection with Mathematical logic.
 
 \subsection{The Curry-Howard Isomorphism}
 \label{sec:background:curryhoward}
@@ -184,8 +183,7 @@ Remember that the implication, here denoted by $\subset$, forms a minimal comple
 and is, therefore, enough to express the whole propositional logic.
 %%%% END FOOTNOTE
 } and to $M$ as a proof of such formula. There are other ways to show this connection,
-but I'll illustrate it using the Natural Deduction\cite{Prawitz01} (we'll denote the
-propositional implication by $\supset$). Let's put the rules presented in definition
+but we will illustrate it using the Natural Deduction\cite{Prawitz01} (propositional implication will be denoted by $\supset$). Let's put the rules presented in definition
 \ref{def:simpletypederivation} side-by-side with the Axiom, $\supset$-elimination and
 $\supset$-introduction rules from Natural Deduction;
 
@@ -207,12 +205,12 @@ $\supset$-introduction rules from Natural Deduction;
 This seemingly shallow equivalence is a remarkable result in Computing Science, discovered
 by Curry and Howard in \cite{Curry01,Howard01}. This was the starting point for the
 first proof checkers, since checking a proof is the same as typing a lambda-term. If the
-term is typeable, then the proof is valid. Up to this point we only presented the simpler
-version of this connection. We'll later on build on top of it and add all ingredients
-for working over first-order logic and using Agda as our proof assistant. Under the curtains,
+term is typeable, then the proof is valid. This far we have only presented the simpler
+version of this connection. Another layer will be built on top of it and add all ingredients
+for working over first-order logic, in the next section. Behind the curtains,
 all Agda does is type-checking terms.
 
-The understanding of this connection is of big importance for writing proofs and programs in
+The understanding of this connection is of major importance for writing proofs and programs in
 Agda (or any other proof-assistant based on the Curry-Howard isomorphism, for that mater).
 
 

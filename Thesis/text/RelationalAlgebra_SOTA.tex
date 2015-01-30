@@ -1,24 +1,24 @@
 The current developments within Relational Algebra in Agda vary a lot, mainly due to
 different goals. One has a plethora of options when developing a library. It is therefore
-important to weight the options with the goals. As far as we know, at the time
-of writing this thesis, there was no library that fitted our specific goals, which
-are: (A) An expressive encoding of relational algebra; and (B) easy to handle in the meta-level,
+important to weight options against goals. As far as we know, at the time
+of writing, there is no library that fit our specific goals, which
+are: (a) An expressive encoding of relational algebra; (b) easy to handle at the meta-level,
 for automatic rewriting.
 
-The library constructed by Kahl, \cite{RATHAgda}, is not specific to Relational Algebra, but
-instead he chose to construct a library for Category Theory, from which one can use
+The library built by Kahl, \cite{RATHAgda}, is not specific to Relational Algebra.
+Instead, Kahl chose to build a library for Category Theory in general, from which one can use
 the specific category of relations, \catname{Rel}. The theories in RATH-Agda are intended
-for a high-level programming, not so much focused on theorem proving. We can see that
-the equality problem we ran into is not handled in Kahl's library. RATH-Agda has both a equality up to
-isomorphism and intensional equality, not interchangeable. Later on, the library
+for high-level programming, not so much focused on theorem proving. Thus
+the equality problem we ran into is not handled in Kahl's library. RATH-Agda has both an equality up to
+isomorphism and intensional equality, which are not interchangeable. Later on, the library
 defines the relational operations on top of the categorical basis, also provided by the library.
-Relational Equality is defined by mutual inclusion, and, since no rewriting was intended,
+Relational Equality is defined by mutual inclusion and, since no rewriting is intended,
 substitutivity of relational equality is not provided. Another problem we would run into
-if we had used RATH-Agda is the quoted representation of terms. In Kahl's library every
+had we used RATH-Agda is the quoted representation of terms. In Kahl's library every
 construction is defined as a top-level function, therefore it is expanded upon quoting. 
 
 Another interesting library is the one developed by Jansson, Mu and Ko at \cite{Jansson09}. 
-Their goal, however, still is very different from both RATH-Agda and this project.
+Their goal, however, is again very different from both RATH-Agda and this project.
 Mu, et al., are focusing on deriving programs given specifications, which is a big merit of
 functional programming. Indeed, they explore the equational reasoning of programs in order to keep
 \emph{refining} programs. They also avoid the non-extensional equality problem by defining

@@ -1,53 +1,55 @@
-As we could see in section \ref{sec:prelude:agdalanguage}, Agda is a very expressive language
-and it allows us to build smaller proofs than the great majority of proof assistants available.
-The mixfix feature gives the language a very customizable feel, one application is the
-equational reasoning framework. In the following illustration we prove the associativity of
+As seen in section \ref{sec:prelude:agdalanguage}, Agda is a very expressive language
+and it allows us to build smaller proofs than in the great majority of proof assistants available.
+The mixfix feature gives the language a very customizable feel, one application being the
+equational reasoning framework. In the following illustration of propositional equality we prove the associativity of
 the concatenation operation.
 
 \Agda{Basic}{++-assocH}
 
-The notation is very clear and understandable, it indeed looks very much
-to what a \emph{squiggolist}\footnote{
+The notation is clear and understandable, indeed looking very much
+what a \emph{squiggolist}\footnote{
 %%%% BEGIN FOOTNOTE
-\emph{Squiggol} is a slang name for the Bird–Meertens formalism, due to the squiggly symbols it
+\emph{Squiggol} is a slang name for the Bird–Meertens formalism\cite{Bird97}, due to the squiggly symbols it
 uses.
 %%%% END FOOTNOTE
 } would write on paper. One of the main downsides to it, which is also inherent to Agda in general,
-is the need to specify every single detail of the demonstration, even the trivial ones. Note the
+is the need to specify every single detail of the proof, even the trivial ones. Note the
 trivial, yet explicit, $(\IC{\_∷\_} x)$ congruence being stated.
 
-Aiming somewhat higher, we could actually generalize the congruences to substitutions, as long as the
+Aiming somewhat higher-level, we could actually generalize the congruences to substitutions, as long as the
 underlying equality exhibits a substitutive behavior. We can borrow a excerpt from a relational
 proof that the relation twice, defined by $ (a, 2\times a) \in twice $ for all $a \in \mathbb{N}$,
-preserves even numbers. (the actual code is much larger and will be omitted, this is for illustration
-purposes only)
+preserves even numbers. The actual code is much larger and will be omitted, as this is for illustration
+purposes only:
 
 \Agda{CaseStudy1}{twice-even-proof}
 
-Besides the obvious Agda boilerplate, it's simple to see how the substitutive\footnote{
+Besides the obvious Agda boilerplate, it is simple to see how the substitutive\footnote{
 %%% BEGIN FOOTNOTE
 As we shall see later, this is not the case, and this example was heavily modified due to
 the encoding of relational equality not being a substitutive relation in Agda.
 %%% END FOOTNOTE
 } behavior of Relational
-Equality can become a burden to write in every single step, but such factor is also what
-allows us to rewrite arbitrary terms in a formula. The main idea is to provide a automatic
+Equality can become a burden to write in every single step, nevertheless such factor is also what
+allows us to rewrite arbitrary terms in a formula. The main idea is to provide an automatic
 mechanism to infer the first argument for the \F{substitute} function, making equational reasoning much
 cleaner in Agda.
 
 Alongside the development of such functionality, based on Agda's reflection capabilities (that is,
 to access and modify a program AST in compile time), we also want to develop a library for
 Relational Algebra, focused on its equational reasoning aspect. Both tasks have to walk
-with hands tied, since their design is mutually dependent as I shall illustrate later.
+with hands tied, since their design is mutually dependent as illustrated later.
 
 The work documented by this thesis is, therefore, split into two main tasks:
-\begin{enumerate}[i)]
-  \item Provide a library for Relational Algebra that is suitable for
+\begin{enumerate} %[i)]
+  \item Provide an Agda library for Relational Algebra that is suitable for
   \item Equational Reasoning with automatic substitution inference.
 \end{enumerate}
 
 It is worth mentioning that although Relations are our main case study, we want
-our substitution inference to work independently of the proof context.
+our substitution inference to work independently of the proof context. For instance,
+a very direct application would be to facilitate the calculation of extended static
+checking, as in \cite{JNO2009}.
 
 
 

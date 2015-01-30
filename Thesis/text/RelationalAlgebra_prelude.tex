@@ -1,21 +1,15 @@
-We're taking Relational Algebra\cite{Bird97} as our main case study for a couple of reasons. One of the most
-important being its expressive power and unquestionable advantage as a framework for
+This work takes Relational Algebra\cite{Bird97} as main case study for a couple of reasons. One of the most
+important is its expressive power and unquestionable advantage as a framework for
 reasoning about software, in an equational fashion. Relational Algebra is in fact a discipline that
 allows us to speak of software engineering through unambiguous equations, giving a definite meaning
 to the \emph{engineering} part of software engineering.
 
 We are not the first to use Agda and Relational Algebra together, though. There are two approaches
-that deserve to be mentioned and compared to what we are doing here. The first, which is the main
-basis for our work, is due to Mu et al, at \cite{Jansson09}. The second, which is more abstract,
-is due to Kahl, at \cite{RATHAgda}.
+that deserve to be mentioned and compared to what we are doing here. The first, which in fact
+should be regarded as a basis for our work, is due to Mu et al, at \cite{Jansson09}. 
+The second, which is more abstract, is due to Kahl, at \cite{RATHAgda}.
 
-In this chapter we will present both approaches mentioned above, 
-then introduce a basic encoding for relations. We'll follow with the discussion of several 
+This chapter will present and compare both approaches mentioned above, 
+then introduce a basic encoding for relations. This will be followed by the discussion of several 
 further options that would change the handling of equality, which turned out to be a very
-delicate matter. The problem imposed by Agda's (intensional) equality is that it implies
-convertibility. As we shall see later, we don't really care about convertibility of relations,
-but that they're inhabited at the same time. We can borrow some notions from Homotopy Type Theory\cite{hottbook}
-in order to hardcode a proof irrelevance notion, but this adds a very complex layer of boilerplate
-code for the end-user. Another option is to postulate some axioms that will allow us to \emph{trick}
-Agda's equality, being always careful not to introduce a contradiction. 
-There are a lot of options for this later case too, we shall discuss a few of them.
+delicate matter. 

@@ -3,20 +3,18 @@ and a fast evolution in recent years, one of the biggest jumps
 has been the introduction of dependent types. Agda\cite{norell07} is one such language, other 
 big contributions being \emph{Epigram} \cite{mcbride05} and \emph{Coq} \cite{bertot06}. 
 
-In languages like Haskell or ML, where a Hindley-Milner based algorithm is used
+In languages such as Haskell or ML, where a Hindley-Milner based algorithm is used
 for type checking, values and types are clearly separated. Within dependent
 types, though, the story changes. A type can depend on any value the programmer
-wishes for. A classical example are the fixed size vectors \inlagda{Vec\; A\; n}, where \inlagda{A}
+wishes. Classical examples are the fixed size vectors \inlagda{Vec\; A\; n}, where \inlagda{A}
 is the type of the elements and \inlagda{n} is the length of the vector. Readers familiar
 with C may argue that C also has fixed size arrays. The difference is that
-this \inlagda{n} need not to be known at compile time, it can be an arbitrary term (as long
-as it has type \inlagda{Nat}). That is, there is no difference between types and values,
-they are all sets, explained in the sequel).
+this \inlagda{n} need not to be known at compile time: it can be an arbitrary term , as long as it has type \inlagda{Nat}. That is, there is no difference between types and values, they are all sets, explained in the sequel.
 
-In this chapter introduces the basics of Agda and show some examples in both
+This chapter introduces the basics of Agda and shows some examples in both
 the programming and the proof theoretic sides of the language. Later on, in 
 section \ref{sec:background:martinlof}, we will see the theory in which Agda is built 
-on top of, and whereby a number of concepts introduced below will become clearer. 
+on top of, whereby a number of concepts introduced below will become clearer. 
 Some background on the $\lambda$-calculus and the Curry-Howard isomorphism is
 presented in section \ref{sec:background:lambdacalculus}.
 
@@ -28,18 +26,18 @@ the programming techniques we need to use in Haskell also apply for an Agda prog
 Knowledge of Haskell is not strictly necessary, but of a great value for a better
 understating of Agda.\\
 
-The \emph{Hello World} program in Agda is to encode Peano's Natural numbers:
+The \emph{Hello World} program in Agda is the encoding of Peano's Natural numbers, which follows:
 
 \Agda{Basic}{NAT}
 
-The data declarations in Agda are very similar to a GADTs\cite{Xi2003} in Haskell. Remember that in Agda types and values are the same thing.
+Data declarations in Agda are very similar to a GADTs\cite{Xi2003} in Haskell. Remember that, in Agda, types and values are the same thing.
 The data declaration above states that \inlagda{Nat} is \emph{of type} 
-\inlagda{Set}. This \inlagda{Set} is the type of types, to be defined later. 
+\inlagda{Set}. This \inlagda{Set} is the type of types, to be addressed in more detail later. 
 For now, think of it as Haskell's $*$ kind.
 
 
 As expected, definitions are made by structural induction over the
-data type. Pattern matching is the mechanism of choice here.
+data type. Alas in Haskell, pattern matching is the mechanism of choice here.
 
 \Agda{Basic}{PLUS-MUL}
 
@@ -47,27 +45,27 @@ There are a few points of interest in the above definitions. The underscore patt
 (\_) has the same meaning as in Haskell, it matches anything. The underscore in
 the symbol name, though, indicates where the parameters should be relative to the symbol name. 
 Agda supports mixfix operators and has full UTF8 support. It is possible to
-apply a mixfix operator in normal infix form: \inlagda{a + b = \_+\_\; a\; b}.
+apply a mixfix operator in normal infix form, for instance: \inlagda{a + b = \_+\_\; a\; b}.
 
 \subsection{Propositional Logic, a fragment}
 
 Let us continue our exposition of Agda by encoding some propositional logic. 
-We first need two sets for representing the truth values:
+First of all two sets are needed for representing the truth values:
 
 \Agda{Basic}{TOP-BOT}
 
 The truth proposition has only one proof, and this proof is trivial. So we define $\top$ as a set
 with a single, constant, constructor. The absurd is modeled as a set with no constructors, therefore no elements. In the theory of types,
 this means that there is no proof for the proposition $\bot$, as expected. Note the definition
-of \N{$\bot-elim$}, its type is, for all sets $A$\footnote{
+of \N{$\bot\hyph elim$}, whose type is $\bot \rightarrow A$, for all sets $A$\footnote{
 %%%%% BEGIN FOOTNOTE
-Implicit parameters are enclosed in brackets, this can be read as universal quantification in
+Implicit parameters such as \inlagda{ \{ A : Set \} } are enclosed in brackets. This can be read as universal quantification in
 the type level.
 %%%%% END FOOTNOTE
-}, $\bot \rightarrow A$. Which exactly captures
+}. This exactly captures
 the notion of proof by contradiction in logic. The definition is trickier, though.
 Agda's empty pattern, \inlagda{()}, is used to discharge a contradiction. It tells
-that there is no possible pattern in such equation, and we're discharged of writing
+that there is no possible pattern in such equation, and we are discharged of writing
 a right-hand side.
 
 %The top set, $\top$, on the other
@@ -77,16 +75,15 @@ a right-hand side.
 
 %\Agda{Basic}{UNIT}
 
-Let us now show how to encode a fragment of propositional logic in this framework. Let's take
-conjunction as a first candidate. We begin by declaring the set that represents conjunctions:
+Let us now show how to encode a fragment of propositional logic in this framework. Taking conjunction as a first candidate, we begin by declaring the set that represents conjunctions:
 
 \Agda{Basic}{CONJUNCTION}
 
-So, \D{A /\symbol{92} B} contains elements with a proof of $A$ and a proof of $B$. It's elements
+So, \D{A /\symbol{92} B} contains elements with a proof of $A$ and a proof of $B$. Its elements
 can only be constructed with the \IC{<\_,\_>} constructor. The reader familiar with Natural Deduction
-might recognize the following trivial properties. Given that $D$ is a set:
+might recognize the following trivial properties. Given $D$ a set:
 
-\begin{enumerate}[i)]
+\begin{enumerate} %[i)]
   \item \emph{Formation} rules for $D$ express the conditions under which $D$ is a set.
         In our example, whenever $A$ and $B$ are sets, then so is \D{A /\symbol{92} B}.
   \item \emph{Introduction} rules for $D$ define the set $D$, that is, they specify how the
@@ -94,21 +91,19 @@ might recognize the following trivial properties. Given that $D$ is a set:
         the elements of \D{A /\symbol{92} B} have the form \IC{< a , b >}, where $a \in A$
         and $b \in B$. 
   \item \emph{Elimination} rules show how to prove a proposition about an arbitrary element in $D$.
-        They're very closely related to structural induction. The Agda equivalent is pattern matching,
+        They are very closely related to structural induction. The Agda equivalent is pattern matching,
         where we deconstruct, or eliminate, an element until we find the first constructor. Note that
         the proofs of \F{/\symbol{92}-elim} are simply pattern matching.
-  \item \emph{Equality} rules gives us the equalities which are associated with $D$. Without diving
-        too much, in our simple case, \inlagda{< a , b > == < a' , b' >} whenever \inlagda{a == a'}
+  \item \emph{Equality} rules give us the equalities which are associated with $D$. Without diving
+        too much, in the simple case above, \inlagda{< a , b > == < a' , b' >} whenever \inlagda{a == a'}
         and \inlagda{b == b'}.
 \end{enumerate}
 
-As we shall see in section \ref{sec:background:martinlof}, these properties come for free whenever we introduce 
-a new set forming operation, or, a data declaration in Agda. In fact, for each set forming operation $D$
-we have those four kinds or rules.
+As detailed below in section \ref{sec:background:martinlof}, these properties come for free whenever we introduce 
+a new set forming operation, that is, a data declaration in Agda. In fact, each set forming operation $D$ offers the four kinds or rules just given.
 
 An analogous technique can be employed to encode disjunction. Note the similarity with
-Haskell's \D{Either} datatype (they are the same, in fact). The elimination rules for
-disjunction is a proof by cases. 
+Haskell's \D{Either} datatype (they are the same, in fact). The elimination rule for disjunction is a proof by cases. 
 
 \Agda{Basic}{DISJUNCTION}
 
@@ -117,50 +112,50 @@ over disjunction.
 
 \Agda{Basic}{DISTR}
 
-Using our fragment of natural deduction, we can start proving things. Let's consider a simple
-proposition saying that an element of a nonempty list $l_1 \conc l_2$, where $\conc$ is concatenation, is
-in $l_1$ or in $l_2$. For this all that is required is: to encode lists, provide a definition for $\conc$,
+Using this fragment of natural deduction, we can start proving things. Consider a simple
+proposition saying that an element of a nonempty list $l_1 \conc l_2$, where $\conc$ is concatenation, either is
+in $l_1$ or in $l_2$. For this all that is required is to: encode lists in Agda, provide a definition for $\conc$,
 encode a \emph{view} of the elements in a list and finally prove our proposition.
 
 Defining the type of lists is a boring task, and the definition is just like
-its Haskell counterpart. Let us just import from the standard library and go to the
+its Haskell counterpart. One can just import the definition from the standard library and go to the
 interesting part right away.
 
 \Agda{Basic}{IN-LIST}
 
-Looking closely to this code: we have a set forming operation \D{In}, that receives
+Looking closely to this code, we one finds a set forming operation \D{In}, that receives
 one implicit parameter $A$ and is indexed by an element of $A$ and a $List\ A$. Indeed, \DArgs{In}{x\; l}
-is the proposition that states that $x$ is an element of $l$. How do we construct such a proof?
-There are two ways of doing so! Either $y$ is in $l$'s head, as captured by the \IC{InHead}
-constructor, or it is in $l$'s tail, and for that we require a proof of such statement, in the \IC{InTail}
-constructor. The reader may wonder about the statement \DArgs{In}{y\; []}, which should be impossible. One can see,
-just from the types, that we cannot construct such a statement. The result of both of \IC{In} constructors
-involve non-empty list and they are the only constructors we are allowed to use. So, the \emph{non-empty list}
-requirement in the proposition we're trying to prove comes for free.
+is the proposition that states that $x$ is an element of $l$. How is such a proof constructed?
+There are two ways of doing so. Either $y$ is in $l$'s head, as captured by the \IC{InHead}
+constructor, or it is in $l$'s tail, and a proof of such statement is required, in the \IC{InTail}
+constructor. The reader may wonder about the statement \DArgs{In}{y\; []}, which should be impossible to construct. One can see,
+just from the types, that we cannot construct such a statement. The result of both \IC{In} constructors
+involve non-empty lists and they are the only constructors we are allowed to use. So, the \emph{non-empty list}
+requirement in the proposition we are trying to prove comes for free.
 
 We proceed to showing how to state the proposition mentioned above and carry out its proof step by step, as this is an interesting example.
-The proposition is stated as follows,
+The proposition is stated as follows:
 
 \Agda{Basic}{inDistr-decl}
 
 The variables enclosed in normal parentheses are called \emph{telescopes}, and they introduce
-the dependent function type $(x : A) \rightarrow B\;x$, that is, $x$ can appear on the right-hand side of
-the function type constructor, $\rightarrow$. Therefore, we need an implicit set $A$, two lists of $A$,
+the dependent function type $(x : A) \rightarrow B\;x$, in general, $x$ can appear on the right-hand side of
+the function type constructor, $\rightarrow$. In this proof, we need an implicit set $A$, two lists of $A$,
 an element of $A$ and a proof that such element is in the concatenation of the two lists.
 The proof follows by \emph{induction} on the first list. 
 
 \Agda{Basic}{inDistr-1}
 
 If the first list is empty, $[] \conc l_2$ reduces to $l_2$. So, prf has type \DArgs{In}{x\; l_2}, which
-is just what we need to create a disjunction.
+is just what we need to create a disjunction. If not empty, though, then it has a head and a tail:
 
 \Agda{Basic}{inDistr-2}
 
-If it's not empty, though, then it has a head and a tail. Now we have to also pattern-match
+ Now we have to also pattern-match
 on $prf$. If it says that our element is in the head of our list, the result is also very simple.
 The repetition of the symbol $x$ in the left hand side is allowed as long as all duplicate occurrences
-are preceded by a dot. They're called dotted patterns and tell Agda that this is \emph{the only possible}
-value for that pattern. We can see that by reasoning with \IC{InHead} type, \DArgs{In}{x\; (x :: l)}. 
+are preceded by a dot. These are called dotted patterns and tell Agda that this is \emph{the only possible}
+value for that pattern. We can see this by reasoning with \IC{InHead} type, \DArgs{In}{x\; (x :: l)}. 
 So, if $l_1 = (x :: l)$ and we have $prf = In\; x\; (x :: l)$, that is, a proof that $x$ is in $l_1$'s head,
 we can only be looking for $x$. 
 
@@ -172,7 +167,7 @@ Agda's termination checker.
 
 \subsection{Closing Remarks}
 
-In this small introduction to Agda we could see a tiny bit of what the language is capable of,
+The small introduction to Agda given above tells a tiny bit of what the language is capable of,
 both in its programming side and its proof assistant side. All the concepts were introduced
 informally here, with the intention of not overwhelming a unfamiliar reader. A lot of resources
 are available in the Internet at the Agda Wiki page \cite{AgdaTutorials}. 

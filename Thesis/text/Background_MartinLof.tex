@@ -1,20 +1,20 @@
-Type theory was originally developed with the goal of being a clarification, or basis,
-for constructive Mathematics, but, unlike most other formalizations of mathematics, it is
+Type theory was originally developed with the goal of offering a clarification, or basis,
+for constructive Mathematics. However, unlike most other formalizations of mathematics, it is
 not based on first order logic. Therefore, we need to introduce the symbols and
 rules we'll use before presenting the theory itself. The heart of this interpretation of
-proofs as programs is the Curry-Howard isomorphism, explained in section \ref{sec:background:lambdacalculus}.
+proofs as programs is the Curry-Howard isomorphism, already explained in section \ref{sec:background:lambdacalculus}.
 
 Martin-L\"{o}f's theory of types \cite{lof84} is an extension of regular type theory. This extended
 interpretation includes universal and existential quantification. 
 A proposition is interpreted as a set whose elements
-are proofs of such proposition. Therefore, true proposition is a non-empty set and a false proposition
+are proofs of such proposition. Therefore, any true proposition is a non-empty set and any false proposition
 is a empty set, meaning that there is no proof for such proposition. Apart from \emph{sets as propositions},
 we can look at sets from a \emph{specification} angle, and this is the most interesting view for programming.
 A given element $a$ of a set $A$ can be viewed as: a proof for proposition $A$; a program satisfying the
 specification $A$; or even a solution to problem $A$.
 
-In this chapter we'll explain the basics of the theory of types (in its \emph{intensional} variation)
-trying to establish connections with the Agda language. We'll begin by providing some basic notions
+This chapter we'll explain the basics of the theory of types (in its \emph{intensional} variation)
+trying to establish connections with the Agda language. It begins by providing some basic notions
 and the interpretation of propositional logic into set theory. We'll follow with the notion of arity,
 which differs from the canonical meaning, finishing with a small discussion on the dependent product
 and sums operators, which closes the gap to first order logic. The interested reader should continue
@@ -26,7 +26,7 @@ with \cite{nords90} or, for a more practical view, \cite{wouter08,bove2009}
 The line between Computer Science and Constructive Mathematics is very thin. The primitive object is
 the notion of a function from a set $A$ to a set $B$. Such function can be viewed as a program that,
 when applied to an element $a \in A$ will construct an element $b \in B$. This means that every
-function we use in constructive mathematics are computable. 
+function we use in constructive mathematics is computable. 
 
 Using the constructive mindset to prove things is also very closely related to building a computer program.
 That is, to prove a proposition $\forall x_1,x_2 \in A \; . \; \exists y \in B \; . \; Q(x_1, x_2, y)$ for a given
@@ -36,7 +36,7 @@ such that $Q(a_1, a_2, b)$ holds.
 \subsection{Propositions as Sets}
 \label{subsec:martinlof:propositionsassets}
 
-In classical mathematics, a proposition is thought of as being either true or false, it doesn't
+In classical mathematics, a proposition is thought of as being either true or false, and it doesn't
 matter if we can prove or disprove it. On a different angle, a proposition is constructively true
 if we have a \emph{method} for proving it. A classical example is the law of excluded middle, $A \vee \neg A$,
 which is trivially true since $A$ can only be true or false. Constructively, though, a method for proving a disjunction
@@ -69,8 +69,8 @@ form $\ione\; a$ and $\itwo\; b$ with $a \in A$ and $b \in B$.
 \paragraph{Negation,} $\neg A$, can be identified relying on its definition
 on the minimal logic, $A \supset \bot$
 
-Until now, we defined propositional logic using sets (types) that are available in almost every
-programming language. In order to handle quantifications, though, we'll need operations defined over a 
+So far, we defined propositional logic using sets (types) that are available in almost every
+programming language. Quantifications, though, require operations defined over a 
 family of sets, possibly \emph{depending} on a given \emph{value}. The intuitionist explanation
 of the existential quantifier is as follows:
 
@@ -82,41 +82,39 @@ $b \in P(a)$.
 
 \paragraph{For all,} $\forall a \in A \; . \; P(a)$ is a function that gives a proof of $P(a)$
 for each $a \in A$ given as input. The correspondent set is the cartesian product of a family
-of sets $\Pi(x \in A, B(x))$. The elements of such set the aforementioned functions. The same
+of sets $\Pi(x \in A, B(x))$. The elements of such set are the aforementioned functions. The same
 notation simplification takes place here, and we denote it by $\Pi(A, B)$. The elements of such set
 are of the form $\lambda x\;.\;b(x)$ where $b(x) \in B(x)$ for $x \in A$. 
 
 \subsection{Expressions}
 
-Until now we have identified the sets we'll need to express first order formulas, but we
+Thus far now we have identified the sets needed to express first order formulas, but we
 did not mention what an expression is. In fact, in the theory of types, an expression is a
-very abstract notion. We are going to define the set $\mathcal{E}$ of all expressions by induction
-in a moment. 
+very abstract notion. We are going to define the set $\mathcal{E}$ of all expressions by induction shortly.
 
-It's worth to remember that Martin-L\"{o}f's theory of types was intended to be a foundation
+It is worth remembering that Martin-L\"{o}f's theory of types was intended to be a foundation
 for mathematics. It makes sense, therefore, to base our definitions in standard mathematical expressions.
-For instance, consider the syntax of an expression: $E \sim \Sigma \{ a.E' \;\mid\; E \xrightarrow{\;a\;} E' \}$\footnote{%
+For instance, consider the syntax of an expression in the CCS calculus \cite{Milner80} $E \sim \Sigma \{ a.E' \;\mid\; E \xrightarrow{\;a\;} E' \}$\footnote{%
 %%% FOOTNOTE
 Expansion Lemma for CCS; States that every process (roughly a LTS) is equivalent to the sum of its derivatives.
 The notation $E \xrightarrow{\;a\;} E'$ states a transition from $E$ to $E'$ through label $a$.
 %%% END FOOTNOTE
-}; We have a large range of syntactical elements that we don't usually think about when writing
+}; we have a large range of syntactical elements that we don't usually think about when writing
 mathematics on paper. For instance, the variables $a$ and $E'$ works just as placeholders, which
-are \emph{abstractions} created at the predicate in the common set-by-comprehension syntax. We then
-have the \emph{application} of a summation $\Sigma$ to the resulting set, this symbol represents
+are \emph{abstractions} created at the predicate level in the common set-by-comprehension syntax. We then
+have the \emph{application} of a summation $\Sigma$ to the resulting set, where this symbol represents
 a \emph{built-in} operation, just like the congruence $\_\sim\_$. These are exactly the elements
-that will allow us to build expressions in the theory of types:\\
+that will allow us to build expressions in the theory of types.\\
 
 \begin{mydef}[Expressions]\hfill
 \begin{description}
   \item[Application;]
-    Let $k, e_1, \cdots, e_n \in \mathcal{E}$ be expressions of suitable arity, 
-    the application of $k$ to $e_1, \cdots, e_n$ denoted by $(k\;e_1\;\cdots\;e_n)$,
+    Let $k, e_1, \cdots, e_n \in \mathcal{E}$ be expressions of suitable arity. The application of $k$ to $e_1, \cdots, e_n$ denoted by $(k\;e_1\;\cdots\;e_n)$,
     is also an expression.
   
   \item[Abstraction;]
     Let $e \in \mathcal{E}$ be an expression with free occurrences of a variable $x$.
-    We'll denote by $(x)e$ the expression where every free occurrence of $x$ is
+    We denote by $(x)e$ the expression where every free occurrence of $x$ is
     interpreted as a hole, or context. So, $(x)e \in \mathcal{E}$.
   
   \item[Combinations;]
@@ -126,7 +124,7 @@ that will allow us to build expressions in the theory of types:\\
       e_1,e_2,\cdots,e_n
     \]
     which is the combination of the $e_i$, $i \in \{1,\cdots,n\}$. 
-    This can be though of tupling things together. It's main use is for
+    This can be though of tupling things together. Its main use is for
     handling complex objects as part of the theory. Consider the
     scenario where one has a set $A$, an associative closed operation $\oplus$ and
     a distinguished element $a \in A$, neutral for $\oplus$. We could talk
@@ -134,13 +132,13 @@ that will allow us to build expressions in the theory of types:\\
   
   \item[Selection;]
     Of course, if we can tuple things together, it makes sense to be able to
-    tear it apart too. Let $e\in\mathcal{E}$ be a combination with
-    $n$ elements, then, for all $i \in \{1, \cdots, n\}$, we have the
+    tear things apart too. Let $e\in\mathcal{E}$ be a combination with
+    $n$ elements. Then, for all $i \in \{1, \cdots, n\}$, we have the
     selection $e.i \in \mathcal{E}$ of the $i$-th component of $e$.
   
   \item[Built-in's;]
     The built-in expressions are what makes the theory shine. Yet, 
-    they change according to the flavor of the theory of types we're handling.
+    they change according to the flavor of the theory of types one is handling.
     They typically include $zero$ and $succ$ for Peano's encoding of the Naturals, 
     together with a recursion principle $natrec$; Or $nil$, $cons$ and $listrec$
     for lists; Products and Coproduct constructors are also built-ins: $\langle\_,\_\rangle$
@@ -149,8 +147,8 @@ that will allow us to build expressions in the theory of types:\\
 \end{mydef}\hfill
 
 \begin{mydef}[Definitional Equality]
-Given two expressions $d, e \in \mathcal{E}$, if they are syntactical synonyms, we say
-that they are \emph{definitionally} or \emph{intensionally} equal. We'll denote it
+Given two expressions $d, e \in \mathcal{E}$, Should they be syntactical synonyms, we say
+that they are \emph{definitionally} or \emph{intensionally} equal. This is denoted
 by $d \equiv e$.
 \end{mydef}
 
@@ -160,8 +158,8 @@ From the expression definition rules, we can see a few equalities arising:
   e_i & \equiv & (e_1, \cdots, e_n).i
 \end{eqnarray*}
 
-As one have probably noticed, we mentioned \emph{expressions of suitable arity}, but didn't explain
-what arity means. The notion of arity is somewhat different from what we would expect, it can
+As probably noticed, we mentioned \emph{expressions of suitable arity}, but did not explain
+what arity means. The notion of arity is somewhat different from what one would expect, it can
 be seen as a \emph{meta-type} of the expression, and indicates which expressions can be combined
 together.
 
@@ -174,20 +172,20 @@ might select components from it, or it is \emph{single}. In addition, an express
 can be either \emph{saturated} or \emph{unsaturated}. A single saturated expression
 have arity $\arzero$, therefore, neither selection nor application can be performed.
 Unsaturated expressions on the other hand, have arities of the form $\alpha \ararr \beta$,
-where $\alpha$ and $\beta$ are itself arities. The meaning of such arity is \emph{give me an expression
-of arity $\alpha$ and I give an expression of arity $\beta$}, just like normal Haskell types. 
+where $\alpha$ and $\beta$ are themselves arities. The informal meaning of such arity is \emph{"give me an expression
+of arity $\alpha$ and I give an expression of arity $\beta$"}, just like normal Haskell types. 
 
 For example, the built in $succ$ has arity $\arzero \ararr \arzero$; the list constructor
 $cons$ has arity $(\arzero \armul \arzero) \ararr \arzero$, since it takes two expressions
-of arity $\arzero$ and returns an expression. We'll not go into much more detail 
-on arities. It is easy to see how they're inductively defined. We refer the reader
+of arity $\arzero$ and returns an expression. We will not go into much more detail 
+on arities. It is easy to see how they are inductively defined. We refer the reader
 to chapter 3 of \cite{nords90}.
 
 Evaluation of expressions in the theory of types is performed in a lazy fashion, the semantics
-are based in the notion of \emph{canonical expression}. These canonical expressions are the values
+being based in the notion of \emph{canonical expression}. These canonical expressions are the values
 of programs and, for each set, they have different formation conditions. The common property is
 that they must be closed and saturated. It is closely related to the weak-head normal form concept in
-lambda calculus.  
+lambda calculus, as illustrated in table \ref{table:expr_evaluation_state}.
 
 \begin{center}
 \begin{table}[h]
@@ -198,75 +196,77 @@ lambda calculus.
   $(\lambda x . x)$ & $(\lambda x . snd\;x) p$ & $cons(4, app(nil, nil))$ & $4$
 \end{tabular}
 \caption{Expression Evaluation State}
+\label{table:expr_evaluation_state}
 \end{table}
 \end{center}
 
-\subsection{judgement Forms}
+\subsection{Judgement Forms}
 Standing on top of the basic constructors of the theory of types, we can start to discuss
-what kind of judgements forms we can express and derive. In fact, Agda boils down to a tool
+what kind of judgement forms we can express and derive. In fact, Agda boils down to a tool
 that does not allow us to make incorrect derivations. Type theory provides us with derivational 
-rules to discuss the validity of judgements of the following form:
+rules to discuss the validity of judgements of the form given in table \ref{table:judgement_forms}
 
 \begin{center}
 \begin{table}[h]
 \begin{tabular}{c l l}
        & Sets & Propositions \\ \hline
-  i)   & $A$ is a set. & $A$ is a proposition. \\
-  ii)  & $A$ and $B$ are equal sets. & $A$ and $B$ are equivalent propositions. \\
-  iii) & $a$ is an element of a set $A$. & $a$ is a proof of $A$. \\
-  iv)  & $a$ and $b$ are equal elements of a set $A$. & $a$ and $b$ are the same proof. \\  
+  \textit{(i)}   & $A$ is a set. & $A$ is a proposition. \\
+  \textit{(ii)}  & $A$ and $B$ are equal sets. & $A$ and $B$ are equivalent propositions. \\
+  \textit{(iii)} & $a$ is an element of a set $A$. & $a$ is a proof of $A$. \\
+  \textit{(iv)}  & $a$ and $b$ are equal elements of a set $A$. & $a$ and $b$ are the same proof. \\  
 \end{tabular}
 \caption{judgement Forms}
+\label{table:judgement_forms}
 \end{table}
 \end{center}
 
-When reading a set as a proposition, we might simplify $iii$ to \emph{$A$ is true}, disregarding
+When reading a set as a proposition, we might simplify $(iii)$ to \emph{$A$ is true}, disregarding
 the proof. What matters is the existence of the proof.
 
-But then, let's take $i$ as an example. What it means to be a set? To know $A$ is a set is
+But then, let's take $(i)$ as an example. What does it means to be a set? To know that $A$ is a set is
 to know how to form the canonical elements of $A$ and under what conditions two canonical
-elements are equal. Therefore, do construct a set, we need to give a syntactical description
+elements are equal. Therefore, to construct a set, we need to give a syntactical description
 of its canonical elements and provide means to decide whether or not two canonical elements
 are equal. Let us take another look at the Peano Naturals:
 
 \Agda{Basic}{NAT}
 
-We're in fact defining a \D{Set}, whose canonical elements are either \IC{zero} or
+In fact defines a \D{Set}, whose canonical elements are either \IC{zero} or
 \IC{succ} applied to something. Equality in \D{Nat} is indeed decidable, therefore we have a set
 in the theory of types sense.
 
 The third form of judgement might also be slightly tricky. Given that $A$ is a set, 
-to know $a$ is an element of $A$ is to know that, when evaluated, $a$ yields a canonical element in $A$
-as value. Making the parallel to Agda again, this is what allows we to pattern match on terms.
+to know that $a$ is an element of $A$ amounts to knowing that, when evaluated, $a$ yields a canonical element in $A$
+as value. Making the parallel to Agda again, this is what allows one to pattern match on terms.
 
 To know that two sets are equal is to know that they have the same canonical elements, and
 equal canonical elements in $A$ are also equal canonical elements in $B$. Two elements are
 equal in a set when their evaluation yields equal canonical elements.
 
 For a proper presentation of the theory of types, we should generalize these judgement forms
-to cover hypothesis. Yet, we don't want to delve into too much detail but what's necessary for 
+to cover hypotheses. As this is not required for 
 a stable understanding of Agda. we refer the reader to Martin-L\"{o}f's thesis \cite{lof84,lof85}.
 
 \subsection{General Rules}
 
 A thorough explanation of the rules for the theory of types is outside the scope of this section. 
 This is just a simple illustration that might help unfamiliar readers to grasp Agda with
-some comfort, since they got a taste of what's happening behind the curtains. I'll present the
-general notion of rule, their syntax, and give a simple example.
+some comfort, so that they get a taste of what is happening behind the curtains. For this, it is enough 
+to present the general notion of rule, their syntax and give a simple example.
 
 In the theory of types there are some general rules regarding equality and substitution, 
-which can be justified by the defined semantics, then, for each set forming operation, there
-are rules for reasoning about the set and its elements. These foremost class of rules
+which can be justified by the defined semantics. Then, for each set forming operation, there
+are rules for reasoning about the set and its elements. These foremost classes of rules
 are divided into four kinds:
 
-\begin{enumerate}[i)]
+\begin{enumerate} %[i)]
   \item \emph{Formation} rules for $A$ describe the conditions under which $A$ is a set and
         when another set $B$ is equal to $A$.
         
   \item \emph{Introduction} rules for $A$ are used to construct the canonical elements. They
         describe how they are formed and when two canonical elements of $A$ are equal.
         
-  \item \emph{Elimination} rules act as an \emph{structural induction principle} for elements of $A$.
+  \item \emph{Elimination} rules act as a \emph{structural induction principle} for elements of $A$.
         They allow us to prove propositions about arbitrary elements.
         
   \item \emph{Equality} rules gives us the equalities which are associated with $A$.
@@ -276,23 +276,23 @@ are divided into four kinds:
 \newcommand{\withhip}[2]{#2 \; [ #1 ] }
 \newcommand{\BB}{\mathbb{B}}
 \newcommand{\ite}[3]{(#1 \; ? \; #2 \; : \; #3)}
-The syntax will follow a natural deduction style, so, for example: 
+The syntax will follow a natural deduction style. For example: 
 \[
   \infer{\isset{\Pi(A , B)}}{\isset{A} & \withhip{x \in A}{\isset{B(x)}}}
 \]
-Represents the formation rule for $\Pi$, and can be applied whenever $A$ and $B(x)$ are sets,
-assuming that $x \in A$. judgements may take the form $p = a \in A$, and they only mean 
+The rule represents the formation rule for $\Pi$, and can be applied whenever $A$ and $B(x)$ are sets,
+assuming that $x \in A$. judgements may take the form $p = a \in A$, meaning 
 that if we compute the program $p$, we get the canonical element $a \in A$ as a result.
 
-Well, so far so good, but how do we use all these rules and interpretations? I hope to take the
+So far so good. But how do we use all these rules and interpretations? Let us to take the
 remaining fog out of how Martin-L\"{o}f's theory \emph{is} Agda with the next example. For this,
-I'll need the set of booleans and the set of intentional equality.
+we need the set of booleans and the set of intentional equality.
 
 \subsubsection{Boolean Values}
 
-The set of boolean values, or, $\{ true, false \}$, is nothing more than an enumeration set.
-There are generic rules to handle enumeration sets, yet, for simplicity's sake I'm going to use an instantiated
-version of those rules.
+The set $\{ true, false \}$ of boolean values is nothing more than an enumeration set.
+There are generic rules to handle enumeration sets. For simplicity's sake we are going to use an instantiated
+version of such rules.
 
 \[ 
 \begin{array}{c c c}
@@ -357,16 +357,20 @@ which is a canonical element of $A$. The elimination and equality rules for $Id$
 \]
 
 From the introduction rules, we should be able to tell which are the canonical elements of $Id$.
-As an exercise, the reader should compare the set $Id$ with Agda's \emph{Relation.Binary.PropositionalEquality}.
+As an exercise, the reader should compare the set $Id$ with Agda's \emph{Relation.Binary.PropositionalEquality}\footnote{%
+%%%% BEGINFOOTNOTE
+Available from the Agda Standard Library: https://github.com/agda/agda-stdlib
+%%%% ENDFOOTNOTE
+}.
 
 \subsection{Epilogue}
 
 At this point we have briefly discussed the Curry-Howard isomorphism in both the simply-typed
 version and the dependently typed flavor. We have presented (the very surface of) the theory
-of types and which kind of logical judgements we can handle with it. But how does all this connects 
+of types and which kind of logical judgements we can handle with it. But how does all this connect
 to Agda and verification in general?
 
-Software Verification with a functional language is somewhat different from imperative languages. 
+Software Verification with a functional language is somewhat different from doing the same with a imperative language. 
 If one is using C, for example, one would write the program and annotate it with logical expressions.
 They are twofold. We can use pre-conditions, post-conditions and invariants to deductively verify a program
 (these are in fact a variation of Hoare's logic). Or, we can use Software Model Checking, proving
@@ -374,8 +378,8 @@ that for some bound of traces $k$, our formulas are satisfied.
 
 When we arrive at the functional realm, our code is correct \emph{by construction}. The type-system
 provides both the \emph{annotation language} and you can construct a program that either type-checks,
-therefore respects its specification, or doesn't pass through the compiler. Remember that Agda's
-type system is the intensional variant of Martin-L\"{o}f's theory of types, which we just presented
+therefore respects its specification, or does not pass through the compiler. Remember that Agda's
+type system is the intensional variant of Martin-L\"{o}f's theory of types, which was presented above
 in this chapter.
 
 Let us now prove that, for any set $A$ and $a \in A$, given a $b \in \BB$ we have
@@ -392,4 +396,11 @@ Now, take a look at the same proof, encoded in Agda without anything from the st
 Note how some rules (like $\BB_{elim}$) are built into the language, as pattern-matching, for instance.
 
 \Agda{MartinLof}{proof}
+
+The Agda snippet above is fairly more readable than the actual derivation of our example lemma.
+Understanding how one writes programs and very general proofs in the same language can be tough.
+We hope to have exposed how Agda uses Martin-L\"{o}f's theory of types in a very clever way, 
+providing a very expressive logic for theorem proving. The programming
+part of Agda is directly connected to last chapter's Curry-Howard Isomorphism.
+This concludes a big portion of the background needed for understanding the rest of this dissertation.
 

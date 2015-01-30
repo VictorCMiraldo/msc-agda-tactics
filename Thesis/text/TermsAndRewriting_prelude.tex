@@ -1,0 +1,30 @@
+
+Agda introduced a reflection API in version 2.2.8. Although not a new feature
+in the world of functional programming (Lisp's \emph{quoting} and \emph{unquoting} 
+and Template Haskell, for instance, are similar techniques) 
+it is proving to be very usefull for implementing interesting things. 
+One application for reflection, which we chose to explore, is 
+the possibility to write custom tactics for proving propositions. 
+Somewhat close to how Coq proves propositions.
+
+The representation of an Agda term has type \D{Term}, and can be obtained
+by \emph{quoting} it.
+The keywords that bridge the world of programs and their abstract representations 
+are \K{quoteTerm} and \K{unquote}, inverses of each other. 
+The former transforms a normal term into it's \D{Term} representation whereas the 
+later does exactly the oposite. Due to Agda's complexity, however, the type \D{Term} is difficult
+to handle. A much simpler option is to use a intermediate representation, which we called \D{RTerm},
+for implementing the required operations.
+
+\begin{TODO}
+  \item What we did?
+  \item more stuff...
+\end{TODO}
+
+This chapter starts by giving a brief introduction to Agda's \D{Term} datatype, and presents some
+of the reflection API, in section \ref{sec:tandr:reflection}. 
+On the sequence, section \ref{sec:tandr:representingterms}, we give a description of our \D{RTerm} representation
+and explain how we perform the conversion. A presentation of the operations required for 
+automatic congruence and substitution guessing follows in section \ref{sec:tandr:termoperations}.
+We finish this chapter in section \ref{sec:tandr:rwtactic} where we explain the library entry-point function: the RW function.
+Some guidance for when one wants to use our rewrite feature in different domains is also given.

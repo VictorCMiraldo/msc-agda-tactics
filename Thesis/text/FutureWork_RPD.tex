@@ -1,24 +1,28 @@
-The task of adding rewriting functionality to Agda, in general, is a very exploratory 
+The overall task of adding rewriting functionality to Agda is quite an exploratory 
 project for a couple reasons, the most important being the unstable state of Agda's
-standard library and, in particular, the Reflection module. 
+standard library and, in particular, of the Reflection module. 
 
-We started by getting familiar both with the Agda language and the required theoretical background. 
-Our case study was the development of a Relational Algebra library, 
+The work started by getting familiar both with the Agda language and the required theoretical background. 
+Our case study is the development of a library for Relational Algebra, 
 that will be used as our main target for the rewriting functionality.
 During this development I stumbled across a few problems regarding the notion of equality, 
-which were solved using a combination of techniques, explained in section \ref{chap:relationalalgebra}.
-This significantly slowed down the project, mostly because we had to be sure we were getting
+which were solved using a combination of techniques, as explained in section \ref{chap:relationalalgebra}.
+This significantly slowed down the project, mostly because one had to be sure to get
 this right, otherwise the library wouldn't be suitable for automatic rewriting, as is the case
 of current state-of-the-art Relational Algebra libraries, in Agda.
 
 The library is far from complete, as any library requires constant
-management and adaptation, but is stable enough for us to jump to the next task, which is
-exploring the reflection capabilities of Agda, and investing how we'll interact with it
-to provide a general rewriting functionality. This is what we're currently working on.
+management and adaptation, but is stable enough for the work to proceed to the next task, which is
+exploring the reflection capabilities of Agda, and exploring how to use them to provide 
+a general rewriting functionality. This is the form of the current work.
 
-Upon having a reliable rewriting mechanism, we would like to run some bigger verification
-tasks, in order to \emph{destructively} test our tool. Parallel to that, there's also the
+Once a reliable rewriting mechanism is ensured, we would like to run some bigger verification
+tasks, in order to \emph{destructively} test our tool. Parallel to this, there is also the
 work of expanding the library with more Relational Algebra constructions. As mentioned before,
 this is constant work, at least until Agda's stdlib stabilizes. We're currently working with
 Agda version $2.4.2.2$ with standard library version $0.9$. The code we developed so far and
 the sources for this document are available at the git repository \texttt{https://github.com/VictorCMiraldo/msc-agda-tactics}.
+
+The use of this library to support the relational derivation of functional programs in
+the algebra of programming style is the ultimate goal of this project, once the technical
+difficulties mentioned above are addressed and solved.
