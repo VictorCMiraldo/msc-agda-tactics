@@ -135,7 +135,7 @@ module Test where
               ≡⟨ refl ⟩
                 x ∷ ((xs ++ ys) ++ zs)
            -- ≡⟨ mycong (_∷_ x) (++-assocH xs ys zs) ⟩
-              ≡⟨ {!!} ⟩ -- (quoteGoal g in unquote (RW (quote ++-assocH) g)) ⟩ 
+              ≡⟨ (quoteGoal g in unquote (RW (quote ++-assocH) g)) ⟩ 
            -- ≡⟨ cong (_∷_ x) (++-assocH xs ys zs) ⟩
                 x ∷ (xs ++ (ys ++ zs))
               ≡⟨ refl ⟩
@@ -145,6 +145,23 @@ module Test where
     []-++-neutral : ∀{a}{A : Set a}(xs : List A)
                   → xs ++ [] ≡ xs
     []-++-neutral xs = {!!}
+
+    open import Data.Nat as N using (ℕ; zero; suc; _+_) renaming (_≟_ to _≟N_)
+    open import Data.Nat.Properties.Simple
+
+    {- TODO: FIX RW FOR tactic
+
+    RW2 : Name → List (Arg AgType) → AgTerm → AgTerm
+    RW2 n _ g = RW n g
+
+    test′ : (x y : ℕ) → (x + y) + 0 ≡ y + (x + 0)
+    test′ x y = 
+       tactic (RW2 (quote +-right-identity))
+     | tactic (RW2 (quote +-right-identity))
+     | tactic (RW2 (quote +-comm)) 
+     | refl
+
+    -}
 
 module Test2 where
   
