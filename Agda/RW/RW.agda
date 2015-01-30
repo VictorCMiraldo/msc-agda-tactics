@@ -52,7 +52,12 @@ module RW where
         μ nothing  = nothing
   ...| _ | _ = error "[RW+1] Somewthing went wrong."
 
-  RW : Name → AgTerm → AgTerm
-  RW act goal with RW+1 act goal
+  RW₀ : Name → AgTerm → AgTerm
+  RW₀ act goal with RW+1 act goal
   ...| just t  = t
   ...| nothing = error "[RW] Something went wrong."
+
+  -- This function is only beeing used to pass the context
+  -- given by the 'tactic' keyword around.
+  RW : Name → List (Arg AgType) → AgTerm → AgTerm
+  RW act _ goal = RW₀ act goal
