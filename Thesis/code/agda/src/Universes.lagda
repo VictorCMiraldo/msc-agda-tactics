@@ -33,7 +33,11 @@ mutual
     all : {A : U} → (♯ A → U) → U
     exs : {A : U} → (♯ A → U) → U
     _==_  : {A : U}(x y : ♯ A) → U
+\end{code}
+%</data-U>
 
+%<*data-sharp>
+\begin{code}
   {-# TERMINATING #-}
   ♯_ : U → Set
   ♯ TT = Unit
@@ -46,7 +50,7 @@ mutual
   ♯ exs {A} p = || ∃ (♯_ ∘ p) || 
   ♯ (x == y) = x ≡ y
 \end{code}
-%</data-U>
+%</data-sharp>
 
 
 %<*isProp-def>

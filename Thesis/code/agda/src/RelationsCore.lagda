@@ -30,7 +30,7 @@ _∩_ : {A B : Set} → Rel A B → Rel A B → Rel A B
 (R ∩ S) b a = R b a × S b a
 
 fun : {A B : Set} → (A → B) → Rel A B
-fun f b a = f a ≡ b
+(fun f) b a = f a ≡ b
 \end{code}
 %</relation-def>
 
@@ -76,7 +76,7 @@ naive₁ (⊆in rs) (⊆in sr)
 ≡r-promote {R = R} {S = S} (⊆in rs , ⊆in sr)
   = Λ-ext (λ a → ℙ-ext (flip R a) (flip S a) (rs a) (sr a))
   where
-    Λ_ : {A B : Set}(R : Rel A B) → A → ℙ B
+    Λ : {A B : Set}(R : Rel A B) → A → ℙ B
     Λ R = λ a b → R b a 
 
     postulate
