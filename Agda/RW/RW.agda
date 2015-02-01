@@ -1,20 +1,56 @@
 open import Prelude
 open import Data.Maybe using (Maybe; just; nothing)
 open import Reflection renaming (Term to AgTerm; Type to AgType)
-open import RTerm
-open import RTermUtils
-open import Unification
+open import Data.String using (String)
+
+open import Language.RTerm
+open import Language.RTermUtils
+open import Language.Unification
 
 open import Rel.Core.Equality
 
-module RW where
+open import Strategy
 
-  open import Monads
+module RW (db : TStratDB) where
+
+  open import Utils.Monads
+  open import Utils.Error
   open Monad {{...}}
+  open IsError {{...}}
 
-  pattern pat-≡  = (rdef (quote _≡_))
-  pattern pat-≡r = (rdef (quote _≡r_))
-  pattern pat-→  = impl
+  -- We need to bring our instances into scope explicitely,
+  -- to make Agda happy.
+  private
+    instance
+      ErrErr   = IsError-StratErr
+      ErrMonad = MonadError
+      
+  RWerr : Name → AgTerm → Err StratErr AgTerm
+  RWerr act goal with Ag2RTerm goal | Ag2RType (type act)
+  ...| g' | ty with forceBinary g' | (typeResult ty) >>= forceBinary
+  ...| just g | just a
+    =   runUStrats g a
+    >>= uncurry (runTStrats db (p1 g) (p1 a) act)
+    >>= return ∘ R2AgTerm
+  ...| _ | _ = throwError (Custom "Something strange happened")
+
+  postulate
+    RW-error : ∀{a}{A : Set a} → String → A
+
+  -- This function is only beeing used to pass the context
+  -- given by the 'tactic' keyword around.
+  RW : Name → List (Arg AgType) → AgTerm → AgTerm
+  RW act _ goal with runErr (RWerr act goal)
+  ...| i1 err  = RW-error err
+  ...| i2 term = term
+
+  -- TODO: write Strategy.PropEq and Strategy.RelEq; pray ten times
+  --       then compile.
+
+  {-
+
+  
+  
 
   makeApp : Name → RSubst → RTerm ℕ
   makeApp act σ = rapp (rdef act) (map p2 σ)
@@ -61,3 +97,5 @@ module RW where
   -- given by the 'tactic' keyword around.
   RW : Name → List (Arg AgType) → AgTerm → AgTerm
   RW act _ goal = RW₀ act goal
+
+  -}

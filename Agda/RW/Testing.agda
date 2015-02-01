@@ -19,16 +19,17 @@ open import Relation.Binary.PropositionalEquality as PropEq using (_≡_; refl; 
 open import Reflection renaming (Term to AgTerm; _≟_ to _≟-AgTerm_)
 open import Algebra using (module CommutativeSemiring; module DistributiveLattice)
 
-open import RTerm
-open import Unification hiding (_++_)
+open import Language.RTerm
+open import Language.Unification hiding (_++_)
 
 module Testing where
 
 
 module Test where
 
-    open import RTermUtils
-    open import RW
+    open import Strategy.PropEq
+    open import Language.RTermUtils
+    open import RW (≡-strat ∷ [])
     open import Relation.Binary.PropositionalEquality
     open import Data.List
 
@@ -135,7 +136,7 @@ module Test where
               ≡⟨ refl ⟩
                 x ∷ ((xs ++ ys) ++ zs)
            -- ≡⟨ mycong (_∷_ x) (++-assocH xs ys zs) ⟩
-              ≡⟨ (quoteGoal g in unquote (RW₀ (quote ++-assocH) g)) ⟩ 
+              ≡⟨ (tactic (RW (quote ++-assocH))) ⟩ 
            -- ≡⟨ cong (_∷_ x) (++-assocH xs ys zs) ⟩
                 x ∷ (xs ++ (ys ++ zs))
               ≡⟨ refl ⟩
@@ -148,8 +149,9 @@ module Test where
 
 module Test2 where
   
-   open import RTermUtils
-   open import RW
+   open import Language.RTermUtils
+   open import Strategy.RelEq
+   open import RW (rel-strat ∷ [])
    open import Relation.Binary.PropositionalEquality
    open import Data.List
 

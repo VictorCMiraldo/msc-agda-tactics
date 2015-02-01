@@ -1,10 +1,10 @@
 open import Prelude
-open import RTerm
+open import Language.RTerm
 open import Data.Maybe using (Maybe; just; nothing; is-just) renaming (maybe′ to maybe)
 open import Reflection using (_≟-Lit_; _≟-Name_)
-open import Monads
+open import Utils.Monads
 
-module RTermUtils where
+module Language.RTermUtils where
 
   open Monad {{...}}
 
@@ -90,10 +90,13 @@ module RTermUtils where
   ...| nothing      = nothing
 
   -- Structural Manipulation
+  
+  RBinApp : ∀{a} → Set a → Set _
+  RBinApp A = RTermName × RTerm A × RTerm A
 
   -- Opens a term representing a binary application.
   forceBinary : ∀{a}{A : Set a} 
-              → RTerm A → Maybe (RTermName × RTerm A × RTerm A)
+              → RTerm A → Maybe (RBinApp A)
   forceBinary (rapp n (a₁ ∷ a₂ ∷ [])) = just (n , a₁ , a₂)
   forceBinary _                       = nothing
 

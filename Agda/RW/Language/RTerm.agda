@@ -6,7 +6,7 @@ open import Data.String
 open import Data.Nat as Nat using (decTotalOrder; _≤_; s≤s; z≤n)
 open import Relation.Binary using (module DecTotalOrder)
 
-module RTerm where
+module Language.RTerm where
   
   open import Reflection renaming (Term to AgTerm; Type to AgType)
     public
@@ -298,7 +298,7 @@ module RTerm where
   -----------------------------------------
   -- Converting Back to Agda
 
-  open import Monads using (MonadState; ST; get; inc) renaming (module Monad to MonadClass)
+  open import Utils.Monads using (MonadState; ST; get; inc) renaming (module Monad to MonadClass)
   open MonadClass {{...}}
 
   private

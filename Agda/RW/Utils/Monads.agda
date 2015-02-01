@@ -2,7 +2,7 @@ open import Prelude
 open import Level using (Level; _⊔_) renaming (zero to lz; suc to ls)
 open import Data.Maybe using (Maybe; nothing; just)
 
-module Monads where
+module Utils.Monads where
 
   ---------------------
   -- Monad Typeclass --

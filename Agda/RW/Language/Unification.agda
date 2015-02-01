@@ -9,7 +9,7 @@ open import Algebra using (module CommutativeSemiring; module DistributiveLattic
 open import Relation.Binary using (module DecTotalOrder)
 
 
-open import RTerm
+open import Language.RTerm
 
 -- This module is merely an adaptation of Unification.agda from
 -- Auto In Agda, by Pepijn Kokke and Wouter Swierstra.
@@ -21,7 +21,7 @@ open import RTerm
 -- (RTerm ℕ) to a (RTerm (Fin n)), for a given n ∈ ℕ.
 --
 --
-module Unification where
+module Language.Unification where
 
   -----------------------------------------
   -- Unification by Structural Recursion
@@ -122,7 +122,7 @@ module Unification where
   --------------------------------------------------
   -- Monadic Boilerplate
 
-  open import Monads
+  open import Utils.Monads
   open Monad {{...}}
 
   _<$>_ : ∀{a b}{A : Set a}{B : Set b} 
