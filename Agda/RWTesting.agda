@@ -1,0 +1,94 @@
+open import Level using (Level)
+open import Function using (_∘_; id; flip)
+open import Data.Fin as Fin using (Fin; fromℕ) renaming (zero to fz; suc to fs)
+open import Data.Nat as Nat using (ℕ; suc; zero; _+_; _⊔_; decTotalOrder; _<_; _≤_; s≤s; z≤n) renaming (_≟_ to _≟-ℕ_)
+open import Data.Nat.Properties.Simple using (+-comm)
+open import Data.Nat.Properties as ℕ-Props
+open import Data.Nat.Show using (show)
+open import Data.String as Str renaming (_++_ to _++s_)
+open import Data.Char using (Char)
+open import Data.List as List using (List; []; _∷_; [_]; concatMap; _++_; length; map)
+open import Data.Vec as Vec using (Vec; []; _∷_; _∷ʳ_; reverse; initLast; toList)
+open import Data.Product as Prod using (∃; _×_; _,_; proj₁; proj₂; uncurry)
+open import Data.Maybe as Maybe using (Maybe; just; nothing; maybe)
+open import Data.Sum as Sum using (_⊎_; inj₁; inj₂)
+open import Data.Integer as Int using (ℤ; -[1+_]; +_) renaming (_≟_ to _≟-Int_)
+open import Relation.Nullary using (Dec; yes; no)
+open import Relation.Binary using (module DecTotalOrder)
+open import Relation.Binary.PropositionalEquality as PropEq using (_≡_; refl; cong; sym; subst)
+open import Reflection renaming (Term to AgTerm; _≟_ to _≟-AgTerm_)
+open import Algebra using (module CommutativeSemiring; module DistributiveLattice)
+
+open import Language.RTerm
+open import Language.RTermUtils
+open import Language.Unification hiding (_++_)
+
+open import Relation.Binary.PropositionalEquality
+
+open import Strategy.RelEq
+open import Strategy.PropEq
+
+open import RW (≡-strat ∷ rel-strat ∷ [])
+
+module Testing where
+
+
+module Test where
+
+
+    ++-assoc : ∀{a}{A : Set a}(xs ys zs : List A) → 
+               (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
+    ++-assoc [] ys zs = refl
+    ++-assoc (x ∷ xs) ys zs -- = cong (λ l → x ∷ l) (++-assoc xs ys zs)
+               = tactic (RW (quote ++-assoc))
+ 
+    open ≡-Reasoning
+
+    ++-assocH : ∀{a}{A : Set a}(xs ys zs : List A) →
+                (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
+    ++-assocH [] ys zs = 
+              begin 
+                ([] ++ ys) ++ zs
+              ≡⟨ refl ⟩
+                ys ++ zs
+              ≡⟨ refl ⟩
+                [] ++ (ys ++ zs)
+              ∎
+    ++-assocH {A = A} (x ∷ xs) ys zs =
+              begin
+                ((x ∷ xs) ++ ys) ++ zs
+              ≡⟨ refl ⟩
+                x ∷ (xs ++ ys) ++ zs
+              ≡⟨ refl ⟩
+                x ∷ ((xs ++ ys) ++ zs)
+              ≡⟨ (tactic (RW (quote ++-assocH))) ⟩ 
+                x ∷ (xs ++ (ys ++ zs))
+              ≡⟨ refl ⟩
+                (x ∷ xs) ++ (ys ++ zs)
+              ∎
+
+    []-++-neutral : ∀{a}{A : Set a}(xs : List A)
+                  → xs ++ [] ≡ xs
+    []-++-neutral [] = refl
+    []-++-neutral (x ∷ xs) = tactic (RW (quote []-++-neutral))
+
+module Test2 where
+
+   open import Data.Unit using (Unit; unit)
+   open import Data.Empty using (⊥; ⊥-elim)
+
+   open import Rel.Core.Core hiding (_∩_)
+   open import Rel.Properties
+   open import Rel.Core.Equality
+   open import Rel.Reasoning.SubsetJudgement
+   open import Rel.Reasoning.RelationJudgement renaming (begin_ to rbegin_; _∎ to _r∎)
+   
+   goalTest1 : {A B : Set}(R : Rel A B) → (R ⊆ R ∙ Id) ⇐ Unit
+   goalTest1 R 
+     = begin
+       R ⊆ R ∙ Id
+     ⇐⟨(tactic (RW (quote ∙-id-r))) ⟩
+       R ⊆ R
+     ⇐⟨ (λ _ → ⊆-refl) ⟩
+       Unit
+     ∎
