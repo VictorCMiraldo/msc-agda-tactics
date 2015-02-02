@@ -19,18 +19,18 @@ open import Relation.Binary.PropositionalEquality as PropEq using (_≡_; refl; 
 open import Reflection renaming (Term to AgTerm; _≟_ to _≟-AgTerm_)
 open import Algebra using (module CommutativeSemiring; module DistributiveLattice)
 
-open import Language.RTerm
-open import Language.RTermUtils
-open import Language.Unification hiding (_++_)
+open import RW.Language.RTerm
+open import RW.Language.RTermUtils
+open import RW.Language.Unification hiding (_++_)
 
 open import Relation.Binary.PropositionalEquality
 
-open import Strategy.RelEq
-open import Strategy.PropEq
+open import Rel.Reasoning.RelEq-Strategy
+open import RW.Strategy.PropEq
 
-open import RW (≡-strat ∷ rel-strat ∷ [])
+open import RW.RW (≡-strat ∷ rel-strat ∷ [])
 
-module Testing where
+module RWTesting where
 
 
 module Test where
