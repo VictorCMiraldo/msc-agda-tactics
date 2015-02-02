@@ -100,7 +100,6 @@ module Language.RTermUtils where
   forceBinary (rapp n (a₁ ∷ a₂ ∷ [])) = just (n , a₁ , a₂)
   forceBinary _                       = nothing
 
-
   -- Given a 'impl' chain, return it's result.
   typeResult : ∀{a}{A : Set a}
              → RTerm A → Maybe (RTerm A)

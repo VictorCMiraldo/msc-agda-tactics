@@ -20,7 +20,8 @@ TEXT_PARTS=Agda_prelude \
            RelationalAlgebra_SOTA \
            Problem \
            Intro \
-           Reflection_prelude \
+           TANDR_Representation \
+           TANDR_Reflection \
            thesis_core
 
 
@@ -30,6 +31,8 @@ CODE_AGDA_EXCERPTS=$(CODE_AGDA_ROOT)/excerpts
 CODE_AGDA_STY=./agda.sty
 CODE_AGDA_STDLIB=/home/victor/Documents/UU/Thesis/agda-stdlib/src
 CODE_AGDA_REL=/home/victor/Documents/UU/Thesis/msc-agda-tactics/Agda
+CODE_AGDA_PRELUDE=/home/victor/Documents/UU/Thesis/msc-agda-tactics/Agda/stdlib-extensions
+CODE_AGDA_RW=/home/victor/Documents/UU/Thesis/msc-agda-tactics/Agda/RW
 
 CODE_AGDA_MODULES=Basic\
                   MartinLof\
@@ -37,6 +40,8 @@ CODE_AGDA_MODULES=Basic\
                   RelationsCore\
                   ProofIrrel\
                   Universes\
+                  RTerm\
+                  RTerm-Examples
 
 COMPILER=pdflatex -etex
 
@@ -66,7 +71,8 @@ um:
 
 $(CODE_AGDA_EXCERPTS)/%.tex: $(CODE_AGDA_SRC)/%.lagda
 	$(DIRGUARD); agda --allow-unsolved-metas -i $(CODE_AGDA_STDLIB) -i $(CODE_AGDA_SRC) \
-		-i $(CODE_AGDA_REL) --latex-dir=$(CODE_AGDA_EXCERPTS) --latex $<
+		-i $(CODE_AGDA_REL) -i $(CODE_AGDA_PRELUDE) -i $(CODE_AGDA_RW) \
+		--latex-dir=$(CODE_AGDA_EXCERPTS) --latex $<
 
 bib: $(REFERENCES)
 	rm -f thesis_default.bbl

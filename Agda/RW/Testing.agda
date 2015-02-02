@@ -209,7 +209,8 @@ module Test2 where
    goalTest1 R 
      = begin
        R ⊆ R ∙ Id
-     ⇐⟨(tactic (RW (quote ∙-id-r))) ⟩
+     -- ⇐⟨(tactic (RW (quote ∙-id-r))) ⟩
+     ⇐⟨ subst (λ x → R ⊆ x) (≡r-promote (∙-id-r R)) ⟩
        R ⊆ R
      ⇐⟨ (λ _ → ⊆-refl) ⟩
        Unit
