@@ -13,6 +13,8 @@ open import Data.Nat using (ℕ; zero; suc; _+_; _*_)
 open import Data.Nat.Properties.Simple
   using (+-suc; +-right-identity)
 
+open import Data.List using (List; []; _∷_)
+
 open import Rel.Core.Core
 open import Rel.Core.Correflexive
 open import Rel.Core.Equality
@@ -114,6 +116,9 @@ evenLemma = evenLemma1 , evenLemma2
 -------------------------------------------------------------
 -- * The actual equational proof that twice respects even.
 
+open import Rel.Reasoning.RelEq-Strategy using (rel-strat)
+open import RW.RW (rel-strat ∷ [])
+
 twiceIsEven : (twiceR ∙ evenR ⊆ evenR ∙ twiceR) ⇐ Unit
 twiceIsEven 
   = begin
@@ -121,10 +126,12 @@ twiceIsEven
     twiceR ∙ evenR ⊆ evenR ∙ twiceR
 
   ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x ∙ twiceR) evenLemma ⟩
+  -- ⇐⟨ (tactic (RW (quote evenLemma))) ⟩
 
     twiceR ∙ evenR ⊆ ρ twiceR ∙ twiceR
 
-  ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x) (ρ-intro twiceR) ⟩
+  -- ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x) (ρ-intro twiceR) ⟩
+  ⇐⟨ (tactic (RW (quote ρ-intro))) ⟩
 
     twiceR ∙ evenR ⊆ twiceR
 
@@ -140,18 +147,6 @@ twiceIsEven
 
     Unit
 
-  ∎
-
-open import Reflection
-
-goalTest1 : {A B : Set}(R : Rel A B) → (R ⊆ R ∙ Id) ⇐ Unit
-goalTest1 R 
-  = begin
-    R ⊆ R ∙ Id
-  ⇐⟨(quoteGoal g in {!g!}) ⟩
-    R ⊆ R
-  ⇐⟨ (λ _ → ⊆-refl) ⟩
-    Unit
   ∎
 
 
