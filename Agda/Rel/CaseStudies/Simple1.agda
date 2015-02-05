@@ -15,12 +15,15 @@ open import Data.Nat.Properties.Simple
 
 open import Data.List using (List; []; _∷_)
 
-open import Rel.Core.Core
+open import Rel.Core.Core hiding (_∩_)
 open import Rel.Core.Correflexive
 open import Rel.Core.Equality
 open import Rel.Reasoning.SubsetJudgement
 open import Rel.Reasoning.RelationJudgement renaming (begin_ to rbegin_; _∎ to _r∎)
 open import Rel.Properties
+
+open import RW.Language.RTerm
+open import RW.Language.RTermUtils
 
 ---------------------------------------------
 -- * Building Blocks
@@ -85,8 +88,8 @@ div2-twice-cancel (suc (suc b)) so
 
 evenLemma1 : ρ twiceR ⊆ evenR
 evenLemma1 = ⊆in (λ b' b bTb 
-  → let a = p1∙ (p1∩ bTb)
-    in cons-φ $ sym (fun.un (p2∩ bTb)) , evenLemma1Aux a b (fun.un $ p1 (p2∙ (p1∩ bTb)))
+  → let a = p1∙ (p1 (ρ.un bTb)) --  p1∙ (p1∩ bTb)
+    in cons-φ $ p2 (ρ.un bTb) , evenLemma1Aux a b (fun.un $ p1 (p2∙ (p1 (ρ.un bTb))))
   ) where 
     evenLemma1Aux : (a : ℕ) → (b : ℕ) → twice a ≡ b → So (even b)
     evenLemma1Aux a b a*2≡b 
@@ -97,8 +100,10 @@ evenLemma2 : evenR ⊆ ρ twiceR
 evenLemma2 = ⊆in (λ  b' b bEvena 
   → let evenb = p2 (φ.un bEvena)
         a , btwicea = evenLemma2Aux b evenb
-    in cons-∩ $ (a , btwicea , cons-fun (subst (λ x → twice a ≡ x) (p1 $ φ.un bEvena) (fun.un btwicea))) 
-      , cons-fun (sym (p1 $ φ.un bEvena))
+    in cons-ρ $ 
+         (a , btwicea , cons-fun 
+            (subst (λ x → twice a ≡ x) (p1 $ φ.un bEvena) (fun.un btwicea))) 
+       , (p1 $ φ.un bEvena)
   ) where
     evenLemma2Aux : (b : ℕ) → So (even b) 
                   → ∃ (λ x → twiceR b x)
@@ -116,8 +121,74 @@ evenLemma = evenLemma1 , evenLemma2
 -------------------------------------------------------------
 -- * The actual equational proof that twice respects even.
 
+open import RW.Language.RTerm
+open import RW.Language.RTermUtils
+open import RW.Language.Unification
+open import RW.Strategy
+
 open import Rel.Reasoning.RelEq-Strategy using (rel-strat)
 open import RW.RW (rel-strat ∷ [])
+
+test : (twiceR ∙ evenR ⊆ evenR ∙ twiceR) ⇐ (twiceR ∙ evenR ⊆ ρ twiceR ∙ twiceR)
+test = {!!}
+
+goal₂ : RBinApp ℕ
+goal₂ = (impl ,
+ rapp (rdef (quote _⊆_))
+ (rapp (rdef (quote _∙_))
+  (rapp (rdef (quote fun)) (rapp (rdef (quote twice)) [] ∷ []) ∷
+   rapp (rdef (quote φ))
+   (rlam
+    (rapp (rdef (quote So))
+     (rapp (rdef (quote even)) (ivar 0 ∷ []) ∷ []))
+    ∷ [])
+   ∷ [])
+  ∷ rapp (rdef (quote fun)) (rapp (rdef (quote twice)) [] ∷ []) ∷ [])
+ ,
+ rapp (rdef (quote _⊆_))
+ (rapp (rdef (quote _∙_))
+  (rapp (rdef (quote fun)) (rapp (rdef (quote twice)) [] ∷ []) ∷
+   rapp (rdef (quote φ))
+   (rlam
+    (rapp (rdef (quote So))
+     (rapp (rdef (quote even)) (ivar 0 ∷ []) ∷ []))
+    ∷ [])
+   ∷ [])
+  ∷
+  rapp (rdef (quote _∙_))
+  (rapp (rdef (quote ρ))
+   (rapp (rdef (quote fun)) (rapp (rdef (quote twice)) [] ∷ []) ∷ [])
+   ∷ rapp (rdef (quote fun)) (rapp (rdef (quote twice)) [] ∷ []) ∷ [])
+  ∷ []))
+
+ty₂ : RBinApp ℕ
+ty₂ = (rdef (quote _≡r_) ,
+ ivar 0 ,
+ rapp (rdef (quote _∙_))
+ (rapp (rdef (quote ρ)) (ivar 0 ∷ []) ∷ ivar 0 ∷ []))
+
+ty3 : RBinApp ℕ
+ty3 = (rdef (quote _≡r_) ,
+ ovar 0 ,
+ rapp (rdef (quote _∙_))
+ (rapp (rdef (quote ρ)) (ovar 0 ∷ []) ∷ ovar 0 ∷ []))
+
+ξ₁ : ∀{a}{A : Set a} → RBinApp A → RTermName
+ξ₁ (x , _ , _) = x
+
+ξ₂ : ∀{a}{A : Set a} → RBinApp A → RTerm A
+ξ₂ (_ , x , _) = x
+
+ξ₃ : ∀{a}{A : Set a} → RBinApp A → RTerm A
+ξ₃ (_ , _ , x) = x
+
+open import Data.Maybe using (Maybe; nothing; just)
+postulate
+  come-on : ∀{a}{A : Set a} → A
+
+fromJust! : ∀{a}{A : Set a} → Maybe A → A
+fromJust! (just a) = a
+fromJust! _        = come-on
 
 twiceIsEven : (twiceR ∙ evenR ⊆ evenR ∙ twiceR) ⇐ Unit
 twiceIsEven 
@@ -125,17 +196,34 @@ twiceIsEven
 
     twiceR ∙ evenR ⊆ evenR ∙ twiceR
 
-  ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x ∙ twiceR) evenLemma ⟩
-  -- ⇐⟨ (tactic (RW (quote evenLemma))) ⟩
+  -- ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x ∙ twiceR) evenLemma ⟩
+  ⇐⟨ (tactic (by (quote evenLemma))
+     ) ⟩
 
-    twiceR ∙ evenR ⊆ ρ twiceR ∙ twiceR
+    twiceR ∙ evenR ⊆ (ρ twiceR) ∙ twiceR
 
   -- ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x) (ρ-intro twiceR) ⟩
-  ⇐⟨ (tactic (RW (quote ρ-intro))) ⟩
+  ⇐⟨ (tactic (by-static (quote ρ-intro))) ⟩
+  {-
+  ⇐⟨ (let g1 = ξ₂ goal₂
+          g2 = ξ₃ goal₂
+          t1 = ξ₂ ty3
+          t2 = ξ₃ ty3
+          g□  = g1 ∩ g2
+          g□↑ = g1 ∩↑ g2
+          u11 = fromJust! $ g□↑ -↓ g1
+          u12 = fromJust! $ g□↑ -↓ g2
+          -- THE PROBLEM:
+          --   we need to lift the ivar's on ty to ovar's
+          -- YEP! compare ty₂ with ty3.
+        in {!unify t2 u12!}
+     ) ⟩
+    -}
 
     twiceR ∙ evenR ⊆ twiceR
 
-  ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x) (≡r-sym (∙-id-r twiceR)) ⟩
+  -- ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x) (≡r-sym (∙-id-r twiceR)) ⟩
+  ⇐⟨ (tactic (by-static (quote ∙-id-r))) ⟩
 
     twiceR ∙ evenR ⊆ twiceR ∙ Id
 
