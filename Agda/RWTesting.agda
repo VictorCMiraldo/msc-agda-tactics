@@ -2,7 +2,7 @@ open import Level using (Level)
 open import Function using (_∘_; id; flip)
 open import Data.Fin as Fin using (Fin; fromℕ) renaming (zero to fz; suc to fs)
 open import Data.Nat as Nat using (ℕ; suc; zero; _+_; _⊔_; decTotalOrder; _<_; _≤_; s≤s; z≤n) renaming (_≟_ to _≟-ℕ_)
-open import Data.Nat.Properties.Simple using (+-comm; +-right-identity)
+open import Data.Nat.Properties.Simple using (+-comm; +-right-identity; +-assoc)
 open import Data.Nat.Properties as ℕ-Props
 open import Data.Nat.Show using (show)
 open import Data.String as Str renaming (_++_ to _++s_)
@@ -35,6 +35,12 @@ module RWTesting where
 
 module Test where
 
+    postulate
+      blah : ∀{a}{A : Set a} → A
+
+    fromJust! : ∀{a}{A : Set a} → Maybe A → A
+    fromJust! (just x) = x
+    fromJust! _        = blah
 
     ++-assoc : ∀{a}{A : Set a}(xs ys zs : List A) → 
                (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
@@ -72,12 +78,21 @@ module Test where
     []-++-neutral [] = refl
     []-++-neutral (x ∷ xs) = tactic (by (quote []-++-neutral))
 
+    -- TODO: think about how would we modify Strategy.PropEq
+    --       in such a way that it recognizes when it doesn't need a cong.
     test′ : (x y : ℕ) → (x + y) + 0 ≡ y + (x + 0)
-    test′ x y =
-        tactic (by (quote +-right-identity))
-      | tactic (by (quote +-right-identity))
-      | tactic (by (quote +-comm))
-      | refl
+    test′ x y
+      = begin
+        (x + y) + 0
+      ≡⟨ (tactic (by (quote +-right-identity))) ⟩
+        x + y
+      ≡⟨ +-comm x y ⟩
+        y + x
+      ≡⟨ (tactic (by (quote +-right-identity))) ⟩
+        (y + x) + 0
+      ≡⟨ +-assoc y x 0 ⟩
+        y + (x + 0)
+      ∎
 
 module Test2 where
 
@@ -94,7 +109,7 @@ module Test2 where
    goalTest1 R 
      = begin
        R ⊆ R ∙ Id
-     ⇐⟨(tactic (by (quote ∙-id-r))) ⟩
+     ⇐⟨ (tactic (by (quote ∙-id-r))) ⟩
        R ⊆ R
      ⇐⟨ (λ _ → ⊆-refl) ⟩
        Unit
