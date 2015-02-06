@@ -410,6 +410,10 @@ img r = r ∙ r ᵒ
 δ r = ker r ∩ Id
 
 -- Image
+{-
 ρ : {A B : Set} → Rel A B → Rel B B
 ρ r = img r ∩ Id
-
+-}
+record ρ {A B : Set}(R : Rel A B)(b : B)(b′ : B) : Set where
+  constructor cons-ρ
+  field un : (img R) b b′ × b ≡ b′ 

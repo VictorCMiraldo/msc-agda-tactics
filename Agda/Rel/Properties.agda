@@ -48,8 +48,12 @@ Bot⊆R = ⊆in (λ _ _ → λ ())
 ρ-intro : ∀{A B : Set}(R : Rel A B)
         → R ≡r ρ R ∙ R
 ρ-intro r 
+  = ⊆in (λ a b bRa → b , cons-ρ ((a , bRa , bRa) , refl) , bRa)
+  , ⊆in (λ a b bρRRa → subst (λ x → r x a) (sym (p2 (ρ.un (p1 (p2∙ bρRRa))))) (p2 (p2∙ bρRRa)))
+{-
         = ⊆in (λ a b bRa → b , cons-∩ ((a , bRa , bRa) , cons-fun refl) , bRa)
         , ⊆in (λ a b bρRRa → subst (λ x → r x a) (fun.un $ p2∩ (p1 (p2∙ bρRRa))) (p2 (p2∙ bρRRa)))
+-}
 
 ----------------------
 -- * Composition  * --
