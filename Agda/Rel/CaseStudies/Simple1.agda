@@ -143,7 +143,11 @@ goal₂ = (impl ,
      (rapp (rdef (quote even)) (ivar 0 ∷ []) ∷ []))
     ∷ [])
    ∷ [])
-  ∷ rapp (rdef (quote fun)) (rapp (rdef (quote twice)) [] ∷ []) ∷ [])
+  ∷
+  rapp (rdef (quote _∙_))
+  (rapp (rdef (quote fun)) (rapp (rdef (quote twice)) [] ∷ []) ∷
+   rapp (rdef (quote fun)) (rlam (ivar 0) ∷ []) ∷ [])
+  ∷ [])
  ,
  rapp (rdef (quote _⊆_))
  (rapp (rdef (quote _∙_))
@@ -155,23 +159,19 @@ goal₂ = (impl ,
     ∷ [])
    ∷ [])
   ∷
-  rapp (rdef (quote _∙_))
-  (rapp (rdef (quote ρ))
-   (rapp (rdef (quote fun)) (rapp (rdef (quote twice)) [] ∷ []) ∷ [])
-   ∷ rapp (rdef (quote fun)) (rapp (rdef (quote twice)) [] ∷ []) ∷ [])
-  ∷ []))
+  rapp (rdef (quote fun)) (rapp (rdef (quote twice)) [] ∷ []) ∷ []))
 
 ty₂ : RBinApp ℕ
 ty₂ = (rdef (quote _≡r_) ,
  ivar 0 ,
  rapp (rdef (quote _∙_))
- (rapp (rdef (quote ρ)) (ivar 0 ∷ []) ∷ ivar 0 ∷ []))
+ (ivar 0 ∷ rapp (rdef (quote fun)) (rlam (ivar 0) ∷ []) ∷ []))
 
-ty3 : RBinApp ℕ
-ty3 = (rdef (quote _≡r_) ,
+ty₂! : RBinApp ℕ
+ty₂! = (rdef (quote _≡r_) ,
  ovar 0 ,
  rapp (rdef (quote _∙_))
- (rapp (rdef (quote ρ)) (ovar 0 ∷ []) ∷ ovar 0 ∷ []))
+ (ovar 0 ∷ rapp (rdef (quote fun)) (rlam (ivar 0) ∷ []) ∷ []))
 
 ξ₁ : ∀{a}{A : Set a} → RBinApp A → RTermName
 ξ₁ (x , _ , _) = x
@@ -205,25 +205,26 @@ twiceIsEven
   -- ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x) (ρ-intro twiceR) ⟩
   ⇐⟨ (tactic (by-static (quote ρ-intro))) ⟩
   {-
-  ⇐⟨ (let g1 = ξ₂ goal₂
-          g2 = ξ₃ goal₂
-          t1 = ξ₂ ty3
-          t2 = ξ₃ ty3
-          g□  = g1 ∩ g2
-          g□↑ = g1 ∩↑ g2
-          u11 = fromJust! $ g□↑ -↓ g1
-          u12 = fromJust! $ g□↑ -↓ g2
-          -- THE PROBLEM:
-          --   we need to lift the ivar's on ty to ovar's
-          -- YEP! compare ty₂ with ty3.
-        in {!unify t2 u12!}
-     ) ⟩
+  
     -}
 
     twiceR ∙ evenR ⊆ twiceR
 
   -- ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x) (≡r-sym (∙-id-r twiceR)) ⟩
-  ⇐⟨ (tactic (by-static (quote ∙-id-r))) ⟩
+  ⇐⟨ (let g1 = ξ₂ goal₂
+          g2 = ξ₃ goal₂
+          t1 = ξ₂ ty₂!
+          t2 = ξ₃ ty₂!
+          g□  = g1 ∩ g2
+          g□↑ = g1 ∩↑ g2
+          u11 = fromJust! $ g□↑ -↓ g1
+          u12 = fromJust! $ g□↑ -↓ g2
+          -- THE PROBLEM:
+          --   plug a chain of transformations to our 
+          --   strategy pipeline.
+        in {!!}
+     ) ⟩
+  -- ⇐⟨ (tactic (by-static (quote ∙-id-r))) ⟩
 
     twiceR ∙ evenR ⊆ twiceR ∙ Id
 

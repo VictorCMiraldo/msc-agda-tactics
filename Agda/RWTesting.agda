@@ -40,7 +40,7 @@ module Test where
                (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
     ++-assoc [] ys zs = refl
     ++-assoc (x ∷ xs) ys zs -- = cong (λ l → x ∷ l) (++-assoc xs ys zs)
-               = tactic (RW (quote ++-assoc))
+               = quoteGoal g in {!Ag2RTerm g!} -- tactic (RW (quote ++-assoc))
  
     open ≡-Reasoning
 
@@ -61,7 +61,7 @@ module Test where
                 x ∷ (xs ++ ys) ++ zs
               ≡⟨ refl ⟩
                 x ∷ ((xs ++ ys) ++ zs)
-              ≡⟨ (tactic (RW (quote ++-assocH))) ⟩ 
+              ≡⟨ (tactic (by (quote ++-assocH))) ⟩ 
                 x ∷ (xs ++ (ys ++ zs))
               ≡⟨ refl ⟩
                 (x ∷ xs) ++ (ys ++ zs)
@@ -70,7 +70,7 @@ module Test where
     []-++-neutral : ∀{a}{A : Set a}(xs : List A)
                   → xs ++ [] ≡ xs
     []-++-neutral [] = refl
-    []-++-neutral (x ∷ xs) = tactic (RW (quote []-++-neutral))
+    []-++-neutral (x ∷ xs) = tactic (by (quote []-++-neutral))
 
 module Test2 where
 
@@ -87,7 +87,7 @@ module Test2 where
    goalTest1 R 
      = begin
        R ⊆ R ∙ Id
-     ⇐⟨(tactic (RW (quote ∙-id-r))) ⟩
+     ⇐⟨(tactic (by (quote ∙-id-r))) ⟩
        R ⊆ R
      ⇐⟨ (λ _ → ⊆-refl) ⟩
        Unit
