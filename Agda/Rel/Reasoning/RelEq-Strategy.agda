@@ -19,11 +19,15 @@ module Rel.Reasoning.RelEq-Strategy where
     rel-when pat-→ pat-≡r = true
     rel-when _     _      = false
 
-    rel-how : Name → RTerm (Maybe ℕ) → RSubst → Err StratErr (RTerm ℕ)
-    rel-how act g□ σ = i2 (
+    fixTrs : Trs → RTerm ℕ → RTerm ℕ
+    fixTrs Symmetry term = rapp (rdef (quote ≡r-sym)) (term ∷ [])
+
+    rel-how : Name → UData → Err StratErr (RTerm ℕ)
+    rel-how act (u-data g□ σ trs) = i2 (
       rapp (rdef (quote subst)) 
            ( hole2Abs g□
-           ∷ rapp (rdef (quote ≡r-promote)) (makeApp act σ ∷ [])
+           ∷ rapp (rdef (quote ≡r-promote)) 
+                  (foldr fixTrs (makeApp act σ) trs ∷ [])
            ∷ []))
 
   rel-strat : TStrat
