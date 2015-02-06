@@ -2,7 +2,7 @@ open import Level using (Level)
 open import Function using (_∘_; id; flip)
 open import Data.Fin as Fin using (Fin; fromℕ) renaming (zero to fz; suc to fs)
 open import Data.Nat as Nat using (ℕ; suc; zero; _+_; _⊔_; decTotalOrder; _<_; _≤_; s≤s; z≤n) renaming (_≟_ to _≟-ℕ_)
-open import Data.Nat.Properties.Simple using (+-comm)
+open import Data.Nat.Properties.Simple using (+-comm; +-right-identity)
 open import Data.Nat.Properties as ℕ-Props
 open import Data.Nat.Show using (show)
 open import Data.String as Str renaming (_++_ to _++s_)
@@ -40,7 +40,7 @@ module Test where
                (xs ++ ys) ++ zs ≡ xs ++ (ys ++ zs)
     ++-assoc [] ys zs = refl
     ++-assoc (x ∷ xs) ys zs -- = cong (λ l → x ∷ l) (++-assoc xs ys zs)
-               = quoteGoal g in {!Ag2RTerm g!} -- tactic (RW (quote ++-assoc))
+               = tactic (by (quote ++-assoc))
  
     open ≡-Reasoning
 
@@ -71,6 +71,13 @@ module Test where
                   → xs ++ [] ≡ xs
     []-++-neutral [] = refl
     []-++-neutral (x ∷ xs) = tactic (by (quote []-++-neutral))
+
+    test′ : (x y : ℕ) → (x + y) + 0 ≡ y + (x + 0)
+    test′ x y =
+        tactic (by (quote +-right-identity))
+      | tactic (by (quote +-right-identity))
+      | tactic (by (quote +-comm))
+      | refl
 
 module Test2 where
 

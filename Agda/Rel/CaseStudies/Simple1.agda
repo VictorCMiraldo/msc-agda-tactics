@@ -121,74 +121,8 @@ evenLemma = evenLemma1 , evenLemma2
 -------------------------------------------------------------
 -- * The actual equational proof that twice respects even.
 
-open import RW.Language.RTerm
-open import RW.Language.RTermUtils
-open import RW.Language.Unification
-open import RW.Strategy
-
 open import Rel.Reasoning.RelEq-Strategy using (rel-strat)
 open import RW.RW (rel-strat ∷ [])
-
-test : (twiceR ∙ evenR ⊆ evenR ∙ twiceR) ⇐ (twiceR ∙ evenR ⊆ ρ twiceR ∙ twiceR)
-test = {!!}
-
-goal₂ : RBinApp ℕ
-goal₂ = (impl ,
- rapp (rdef (quote _⊆_))
- (rapp (rdef (quote _∙_))
-  (rapp (rdef (quote fun)) (rapp (rdef (quote twice)) [] ∷ []) ∷
-   rapp (rdef (quote φ))
-   (rlam
-    (rapp (rdef (quote So))
-     (rapp (rdef (quote even)) (ivar 0 ∷ []) ∷ []))
-    ∷ [])
-   ∷ [])
-  ∷
-  rapp (rdef (quote _∙_))
-  (rapp (rdef (quote fun)) (rapp (rdef (quote twice)) [] ∷ []) ∷
-   rapp (rdef (quote fun)) (rlam (ivar 0) ∷ []) ∷ [])
-  ∷ [])
- ,
- rapp (rdef (quote _⊆_))
- (rapp (rdef (quote _∙_))
-  (rapp (rdef (quote fun)) (rapp (rdef (quote twice)) [] ∷ []) ∷
-   rapp (rdef (quote φ))
-   (rlam
-    (rapp (rdef (quote So))
-     (rapp (rdef (quote even)) (ivar 0 ∷ []) ∷ []))
-    ∷ [])
-   ∷ [])
-  ∷
-  rapp (rdef (quote fun)) (rapp (rdef (quote twice)) [] ∷ []) ∷ []))
-
-ty₂ : RBinApp ℕ
-ty₂ = (rdef (quote _≡r_) ,
- ivar 0 ,
- rapp (rdef (quote _∙_))
- (ivar 0 ∷ rapp (rdef (quote fun)) (rlam (ivar 0) ∷ []) ∷ []))
-
-ty₂! : RBinApp ℕ
-ty₂! = (rdef (quote _≡r_) ,
- ovar 0 ,
- rapp (rdef (quote _∙_))
- (ovar 0 ∷ rapp (rdef (quote fun)) (rlam (ivar 0) ∷ []) ∷ []))
-
-ξ₁ : ∀{a}{A : Set a} → RBinApp A → RTermName
-ξ₁ (x , _ , _) = x
-
-ξ₂ : ∀{a}{A : Set a} → RBinApp A → RTerm A
-ξ₂ (_ , x , _) = x
-
-ξ₃ : ∀{a}{A : Set a} → RBinApp A → RTerm A
-ξ₃ (_ , _ , x) = x
-
-open import Data.Maybe using (Maybe; nothing; just)
-postulate
-  come-on : ∀{a}{A : Set a} → A
-
-fromJust! : ∀{a}{A : Set a} → Maybe A → A
-fromJust! (just a) = a
-fromJust! _        = come-on
 
 twiceIsEven : (twiceR ∙ evenR ⊆ evenR ∙ twiceR) ⇐ Unit
 twiceIsEven 
@@ -196,35 +130,15 @@ twiceIsEven
 
     twiceR ∙ evenR ⊆ evenR ∙ twiceR
 
-  -- ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x ∙ twiceR) evenLemma ⟩
-  ⇐⟨ (tactic (by (quote evenLemma))
-     ) ⟩
+  ⇐⟨ (tactic (by (quote evenLemma))) ⟩
 
     twiceR ∙ evenR ⊆ (ρ twiceR) ∙ twiceR
 
-  -- ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x) (ρ-intro twiceR) ⟩
-  ⇐⟨ (tactic (by-static (quote ρ-intro))) ⟩
-  {-
-  
-    -}
+  ⇐⟨ (tactic (by (quote ρ-intro))) ⟩
 
     twiceR ∙ evenR ⊆ twiceR
 
-  -- ⇐⟨ ≡r-subst (λ x → twiceR ∙ evenR ⊆ x) (≡r-sym (∙-id-r twiceR)) ⟩
-  ⇐⟨ (let g1 = ξ₂ goal₂
-          g2 = ξ₃ goal₂
-          t1 = ξ₂ ty₂!
-          t2 = ξ₃ ty₂!
-          g□  = g1 ∩ g2
-          g□↑ = g1 ∩↑ g2
-          u11 = fromJust! $ g□↑ -↓ g1
-          u12 = fromJust! $ g□↑ -↓ g2
-          -- THE PROBLEM:
-          --   plug a chain of transformations to our 
-          --   strategy pipeline.
-        in {!!}
-     ) ⟩
-  -- ⇐⟨ (tactic (by-static (quote ∙-id-r))) ⟩
+  ⇐⟨ (tactic (by (quote ∙-id-r))) ⟩
 
     twiceR ∙ evenR ⊆ twiceR ∙ Id
 
