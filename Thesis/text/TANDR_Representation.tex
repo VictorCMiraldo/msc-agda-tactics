@@ -1,0 +1,110 @@
+\begin{TODO}
+  \item glue
+\end{TODO} 
+
+The best way to explain how we implemented the \emph{by} tactic is to extensively
+work out a few examples. This should provide the justification of some design decisions
+and give a tutorial on how to extend our framework.
+
+We are going to focus on two scenarios. The first one is a simple associativity proof
+for list concatenation. Whereas the second is a relational proof of a trivial lemma.
+
+\begin{center}
+\hspace{-2cm}
+\begin{minipage}[t]{0.45\textwidth}
+\Agda{RTerm-Examples}{example1}
+\end{minipage}
+\begin{minipage}[t]{0.45\textwidth}
+\Agda{RTerm-Examples}{example2}
+\end{minipage}
+\end{center}
+
+One could fill in the holes manually, with the terms presented in table \ref{tbl:example_solutions}.
+Our task is to generate such terms automatically from the information supplied by Agda: the goal type and
+context list\footnote{list of types, in the same order as the De Bruijn indexes of the function parameters};
+together with the action given by the user (identified by orange text in table \ref{tbl:example_solutions}).
+
+\begin{table}[h]
+\begin{tabular}{c c l}
+  Hole 0 & $ = $ & $ \F{cong}\; (\IC{\_∷\_}\; x)\; (\K{\textit{++-assoc}}\; xs\; ys\; zs) $ \\
+  Hole 1 & $ = $ & $ \F{subst}\; (\lambda\; x\; →\; R\; ⊆\; x)\; (\F{≡r-promote}\; (\K{\textit{∙-id-r}}\; R)) $ 
+\end{tabular}
+\caption{Solutions for holes 1 and 2}
+\label{tbl:example_solutions}
+\end{table}
+
+It is already easy to see how different relations will take different solutions. For hole one,
+a congruence suffices, since we're dealing with propositional equality and a data constructor (which is always a congruence).
+Hole two, on the other hand, needs a partially applied \F{subst}. And this will be the case whenever we're
+handling relational equality inside our \emph{squiggol} environment. For the time being, however, let us
+forget about this detail.
+
+Figure \ref{fig:goal_act_notation} gives the notation we are going to use to identify subterms in the given
+goal and action.
+
+\newcommand{\labelover}[2]{\stackrel{#1 \vspace{1mm}}{#2}}
+\begin{figure}[h]
+\[
+\begin{array}{l c}
+    \text{Goal} &
+    \underbrace{(x\; ∷\; xs\;\conc\; ys)\; \conc\; zs}_{g_1} \labelover{hd_g}{\equiv} \underbrace{x\; ∷\; xs\;\conc\; (ys\; \conc zs)}_{g_2} \\[0.4cm]
+    \text{Action} &
+    \underbrace{(xs\;\conc\; ys)\; \conc\; zs}_{a_1} \labelover{hd_a}{\equiv} \underbrace{xs\;\conc\; (ys\; \conc zs)}_{a_2}
+\end{array}
+\]
+\caption{Goal and Action for hole zero}
+\label{fig:goal_act_notation}
+\end{figure}
+
+An interesting observation is that if we take only the common subterms $g_1$ and $g_2$, we should obtain something like:
+\[
+  g_1 \cap g_2 = x \; ∷\; \square\; \conc\; \square
+\]
+Which is very close to the abstraction we are looking forward to derive. The term representation one needs, has to support a \emph{hole} representation. So far we need a parametrized simplification of Agda's \D{Term}. The representation
+we chose is:
+
+\Agda{RTerm}{rtermname-data}\\
+
+\Agda{RTerm}{rterm-data}
+
+Where \D{RTermName} distinguishes from definitions, constructors and function types. Such
+distinction is important once we need to convert these back to Agda's \D{Term} before unquoting.
+The \D{RTerm} functor is very straight-forward.
+\begin{TODO}
+  \item ...
+  \item How the parameter type $A$ allows one to state closed terms: $RTerm\;\bot$.
+  \item How the differnt datatypes we pass to RTerm have very different meanings in Agda,
+        in contrary to Haskell.
+\end{TODO}
+
+
+This motivates the following definition:
+
+\Agda{RTerm}{rterm-intersect-type}\\
+
+\begin{TODO}
+  \item drawings
+\end{TODO}
+
+
+
+\Agda{RTerm}{rterm-lift-hole}
+
+\fbox{
+The reason for adopting a simplification of Agda's term representation are
+mainly due to abstract unnecessary details and make the task of writing total
+functions easier. 
+
+For illustration purposes, we will develop two examples in order to present
+our representation and ...
+}
+
+%\Agda{RTerm}{rterm-data}\\
+%\Agda{RTerm}{rtermname-data}\\
+%\Agda{RTerm}{rterm-replace}\\
+%\Agda{RTerm}{rterm-fmap}\\
+%\Agda{RTerm}{rterm-inersect-type}\\
+%\Agda{RTerm}{rterm-lift-hole}\\
+%\Agda{RTerm}{rterm-intersect-lift}\\
+%\Agda{RTerm}{rterm-minus}\\
+%\Agda{RTerm}{rterm-minus-single}

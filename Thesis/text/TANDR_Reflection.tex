@@ -1,0 +1,33 @@
+As of version 2.4.8, Agda's reflection API provides a few keywords displayed in table
+\ref{tbl:agda_reflection_api}. This feature can the thought of as the Template Haskell
+approach in Agda, or, metaprogramming in Agda. 
+
+The idea is to access the abstract representation of a term, during compile time,
+perform computations over it and return the resulting term before resuming compilation.
+We will not delve into much detail on Agda's abstract representation. 
+The interested reader should go to Paul van der Walt's thesis\cite{vdWalt2012}, where,
+although somewhat outdated, Paul gives a in-depth explanation of reflection in Agda.
+
+\begin{TODO}
+  \item high level explanation of how we use reflection
+\end{TODO}
+
+\begin{center}
+\begin{table}[h]
+\begin{tabular}{l p{8cm}}
+  \K{quote} & Returns a \D{Name} datatype, representing the quoted identifier. \\
+  \K{quoteTerm} & Takes a term, normalizes it and returns it's \D{Term} inhabitant. \\
+  \K{quoteGoal} g \K{in} f & Brings a quoted version of the goal in place into $f$'s scope,
+                          namely, $g$. \\
+  \K{quoteContext} & Returns a list of quoted types. This is the ordered list of types of the local variables
+                      from where the function was called. \\
+  \K{tactic} f & Is syntax-sugar for $\K{quoteGoal}\;g\;\K{in}\;(f\;\K{quoteContext}\;g)$.
+\end{tabular}
+\caption{Agda 2.4.8 Reflection API}
+\label{tbl:agda_reflection_api}
+\end{table}
+\end{center}
+
+\begin{TODO}
+  \item Fix text-wrapping and alignment in table \ref{tbl:agda_reflection_api}
+\end{TODO}
