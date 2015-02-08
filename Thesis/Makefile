@@ -32,7 +32,7 @@ CODE_AGDA_STY=./agda.sty
 CODE_AGDA_STDLIB=/home/victor/Documents/UU/Thesis/agda-stdlib/src
 CODE_AGDA_REL=/home/victor/Documents/UU/Thesis/msc-agda-tactics/Agda
 CODE_AGDA_PRELUDE=/home/victor/Documents/UU/Thesis/msc-agda-tactics/Agda/stdlib-extensions
-CODE_AGDA_RW=/home/victor/Documents/UU/Thesis/msc-agda-tactics/Agda/RW
+CODE_AGDA_RW=/home/victor/Documents/UU/Thesis/agda-rw
 
 CODE_AGDA_MODULES=Basic\
                   MartinLof\

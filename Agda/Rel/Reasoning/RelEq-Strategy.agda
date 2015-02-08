@@ -2,7 +2,7 @@ open import Prelude
 open import Data.Maybe using (Maybe; just; nothing)
 
 open import RW.Language.RTerm
-open import RW.Language.RTermUtils using (hole2Abs)
+open import RW.Language.RTermUtils using (hole2Absℕ)
 open import RW.Language.Unification using (RSubst)
 open import RW.Utils.Error
 open import RW.Strategy
@@ -25,7 +25,7 @@ module Rel.Reasoning.RelEq-Strategy where
     rel-how : Name → UData → Err StratErr (RTerm ℕ)
     rel-how act (u-data g□ σ trs) = i2 (
       rapp (rdef (quote subst)) 
-           ( hole2Abs g□
+           ( hole2Absℕ g□
            ∷ rapp (rdef (quote ≡r-promote)) 
                   (foldr fixTrs (makeApp act σ) trs ∷ [])
            ∷ []))
