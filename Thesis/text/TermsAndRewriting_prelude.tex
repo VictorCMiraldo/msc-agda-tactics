@@ -16,10 +16,11 @@ later does exactly the oposite. Due to Agda's complexity, however, the type \D{T
 to handle. A much simpler option is to use a intermediate representation, which we called \D{RTerm},
 for implementing the required operations.
 
-\begin{TODO}
-  \item What we did?
-  \item more stuff...
-\end{TODO}
+After a simpler representation was figured out, we continued by implementing several
+\D{RTerm} operations. From these operations we could provide an interesting tactic,
+named \F{by}. Whenever the user calls (\K{tactic} (\F{by} action)), we will get information
+about the goal and action at that point and try to derive the solution, as long as there exists
+a stratey that can handle the goal action pair.
 
 This chapter starts by giving a brief introduction to Agda's \D{Term} datatype, and presents some
 of the reflection API, in section \ref{sec:tandr:reflection}. 

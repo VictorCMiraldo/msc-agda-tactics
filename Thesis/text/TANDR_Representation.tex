@@ -40,7 +40,9 @@ handling relational equality inside our \emph{squiggol} environment. For the tim
 forget about this detail.
 
 Figure \ref{fig:goal_act_notation} gives the notation we are going to use to identify subterms in the given
-goal and action.
+goal and action. We will denote the $n$-th goal by $(hd_n, g_1, g_2)$ and a given action $A$ by $(hd_a, a_1, a_2)$.
+Inside the library, this is represented by a \D{RBinApp}, which forces all terms that we propose to handle
+to have a binary relation on their heads.
 
 \newcommand{\labelover}[2]{\stackrel{#1 \vspace{1mm}}{#2}}
 \begin{figure}[h]
@@ -56,11 +58,14 @@ goal and action.
 \label{fig:goal_act_notation}
 \end{figure}
 
-An interesting observation is that if we take only the common subterms $g_1$ and $g_2$, we should obtain something like:
+An interesting observation is that if we take only the common subterms $g_1$ and $g_2$, we could obtain something like:
 \[
-  g_1 \cap g_2 = x \; ∷\; \square\; \conc\; \square
+  g_\square = g_1 \cap g_2 = (x \; ∷\; \square\; \conc\; \square) \stackrel{lift}{\rightarrow} (x \; ∷\; \square)
 \]
-Which is very close to the abstraction we are looking forward to derive. The term representation one needs, has to support a \emph{hole} representation. So far we need a parametrized simplification of Agda's \D{Term}. The representation
+Which is very close to the abstraction we are looking forward to derive. The \emph{lift} arrow represents
+a lifting of holes, that is, definitions whose arguments are all holes become a single hole.
+This small intuition not only gives a simple decidable algorithm for deriving the abstraction from only the goal type,
+but also gives some clues on how to represent terms. The term representation one is looking for has to support a \emph{holes}, or, behave as a zipper structure. So far we need a parametrized simplification of Agda's \D{Term}. The representation
 we chose is:
 
 \Agda{RTerm}{rtermname-data}\\
@@ -69,35 +74,35 @@ we chose is:
 
 Where \D{RTermName} distinguishes from definitions, constructors and function types. Such
 distinction is important once we need to convert these back to Agda's \D{Term} before unquoting.
-The \D{RTerm} functor is very straight-forward.
-\begin{TODO}
-  \item ...
-  \item How the parameter type $A$ allows one to state closed terms: $RTerm\;\bot$.
-  \item How the differnt datatypes we pass to RTerm have very different meanings in Agda,
-        in contrary to Haskell.
-\end{TODO}
+The \D{RTerm} functor is very straight-forward for a Haskell programmer. What might pass by unoticed
+is how much more expressiveness one gets from a parametrized type such as \D{RTerm} in agda.
+The translation of an Agda term into a \D{RTerm} actually returns a \D{RTerm $\bot$}, from which
+we can prove that there are no \IC{ovar} occurences (the actual object of type \D{RTerm $\bot$} \emph{is} the proof).
 
+In fact, we rely heavily on term intersection:
 
-This motivates the following definition:
+\Agda{RTerm}{rterm-intersect-type}
 
-\Agda{RTerm}{rterm-intersect-type}\\
+Where a \IC{just} is used to keep equal \IC{ovar}s and a \IC{nothing} represents a hole, or,
+a difference in the arguments. Note that some representations are exactly the same. After getting
+a intersection term, with type \D{RTerm (Maybe $\bot$)}, we actually cast it to \D{RTerm Unit}.
+They are isomorphic. One could argue that the intersection type could be made simpler, but it
+wouldn't be as generic as we wanted our operations to be.
 
-\begin{TODO}
-  \item drawings
-\end{TODO}
+Having defined an intersection, which works somewhat as a term \emph{roadmap}, it makes sense
+to define a difference operator:
 
+\Agda{RTerm}{rterm-difference-type}
 
-
-\Agda{RTerm}{rterm-lift-hole}
-
-\fbox{
-The reason for adopting a simplification of Agda's term representation are
-mainly due to abstract unnecessary details and make the task of writing total
-functions easier. 
-
-For illustration purposes, we will develop two examples in order to present
-our representation and ...
-}
+Which takes two terms, one with holes and a regular one, and if they \emph{match}, return
+a list of subterms from it's second argument that overlap the holes in the first one.
+As an example:
+\begin{eqnarray*}
+  (x\;∷\;\square) - (x\;∷\;(xs\;\conc\;ys)\;\conc\;zs) & = & just\; ((xs\;\conc\;ys)\;\conc\;zs\; ∷ \; []) \\[2mm]
+  (x\;∷\;\square) - ((xs\;\conc\;ys)\;\conc\;zs) & = & nothing \\[2mm]
+  (x\;∷\;\square\conc\square) - (x\;∷\;(xs\;\conc\;ys)\;\conc\;zs)
+      & = & just\; (xs\;\conc\;ys ∷ zs ∷ [])
+\end{eqnarray*}
 
 %\Agda{RTerm}{rterm-data}\\
 %\Agda{RTerm}{rtermname-data}\\

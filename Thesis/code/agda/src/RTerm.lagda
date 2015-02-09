@@ -74,11 +74,21 @@ f ◇-A g = replace-A f ∘ g
 %<*rterm-intersect-type>
 \begin{code}
 _∩_ : ∀{A} ⦃ eqA : Eq A ⦄ 
-      → RTerm A → RTerm A → RTerm (Maybe A)
+    → RTerm A → RTerm A → RTerm (Maybe A)
 \end{code}
 %</rterm-intersect-type>
 \begin{code}
 _∩_ = ?
+\end{code}
+
+%<*rterm-difference-type>
+\begin{code}
+_-_ : ∀{A} ⦃ eqA : Eq A ⦄ 
+    → RTerm (Maybe A) → RTerm A → Maybe (List (RTerm A))
+\end{code}
+%</rterm-difference-type>
+\begin{code}
+_-_ = ?
 \end{code}
 
 
