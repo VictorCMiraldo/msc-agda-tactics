@@ -21,7 +21,7 @@ open import Algebra using (module CommutativeSemiring; module DistributiveLattic
 
 open import RW.Language.RTerm
 open import RW.Language.RTermUtils
-open import RW.Language.Unification hiding (_++_)
+open import RW.Language.Unification
 
 open import Relation.Binary.PropositionalEquality
 
