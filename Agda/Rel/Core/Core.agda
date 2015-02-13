@@ -406,14 +406,11 @@ img : {A B : Set} → Rel A B → Rel B B
 img r = r ∙ r ᵒ
 
 -- Domain
-δ : {A B : Set} → Rel A B → Rel A A
-δ r = ker r ∩ Id
+record δ {A B : Set}(R : Rel A B)(a : A)(a′ : A) : Set where
+  constructor cons-δ
+  field un : (ker R) a a′ × a ≡ a′
 
 -- Image
-{-
-ρ : {A B : Set} → Rel A B → Rel B B
-ρ r = img r ∩ Id
--}
 record ρ {A B : Set}(R : Rel A B)(b : B)(b′ : B) : Set where
   constructor cons-ρ
   field un : (img R) b b′ × b ≡ b′ 

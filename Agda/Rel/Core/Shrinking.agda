@@ -2,7 +2,8 @@ open import Data.Bool using (Bool; true; false)
 open import Relation.Binary.PropositionalEquality as PE
 open import Data.Product using (Σ; _×_; ∃; _,_; uncurry′; curry) renaming (proj₁ to p1; proj₂ to p2)
 open import Data.Sum using (_⊎_; [_,_]) renaming (inj₁ to i1; inj₂ to i2; [_,_]′ to case)
-open import Function using (id; _∘_)
+open import Function using (id; _∘_; _$_)
+open import Data.Unit using (Unit; unit)
 
 open import Rel.Core.Core
 
@@ -19,6 +20,9 @@ module Rel.Core.Shrinking where
     where
       constructor cons-↾
       field un : (R ∩ (S / (R ᵒ))) b a
+
+  -------------------------------
+  -- Universsal
 
   shrink-uni-l1 : {A B : Set}(X R : Rel A B)(S : Rel B B)
                 → X ⊆ (R ↾ S)
@@ -47,3 +51,45 @@ module Rel.Core.Shrinking where
                                , cons-/ (λ b₁ bR∘a → xrs b₁ b (bXRb₁ b₁ bR∘a)))
                                )
                        )
+
+  ------------------------
+  -- Properties
+
+  open import Rel.Core.Equality
+
+  R≡R↾S→imgR⊆S : {A B C : Set}(R : Rel A B)(S : Rel B B)
+               → R ≡r (R ↾ S) 
+               → img R ⊆ S
+  R≡R↾S→imgR⊆S r s (⊆in rr↾s , ⊆in r↾sr)
+    = ⊆in (λ b b′ bImgRb′ 
+           → let bRb′  = p1 (p2∙ bImgRb′)
+                 bR∘b′ = p2 (p2∙ bImgRb′)
+                 b′R↾Sa = rr↾s (p1∙ bImgRb′) b′ bRb′
+             in (_/_.un $ p2∩ (_↾_.un b′R↾Sa)) b bR∘b′)
+
+  imgR⊆S→R≡R↾S : {A B C : Set}(R : Rel A B)(S : Rel B B)
+               → img R ⊆ S
+               → R ≡r (R ↾ S)
+  imgR⊆S→R≡R↾S r s (⊆in rs)
+    = ⊆in (λ a b bRa → cons-↾ (cons-∩ 
+                     ( bRa 
+                     , cons-/ (λ b₁ b₁Ra → rs b₁ b (a , bRa , b₁Ra))
+                     )
+                   )
+          )
+    ,  ⊆in (λ a b bR↾Sa → p1∩ $ _↾_.un bR↾Sa)
+               
+
+  shrink-neutral : ∀{A B : Set}(R : Rel A B)
+                 → R ↾ Top ≡r R
+  shrink-neutral r 
+    = ⊆in (λ a b bR⊤a → p1∩ $ _↾_.un bR⊤a)
+    , ⊆in (λ a b bRa → cons-↾ (cons-∩ (bRa , cons-/ (λ _ _ → unit))))
+
+  shrink-absorb : ∀{A B : Set}(R : Rel A B)
+                → R ↾ Bot ≡r Bot
+  shrink-absorb r
+    = ⊆in (λ a b bRBota 
+           → let bRa = p1∩ $ _↾_.un bRBota
+             in (_/_.un $ p2∩ $ _↾_.un bRBota) b bRa)
+    , ⊆in (λ a b → λ ()) 
