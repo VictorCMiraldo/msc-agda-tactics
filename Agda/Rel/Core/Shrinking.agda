@@ -93,3 +93,30 @@ module Rel.Core.Shrinking where
            → let bRa = p1∩ $ _↾_.un bRBota
              in (_/_.un $ p2∩ $ _↾_.un bRBota) b bRa)
     , ⊆in (λ a b → λ ()) 
+
+
+  open import Rel.Core.Coproduct
+  
+  either-↾-distr : {A B C : Set}(R : Rel A C)(S : Rel B  C)(T : Rel C C)
+                 → (either R S) ↾ T ≡r either (R ↾ T) (S ↾ T)
+  either-↾-distr r s t
+    = ⊆in (λ { (i1 a) c hip 
+             → let cRa = either.un $ p1∩ $ _↾_.un hip
+               in cons-either $ cons-↾ $ cons-∩ 
+                  (cRa 
+                  , cons-/ (λ c₁ h → (_/_.un $ p2∩ $ _↾_.un hip) c₁ 
+                                        (cons-either h))
+                  ) 
+             ; (i2 b) c hip 
+             → let cSb = either.un $ p1∩ $ _↾_.un hip 
+               in cons-either $ cons-↾ $ cons-∩ 
+                  ( cSb
+                  , cons-/ (λ c₁ h → (_/_.un $ p2∩ $ _↾_.un hip) c₁
+                                        (cons-either h))
+                  )
+             })
+    , ⊆in (λ { (i1 a) c hip
+             → ?
+             ; (i2 a) c hip
+             → {!!}
+             })

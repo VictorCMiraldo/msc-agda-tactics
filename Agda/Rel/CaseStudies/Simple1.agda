@@ -133,7 +133,7 @@ twiceIsEven
   ⇐⟨ (tactic (by (quote evenLemma))) ⟩
 
     twiceR ∙ evenR ⊆ (ρ twiceR) ∙ twiceR
-
+  
   ⇐⟨ (tactic (by (quote ρ-intro))) ⟩
 
     twiceR ∙ evenR ⊆ twiceR
