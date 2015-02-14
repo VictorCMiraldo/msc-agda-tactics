@@ -64,8 +64,8 @@ An interesting observation is that if we take only the common subterms $g_1$ and
 \]
 Which is very close to the abstraction we are looking forward to derive. The \emph{lift} arrow represents
 a lifting of holes, that is, definitions whose arguments are all holes become a single hole.
-This small intuition not only gives a simple decidable algorithm for deriving the abstraction from only the goal type,
-but also gives some clues on how to represent terms. The term representation one is looking for has to support a \emph{holes}, or, behave as a zipper structure. So far we need a parametrized simplification of Agda's \D{Term}. The representation
+This small intuition not only gives a simple decidable algorithm for deriving the abstraction from the goal type alone,
+but also gives some clues on how to represent terms. The term representation one is looking for has to support \emph{holes}, or, behave as a zipper structure. So far we need a parametrized simplification of Agda's \D{Term}. The representation
 we chose is:
 
 \Agda{RTerm}{rtermname-data}\\
@@ -89,8 +89,8 @@ a intersection term, with type \D{RTerm (Maybe $\bot$)}, we actually cast it to 
 They are isomorphic. One could argue that the intersection type could be made simpler, but it
 wouldn't be as generic as we wanted our operations to be.
 
-Having defined an intersection, which works somewhat as a term \emph{roadmap}, it makes sense
-to define a difference operator:
+Having defined an intersection, which works somewhat as a term \emph{roadmap}. It makes sense to be
+able to fetch the differences in two terms, or, in a term and a \emph{roadmap}:
 
 \Agda{RTerm}{rterm-difference-type}
 
@@ -103,6 +103,27 @@ As an example:
   (x\;∷\;\square\conc\square) - (x\;∷\;(xs\;\conc\;ys)\;\conc\;zs)
       & = & just\; (xs\;\conc\;ys ∷ zs ∷ [])
 \end{eqnarray*}
+
+From the intersection and difference operators we ca already extract a lot of information to
+complete our goal. The general algorithm is as follows:
+
+\begin{enumerate} %[i)]
+  \item Given the goal $(hd_g, g_1, g_2)$ and action type $(hd_a, a_1, a_2)$, we start
+        by calculating the abstraction $g\square = \uparrow (g_1 \cap g_2)$, where $\uparrow\_$
+        represents hole-lifting.
+  \item We proceed by separating the parts of the goal which still need to be handled,
+        they are $u_1 = g\square - g_1$ and $u_2 = g\square - g_2$.
+  \item Unification of $u_1$ with $a_1$ and $u_2$ with $a_2$ follows, this should give two substitutions
+        $\sigma_1$ and $\sigma_2$.
+  \item Afterwards, it's just a matter of converting all this data back to a term. $\sigma = \sigma_1 \conc \sigma_2$
+        will contain the list of arguments we should pass to our action function.
+\end{enumerate}
+
+The last step, of converting everything back to Agda's \D{Term} type, should be modular.
+A simple idea is to use different strategies triggered by specific $(hd_g,\;hd_a)$ pairs.
+This should give us enough freedom to use our library even on very particular scenarios.
+
+\section{Unification}
 
 %\Agda{RTerm}{rterm-data}\\
 %\Agda{RTerm}{rtermname-data}\\
