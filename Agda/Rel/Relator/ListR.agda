@@ -1,12 +1,70 @@
 {-# OPTIONS --guardedness-preserving-type-constructors #-}
-open import Prelude
+open import Prelude hiding (either)
 open import Coinduction
 
 open import Rel.Core.Core
 open import Rel.Core.Relator
 open import Rel.Core.Equality
+open import Rel.Core.Coproduct
+open import Rel.Core.Product
 
 module Rel.Relator.ListR where
+
+  {-
+  module SecondTry where
+    -- Our list functor is actually:
+    L : Set → Set → Set
+    L A X = Unit ⊎ (A × X)
+
+    open IsFunctor {{...}}
+
+    instance
+      isFunctor-L : {A : Set} → IsFunctor (L A)
+      isFunctor-L = functor fmapL
+        where
+          fmapL : {A B C : Set} → (A → B) → L C A → L C B
+          fmapL f (i1 _)       = i1 unit
+          fmapL f (i2 (a , l)) = i2 (a , f l) 
+
+    inL : {A : Set} → Rel (L A (μ (L A))) (μ (L A))
+    inL _ (i1 _) = Unit
+    inL (i1 _) (i2 _) = ⊥
+    inL (i2 (a , fold μLA)) (i2 (a′ , μla0)) 
+      = a′ ≡ a × inL μLA (fmap unfold μla0)
+
+    instance
+      isRelator-L : {A : Set} → IsRelator (L A)
+      isRelator-L = record
+        { inF = inL
+        ; Fᵣ = fr
+        ; fmap-id = {!!}
+        ; fmap-∙  = {!!}
+        ; fmap-ᵒ  = {!!}
+        ; fmap-⊆  = {!!}
+        } where
+          fr : {A B C : Set} → Rel A B → Rel (L C A) (L C B)
+          fr r (i1 _) (i1 _) = Unit
+          fr r (i1 _) (i2 _) = ⊥
+          fr r (i2 _) (i1 _) = ⊥
+          fr r (i2 (c₁ , a)) (i2 (c₂ , b)) = r a b
+
+          fr-id : fr Id ≡r Id
+          fr-id = ⊆in fr-id-1 , ⊆in {!!}
+            where
+              fr-id-1 : {C A : Set}(a b : L C A) → fr Id b a → Id b a
+              fr-id-1 (i1 unit) (i1 unit) hip = cons-fun refl
+              fr-id-1 (i1 _) (i2 _) ()
+              fr-id-1 (i2 _) (i1 _) ()
+              fr-id-1 (i2 (c₁ , a)) (i2 (c₂ , b)) hip = {!!}
+  
+    N : Set → Set
+    N X = Unit ⊎ (Unit × X)
+
+    {-# TERMINATING #-}
+    μN : Set
+    μN = N (Rec (♯ μN))
+
+  -}
   
   -- TODO: Do I really need this terminating pragma here?
   --       The example in Coinduction.agda has no such annotaion.
@@ -15,11 +73,40 @@ module Rel.Relator.ListR where
   ListR : Set → Set
   ListR A = Unit ⊎ (A × Rec (♯ (ListR A)))
 
+  open IsFunctor {{...}}
+
+  instance
+    isFunctor-ListR : IsFunctor ListR
+    isFunctor-ListR = functor fmapL
+      where
+        fmapL : {A B : Set} → (A → B) → ListR A → ListR B
+        fmapL f (i1 _)            = i1 unit
+        fmapL f (i2 (h , fold t)) = i2 (f h , fold (fmapL f t))
+
+  inListR : {A : Set} → Unit ⊎ (A × ListR A) → ListR A
+  inListR (i1 _)        = i1 unit
+  inListR (i2 (a , la)) = i2 (a , fold la)
+
+  inListRR : {A : Set} → Rel (Unit ⊎ (A × ListR A)) (ListR A)
+  inListRR = fun inListR
+
   nil : ∀{A} → ListR A
   nil = i1 unit
 
   cons : ∀{A} → (a : A) → (l : ListR A) → ListR A
   cons a l = i2 (a , fold l)
+
+  nilR : {A B : Set} → Rel B (ListR A)
+  nilR = ι₁ ∙ Top
+
+  consR : {A : Set} → Rel (A × ListR A) (ListR A)
+  consR = inListRR ∙ ι₂
+
+  nilR∪consR : {A : Set} → Rel (A × ListR A) (ListR A)
+  nilR∪consR = nilR ∪ consR
+
+  gene : {A : Set} → Rel (Unit ⊎ (A × ListR A)) (ListR A)
+  gene = either nilR nilR∪consR
 
   pattern nilₚ = i1 unit
   pattern consₚ h t = i2 (h , fold t)
@@ -31,12 +118,20 @@ module Rel.Relator.ListR where
   instance
     isRelator-ListR : IsRelator ListR
     isRelator-ListR = record
-      { Fᵣ = fr
+      { inF = {!inf!}
+      ; Fᵣ = fr
       ; fmap-id = fr-id
       ; fmap-∙ = fr-∙
       ; fmap-ᵒ = fr-conv
       ; fmap-⊆ = fr-⊆
       } where
+        inf : {A : Set} → Rel (Unit ⊎ (A × ListR A)) (ListR A)
+        inf = fun {!inList!}
+          where
+            inList : {A : Set} → Unit ⊎ (A × ListR A) → ListR A
+            inList (i1 _)       = i1 unit
+            inList (i2 (h , t)) = i2 (h , {!inList!})
+
         fr : {A B : Set} → Rel A B → Rel (ListR A) (ListR B)
         fr r nilₚ nilₚ = Unit
         fr r nilₚ _    = ⊥
@@ -108,4 +203,3 @@ module Rel.Relator.ListR where
             fr-sub (⊆in rs) (consₚ _ _) nilₚ ()
             fr-sub (⊆in rs) nilₚ (consₚ _ _) ()
             fr-sub (⊆in rs) (consₚ a as) (consₚ b bs) hip = rs a b (p1 hip) , fr-sub (⊆in rs) as bs (p2 hip)
-        
