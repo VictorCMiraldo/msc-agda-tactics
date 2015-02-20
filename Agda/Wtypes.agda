@@ -139,10 +139,25 @@ module Wtypes where
         gene (i1 x) p h = zero
         gene (i2 y) p h = h unit +N y
 
+
+    C : Lw ℕ → Set1
+    C _ = Rel (μF {F = L} ℕ) ℕ
+
+    ----------
+    -- THIS!
+    -----||---
+    -----VV---
+
+    {-# TERMINATING #-}
+    W-cata-rel : {S : Set}{P : S → Set}{A : Set}
+               → ((s : S) → (p : P s → W S P) → Rel (W S P) A → A → Set)
+               → Rel (W S P) A
+    W-cata-rel h a (sup s p) = h s p (W-cata-rel h) a
+
     -- although this could be writen as (fun sumF),
     -- the objective is to explore how to define it in general terms.
-    sumR : ℕ → (μF {F = L} ℕ) → Set
-    sumR n l = W-rec-set {!!} l
+    sumR : Rel (μF {F = L} ℕ) ℕ
+    sumR = W-cata-rel gene
       where
         f : Rel Unit ℕ
         f = (φ (_≡_ zero)) ∙ Top
@@ -157,10 +172,43 @@ module Wtypes where
         geneR = +-elim f g
 
         -- The first branch is pretty simple. The second is a problem.
-        gene : ℕ → (s : Unit ⊎ ℕ)
-             → (Lp s → Lw ℕ) → (Lp s → Set) → Set
-        gene n (i1 x) p h = f n unit
-        -- here, I need to somehow get the recursive result, the induction
-        -- hypothesis h is a set, and have to be used on the right-hand side,
-        -- otherwise we're not traversing the whole list.
-        gene n (i2 y) p h = h unit × g n {!!}
+        gene : (s : Unit ⊎ ℕ)
+             → (f : Lp s → Lw ℕ) → (ℕ → Lw ℕ → Set) → ℕ → Set
+        gene (i1 unit) p h n = f n unit
+        gene (i2    y) p h n = h (n ∸ y) (p unit)
+
+    -- Now we can prove that 1 is the sum of l3
+    prf : sumR 1 l3
+    prf = zero , cons-φ (refl , refl) , unit
+
+    -- And 2 is not.
+    prf2 : sumR 2 l3 → ⊥
+    prf2 (witness , (cons-φ (proj₁ , ()) , proj₃))
+
+    prf3 : sumR 7 l2
+    prf3 = zero , cons-φ (refl , refl) , unit
+
+
+    -- Playing around with more complicated ones, the prefix relation:
+    prefix : {A : Set} → Rel (μF {F = L} A) (μF {F = L} A)
+    prefix {A} = W-cata-rel gene
+      where
+        gene : (s : Ls A) → (p : Lp s → Lw A) → Rel (Lw A) (Lw A) → (Lw A) → Set
+        gene (i1 x) p h a = nilR a unit
+        gene (i2 y) p h (sup (i1 _) _) = Unit
+        gene (i2 y) p h (sup (i2 y′) py) = y ≡ y′ × h (py unit) (p unit)
+
+    -- We can indeed prove that l2 is a prefix of l1
+    prf5 : prefix l2 l1
+    prf5 = refl , refl , unit 
+    --
+    -- The proof actualy makes a lot of sense!
+    --
+    -- ANotating with types, we have:
+    --  = refl : 4 ≡ 4 -- same heads, let's see prefix of tail
+    --    , refl : 3 ≡ 3 -- same heads, ler's see prefix of tail
+    --      , unit : nilR [] (rest of l1)! 
+
+    -- And that l3 is not.
+    prf6 : prefix l3 l1 → ⊥
+    prf6 (() , _)
