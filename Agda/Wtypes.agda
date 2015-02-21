@@ -53,14 +53,29 @@ module Wtypes where
       inF  : {A : Set} → F A (W (S A) P) → W (S A) P
       outF : {A : Set} → W (S A) P → F A (W (S A) P)
 
-      lambek : {A : Set} → W (S A) P ≡ F A (W (S A) P)
-
       Fᵣ : {X A B : Set} → Rel A B → Rel (F X A) (F X B)
 
     μF : Set → Set
     μF A = W (S A) P 
 
   open IsWFunctor1 {{...}}
+
+  {-# TERMINATING #-}
+  W-cata-rel : {S : Set}{P : S → Set}{A : Set}
+             → ((s : S) → (p : P s → W S P) → Rel (W S P) A → A → Set)
+             → Rel (W S P) A
+  W-cata-rel h a (sup s p) = h s p (W-cata-rel h) a
+
+  W-cata-F : {A B : Set}{F : Set → Set → Set}{{ prf : IsWFunctor1 F }}
+             (R : Rel (F A B) B) → Rel (μF {F = F} A) B
+  W-cata-F {A} {B} {F} ⦃ p ⦄ R = W-cata-rel translate
+    where
+      gene2 : Rel (μF {F = F} A) B → Rel (μF {F = F} A) B
+      gene2 h n l = (R ∙ Fᵣ h) n (outF l)
+
+      translate : (s : S {F = F} A)
+                → (f : P {F = F} s → μF {F = F} A) → (Rel (μF {F = F} A) B) → B → Set
+      translate s p h n = gene2 h n (sup s p)
 
   -- Catamorphism definition.
   --   The idea is to express the parameter to W-rec-set
@@ -70,7 +85,7 @@ module Wtypes where
   record ⟦_⟧₁ {A B : Set}{F : Set → Set → Set}{{ prf : IsWFunctor1 F }}
               (R : Rel (F A B) B)(b : B)(μFa : μF {F = F} A) : Set1
     where constructor cons-cata
-          field un : W-rec-set (λ s p f → R b {!!}) μFa
+          field un : W-cata-F R b μFa
 
   -- Some experiments with lists.
   module WListPre where
@@ -113,7 +128,6 @@ module Wtypes where
         ; P = either (const ⊥) (const Unit)
         ; inF = inL
         ; outF = outL
-        ; lambek = {!!}
         ; Fᵣ = λ R → Id + (Id * R)
         }
 
@@ -139,25 +153,10 @@ module Wtypes where
         gene (i1 x) p h = zero
         gene (i2 y) p h = h unit +N y
 
-
-    C : Lw ℕ → Set1
-    C _ = Rel (μF {F = L} ℕ) ℕ
-
-    ----------
-    -- THIS!
-    -----||---
-    -----VV---
-
-    {-# TERMINATING #-}
-    W-cata-rel : {S : Set}{P : S → Set}{A : Set}
-               → ((s : S) → (p : P s → W S P) → Rel (W S P) A → A → Set)
-               → Rel (W S P) A
-    W-cata-rel h a (sup s p) = h s p (W-cata-rel h) a
-
     -- although this could be writen as (fun sumF),
     -- the objective is to explore how to define it in general terms.
     sumR : Rel (μF {F = L} ℕ) ℕ
-    sumR = W-cata-rel gene
+    sumR = W-cata-rel translate
       where
         f : Rel Unit ℕ
         f = (φ (_≡_ zero)) ∙ Top
@@ -177,16 +176,32 @@ module Wtypes where
         gene (i1 unit) p h n = f n unit
         gene (i2    y) p h n = h (n ∸ y) (p unit)
 
+        -- another way to write this
+        gene2 : Rel (μF {F = L} ℕ) ℕ → Rel (μF {F = L} ℕ) ℕ
+        gene2 h n l = (geneR ∙ Fᵣ h) n (outF l)
+
+        translate : (s : Unit ⊎ ℕ)
+                  → (f : Lp s → Lw ℕ) → (ℕ → Lw ℕ → Set) → ℕ → Set
+        translate s p h n = gene2 h n (sup s p)
+
     -- Now we can prove that 1 is the sum of l3
     prf : sumR 1 l3
-    prf = zero , cons-φ (refl , refl) , unit
+    prf = i2 (1 , 0) 
+        , cons-either (cons-fun refl) 
+        , cons-either ((1 , 0) 
+        , cons-fun refl 
+        , cons-⟨,⟩ ((1 , cons-fun refl , cons-fun refl) 
+                   , nil 
+                   , (i1 unit , cons-either (0 , cons-φ (refl , refl) , unit) , cons-either (unit , cons-fun refl , cons-fun refl)) 
+                   , cons-fun refl))
+    -- prf = zero , cons-φ (refl , refl) , unit
 
     -- And 2 is not.
-    prf2 : sumR 2 l3 → ⊥
-    prf2 (witness , (cons-φ (proj₁ , ()) , proj₃))
+    -- prf2 : sumR 2 l3 → ⊥
+    -- prf2 (witness , (cons-φ (proj₁ , ()) , proj₃))
 
-    prf3 : sumR 7 l2
-    prf3 = zero , cons-φ (refl , refl) , unit
+    -- prf3 : sumR 7 l2
+    -- prf3 = zero , cons-φ (refl , refl) , unit
 
 
     -- Playing around with more complicated ones, the prefix relation:

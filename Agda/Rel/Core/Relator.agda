@@ -24,24 +24,29 @@ module Rel.Core.Relator where
 
   record IsFunctor (F : Set → Set) : Set1 where
     constructor functor
-    field fmap : {A B : Set}(f : A → B) → F A → F B
+    field fmap  : {A B : Set}(f : A → B) → F A → F B
 
-  -- Least functor fixed point.
-  {-# TERMINATING #-}
-  μ : (F : Set → Set) → Set
-  μ F = F (Rec (♯ μ F))
+  open IsFunctor {{...}}
 
-  -- Encapsulate a Rec back to a μ.
-  encap : {F : Set → Set}{{ _ : IsFunctor F }} 
-        → F (Rec (♯ μ F)) → F (μ F)
-  encap ⦃ functor m ⦄ f = m unfold f
-
-  record IsRelator (F : Set → Set){{ _ : IsFunctor F }} : Set1 where
+  -- Opening it as a polinimal functor. 
+  -- This way we can be sure we can open and close,
+  -- pretty much like an F-algebra's in.
+  {-
+  record IsShapely (F : Set → Set){{ _ : IsFunctor F }} : Set1 where
+    constructor shapely
     field
-      -- A catamorphism only exists if there exists an initial F-algebra.
-      -- therefore, we need to give one such algebra.
-      inF : Rel (F (μ F)) (μ F)
+      -- Hunch: Beeing `Shapely`, by my definition, does not imply Polynomial.
+      ß : Set → Set → Set
+      inF  : {A : Set} → ß (F A) A → F A
+      outF : {A : Set} → F A → ß (F A) A
+      lambek : {A : Set} → F A ≡ ß (F A) A
 
+  open IsShapely {{...}}
+  -}
+
+  record IsRelator (F : Set → Set)
+                   : Set1 where
+    field
       -- Describes F's effect on arrows.
       Fᵣ : ∀{A B} → Rel A B → Rel (F A) (F B)
 
@@ -60,9 +65,27 @@ module Rel.Core.Relator where
 
   open IsRelator {{...}}
 
+  instance
+    Id-IsFunctor : IsFunctor (λ z → z)
+    Id-IsFunctor = functor (λ f a → f a)
+
+  
+
   ----------------------
   -- * Catamorphism * --
   ----------------------
+
+  cast-dom : {A A′ B : Set} → A ≡ A′ → Rel A B → Rel A′ B
+  cast-dom prf r rewrite prf = r
+
+  cast-ran : {A B B′ : Set} → B ≡ B′ → Rel A B → Rel A B′
+  cast-ran prf r rewrite prf = r
+
+  cast : {A A′ B B′ : Set} → A ≡ A′ → B ≡ B′ → Rel A B → Rel A′ B′
+  cast prfA prfB r 
+    rewrite prfA
+          | prfB
+          = r
 
   -- Defining a catamorphism in Agda is quite tough.
   -- If we encapsulate it in a record, we need to define
@@ -75,14 +98,34 @@ module Rel.Core.Relator where
   -- object guarantees that both F is a relator and there exists
   -- an initial algebra (α : Σ (μ F) (μ F) ⟵ F (μ F)), therefore
   -- all we allow a user to do is theoretically sound.
+  -- 
+  -- ?? All shapely functor has initial algebra ?? Sokolova.
   --
   -- Proofs involving cata's usually goes in terms of universal 
   -- fusion and cancelation, so we don't need anything else.
   --
-  postulate
-    cata : {A : Set}{F : Set → Set}{{ _ : IsFunctor F}}{{ prf : IsRelator F }}
-           (R : Rel (F A) A) → Rel (μ F) A
+  record cata {A B : Set}{F : Set → Set}{{ pR : IsRelator F }}
+              (b : B)(fa : F A) : Set1
+    where constructor cons-cata
+          field gene : Set → Set
+                un   : {B : Set} → Rel (gene B) B
 
-    cata-uni : {A : Set}{F : Set → Set}{{ _ : IsFunctor F }}{{ prf : IsRelator F }}
-               {R : Rel (F A) A} → cata R ∙ inF ≡r R ∙ Fᵣ (cata R)
+  open cata {{...}}
+
+  cata-uni : {A B : Set}{F : Set → Set}{{ pR : IsRelator F }}
+             cata R ∙ ? ≡r R ∙ ?
+
+  {-
+
+  postulate
+    cata : {A B : Set}{F : Set → Set}
+           {{pF : IsFunctor F}}{{ pR : IsRelator F }}
+           (R : gene A B) → Rel (F A) B
+
+    cata-uni-ß : {A B : Set}{F : Set → Set}
+               {{pF : IsFunctor F}}{{ pR : IsRelator F }}
+               {R : gene A B } 
+             →  (cata {A} {B} {F} R ∙ fun inF) 
+             ≡r {!!}
+  -}
     

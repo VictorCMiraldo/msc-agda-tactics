@@ -1,14 +1,47 @@
 {-# OPTIONS --guardedness-preserving-type-constructors #-}
-open import Prelude hiding (either)
+open import Prelude hiding (_+_; _*_) renaming (either to +-elim)
 open import Coinduction
 
 open import Rel.Core.Core
-open import Rel.Core.Relator
+open import Rel.Relator
 open import Rel.Core.Equality
 open import Rel.Core.Coproduct
 open import Rel.Core.Product
 
 module Rel.Relator.ListR where
+
+  open IsRelator1 {{...}}
+
+  L : Set → Set → Set
+  L A X = Unit ⊎ (A × X)
+
+  instance
+    L-isRelator1 : IsRelator1 L
+    L-isRelator1 = record
+      { μF  = List
+      ; Fr  = fr
+      ; inF = inf
+      } where
+        inf : {A : Set} → Rel (L A (List A)) (List A)
+        inf = fun (+-elim (const []) (uncurry _∷_))
+
+        fr : {X A B : Set} → Rel A B → Rel (L X A) (L X B)
+        fr r = Id + (Id * r)
+
+  nilR : {A B : Set} → Rel B (List A)
+  nilR [] b = Unit
+  nilR _ b  = ⊥
+
+  consR : {A : Set} → Rel (A × List A) (List A)
+  consR = fun (uncurry _∷_)
+
+        
+  _≼_ : {A : Set} → Rel (List A) (List A)
+  _≼_ = cata1 (either nilR (nilR ∪ consR))
+  
+  prefix-ok : {A : Set}{a : A}{l : List A}
+            → (a ∷ []) ≼ (a ∷ l)
+  prefix-ok =  {!!}
 
   {-
   module SecondTry where
@@ -66,6 +99,14 @@ module Rel.Relator.ListR where
 
   -}
   
+
+  {- 
+
+    PLAYING AROUND WITH A SHAPELY-LIST-FUNCTOR... NOT SO GOOD.
+    ##########################################################
+    ##########################################################
+
+
   -- TODO: Do I really need this terminating pragma here?
   --       The example in Coinduction.agda has no such annotaion.
   --       The proofs look nice, though.
@@ -203,3 +244,111 @@ module Rel.Relator.ListR where
             fr-sub (⊆in rs) (consₚ _ _) nilₚ ()
             fr-sub (⊆in rs) nilₚ (consₚ _ _) ()
             fr-sub (⊆in rs) (consₚ a as) (consₚ b bs) hip = rs a b (p1 hip) , fr-sub (⊆in rs) as bs (p2 hip)
+
+
+  open import Rel.Core.HOTT
+  open import Data.List using (List; []; _∷_) renaming (map to Lmap) 
+
+  open import Rel.Reasoning.RelEq-Strategy
+  open import RW.RW (rel-strat ∷ [])
+
+  ListShape : Set → Set → Set
+  ListShape μ A = Unit ⊎ (A × μ)
+
+  instance
+    List-IsFunctor : IsFunctor List
+    List-IsFunctor = functor map
+
+    List-IsShapely : IsShapely List
+    List-IsShapely = record
+      { ß = ListShape
+      ; inF = inF
+      ; outF = outF
+      ; lambek = prf
+      }
+      where 
+        inF : {A : Set} → ListShape List A → List A
+        inF (i1 _)       = []
+        inF (i2 (h , t)) = h ∷ t
+
+        outF : {A : Set} → List A → ListShape List A
+        outF [] = i1 unit
+        outF (h ∷ t) = i2 (h , t)      
+
+        in∘out≡id : {A : Set}(l : List A) → (inF ∘ outF) l ≡ l
+        in∘out≡id {A} [] with outF {A} []
+        ...| _ = refl
+        in∘out≡id {A} (x ∷ l) with outF {A} (x ∷ l)
+        ...| _ = refl
+
+        out∘in≡id : {A : Set}(l : ListShape List A)
+                  → (outF ∘ inF) l ≡ id l
+        out∘in≡id {A} (i1 unit) with inF {A} (i1 unit)
+        ...| _ = refl
+        out∘in≡id {A} (i2 y) with inF {A} (i2 y)
+        ...| _ = refl
+        
+        prf : {A : Set} → ListShape List A ≡ List A
+        prf = ≈-to-≡ (inF , outF ,  in∘out≡id , out∘in≡id)
+        
+
+    List-IsRelator : IsRelator List
+    List-IsRelator = record
+      { Fᵣ    = Fr
+      ; fmap-id = {!!}
+      ; fmap-∙  = {!!}
+      ; fmap-ᵒ  = {!!}
+      ; fmap-⊆  = {!!}
+      }
+      where
+        data ||_|| {a}(A : Set a) : Set a where
+          one  : A → || A ||
+          
+        postulate
+          smash-mp  : ∀{a}{A : Set a}(x y : || A ||) → x ≡ y 
+
+        Fr : {A B : Set} → Rel A B → Rel (List A) (List B)
+        Fr r [] [] = Unit
+        Fr r [] (_ ∷ _) = ⊥
+        Fr r (_ ∷ _) [] = ⊥
+        Fr r (b ∷ bs) (a ∷ as) = r b a × Fr r bs as
+
+        fr-id : {A : Set} → Fr {A} {A} Id ≡r Id
+        fr-id = ⊆in a1 , ⊆in {!!}
+          where
+            a1 : {A : Set}(a b : List A) → Fr Id b a → Id b a
+            a1 [] [] hip = cons-fun refl
+            a1 [] (_ ∷ _) ()
+            a1 (_ ∷ _) [] ()
+            a1 (x ∷ a) (.x ∷ b) (cons-fun refl , h) 
+              = cons-fun (cong (_∷_ x) (fun.un (a1 a b h)))
+
+        fr-∙ : {A B C : Set} {R : Rel B C} {S : Rel A B}
+             → Fr (R ∙ S) ≡r Fr R ∙ Fr S
+        fr-∙ = ⊆in {!!} , ⊆in {!!}
+          where
+            a1 : {A B C : Set}{R : Rel B C} {S : Rel A B}
+                 (a : List A) (b : List C)
+               → Fr (R ∙ S) b a → (Fr R ∙ Fr S) b a
+            a1 [] [] hip = [] , unit , unit
+            a1 [] (x ∷ lc) ()
+            a1 (x ∷ la) [] ()
+            a1 (a ∷ as) (c ∷ cs) ((b , cRb , bSa) , h) 
+              = {!!} , (cRb , {!!}) , {!!}
+            
+
+  open IsFunctor {{...}}
+  open IsShapely {{...}}
+  open IsRelator {{...}}
+
+  nilR : {A B : Set} → Rel B (List A)
+  nilR [] b = Unit
+  nilR _ b  = ⊥
+
+  consR : {A : Set} → Rel (A × List A) (List A)
+  consR = fun (uncurry _∷_)
+
+  _≼_ : {A : Set} → Rel (List A) (List A)
+  _≼_ = cata (either nilR (nilR ∪ consR)) 
+
+  -}
