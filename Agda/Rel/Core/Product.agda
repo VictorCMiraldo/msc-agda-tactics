@@ -4,6 +4,7 @@ open import Data.Product using (_×_; ∃; _,_) renaming (proj₁ to p1; proj₂
 open import Relation.Binary.PropositionalEquality
 open import Rel.Core.Core
 open import Rel.Core.HOTT using (isProp)
+open import Rel.Core.Equality
 
 --------------------
 -- ** Products ** --
@@ -97,3 +98,23 @@ prod-uni-l {X = X} r s pr ps
   = ⊆in (λ c ab hip →
          let a , b = ab
          in cons-⟨,⟩ ((⊆out pr) c a (ab , cons-fun refl , hip) , (⊆out ps) c b (ab , cons-fun refl , hip)))
+
+----------------------------
+-- * General Properties * --
+----------------------------
+
+id*id≡id : {A B : Set} → Id * Id ≡r Id {A × B}
+id*id≡id {A} {B} = ⊆in aux1 , ⊆in aux2
+  where
+    aux1 : (a b : A × B) → (Id * Id) b a → Id b a
+    aux1 a b (cons-⟨,⟩ ((w1 , c11 , c12) , (w2 , c21 , c22))) 
+      rewrite sym (fun.un c11)
+            | sym (fun.un c21)
+            | sym (fun.un c12)
+            | sym (fun.un c22)
+            = cons-fun (cong₂ _,_ (fun.un c11) (fun.un c21))
+
+    aux2 : (a b : A × B) → Id b a → (Id * Id) b a
+    aux2 a b (cons-fun a≡b) rewrite a≡b 
+      = cons-⟨,⟩ ( (p1 b , cons-fun refl , cons-fun refl) 
+                 , p2 b , cons-fun refl , cons-fun refl)
