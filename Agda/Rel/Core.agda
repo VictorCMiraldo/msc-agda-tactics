@@ -7,7 +7,7 @@ module Rel.Core where
   open import Relation.Binary.PropositionalEquality as PE public
   open import Data.Product using (Σ; _×_; ∃; _,_; uncurry′; curry) renaming (proj₁ to p1; proj₂ to p2) public
   open import Data.Sum using (_⊎_; [_,_]) renaming (inj₁ to i1; inj₂ to i2; [_,_]′ to case) public
-  open import Function using (id; _∘_) public
+  open import Function using (id; _∘_; _$_) public
 
   open import Data.Unit using (Unit; unit) public
   open import Data.Empty using (⊥; ⊥-elim) public
