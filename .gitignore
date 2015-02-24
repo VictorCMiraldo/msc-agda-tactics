@@ -10,6 +10,19 @@ Thesis/*_um.*
 Thesis/text/*_um.*
 Thesis/dissertation.sty
 
+# Old stuff #
+#############
+
+*.old
+
+# Latex trash #
+###############
+
+*.bbl
+*.toc
+*.blg
+*.ptb
+
 
 # Compiled source #
 ###################

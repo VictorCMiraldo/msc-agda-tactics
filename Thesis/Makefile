@@ -20,6 +20,8 @@ TEXT_PARTS=Agda_prelude \
            RelationalAlgebra_SOTA \
            Problem \
            Intro \
+           TermsAndRewriting_prelude \
+           TANDR_EqReasoning \
            TANDR_Representation \
            TANDR_Reflection \
            thesis_core
@@ -41,7 +43,8 @@ CODE_AGDA_MODULES=Basic\
                   ProofIrrel\
                   Universes\
                   RTerm\
-                  RTerm-Examples
+                  RTerm-Examples\
+                  Catas
 
 COMPILER=pdflatex -etex
 
