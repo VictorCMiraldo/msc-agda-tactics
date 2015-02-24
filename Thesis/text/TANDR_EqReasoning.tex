@@ -1,0 +1,82 @@
+\begin{TODO}
+  \item transitivity + mixfix = eq reasoning
+\end{TODO}
+
+The possiblity of defining mixfix operators makes Agda a very customizable language. This is,
+indeed, used very often to build domain specific languages on top of Agda itself, which 
+gives a very convenient way of proving results. 
+
+By taking a look at a piece of squiggol, from a type-theoretic angle, one can identify
+a few components. As an example, let us take a proof of the shunting property, from \cite{Bird97},
+and look at its syntax.
+
+\begin{eqnarray}
+&&
+  f \cdot R \subseteq S
+\just{\Leftarrow}{$f$ is simple}
+  f \cdot R \subseteq f \cdot f^\circ \cdot S
+\just{\Leftarrow}{monotonicity$_2$}  
+  R \subseteq f^\circ \cdot S
+\justl{\Leftarrow}{just:type1}{$f$ is entire}
+  f^\circ \cdot f \cdot R \subseteq f^\circ \cdot S
+\justl{\Leftarrow}{just:type2}{monotonicity$_1$} 
+  f \cdot R \subseteq S \nonumber
+\end{eqnarray}
+
+The first thing that pops up is the implication, $\Leftarrow$, which is not part of the relational
+calculus being developed in the subject of the demonstration. The justifications, however,
+must have type $e_{n+1} \Leftarrow e_{n}$. Well, implication in Agda is just the arrow type, as for functions,
+rendering the type of the justifications to be $e_n \rightarrow e_{n+1}$. Since we have loads of justifications,
+it makes sense to associate them to some side. By assuming they are right-associative we arrive at
+a ternary mixfix operator $\_\Leftarrow\{\_\}\_$. Transitivity and reflexivity of the underlying
+operation, in our case $\Leftarrow$, closes the box.
+
+However, Agda already supports an even more generic approach to equational reasoning. All we need is a preorder relation $\_\sim\_$ with a subjacent equivalence relation $\_\approx\_$. Below we present the kinds of relational reasoning
+supported.
+
+\begin{center}
+\begin{minipage}[t]{0.3\textwidth}
+\begin{eqnarray*}
+&& R \\
+& \equiv_r & \langle lemma_1 \rangle \\
+ && S
+\end{eqnarray*}
+\end{minipage}%
+\begin{minipage}[t]{0.3\textwidth}
+\begin{eqnarray*}
+&& R \\
+& \subseteq & \langle lemma_2 \rangle \\
+ && S
+\end{eqnarray*}
+\end{minipage}%
+%
+\begin{minipage}[t]{0.3\textwidth}
+\begin{eqnarray*}
+&& R \subseteq S\\
+& \Leftarrow & \langle lemma_3 \rangle \\
+ && R' \subseteq S'
+\end{eqnarray*}
+\end{minipage}
+\end{center}
+
+Where the above lemmas must have type $R \equiv_r S$, $R \subseteq S$ and $R' \subseteq S' \rightarrow R \subseteq S$
+respectively. The context of equational reasoning is a good starting point to build some intuition about rewriting.
+
+The reader might have noticed a small problem in the above explanation of equational reasoning, 
+in contrast with the shunting proof given as an example.
+Not every justification in the proof have the same \emph{type}, as we claimed above. Looking at
+step \ref{eq:just:type2}, with type $\forall\; R\; S\; T\;.\;R \subseteq S \rightarrow C \cdot R \subseteq C \cdot S$,
+and step \ref{eq:just:type1}, with type $id \subseteq f^\circ \cdot f$. Our rewrite framework does exactly that job,
+of \emph{adjusting} the lemmas that do not fit. Picture \ref{fig:rewriteillustration} should provide some intuition in that direction.
+
+\begin{figure}[h]
+\begin{TODO}
+  \item Our nice picture
+\end{TODO}
+\caption{Rewrite Illustration}
+\label{fig:rewriteillustration}
+\end{figure}
+
+
+
+
