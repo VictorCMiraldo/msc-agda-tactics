@@ -1,6 +1,10 @@
 %\setmainfont{XITS}
 %\setmathfont{XITS Math}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Workflow
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \long\def\red#1{\color{red} #1 \color{black}}
 
 \newenvironment{TODO}{%
@@ -10,6 +14,10 @@
 }
 
 \newcommand{\warnme}[1]{{\color{red} \textbf{$[$} #1 \textbf{$]$}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Agda related stuff
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % empty env, maybe later we can add some style to it.
 \newenvironment{agdacode}{%
@@ -60,6 +68,21 @@
 
 %% hyphen for math mode
 \mathchardef\hyph="2D
+\def\scata#1{\mathopen{(\!|}#1\mathclose{|\!)}}
+
+%%%%%%%%%%%%
+%% Squiggol
+%\def\justl#1#2#3{\\ &#1& \rule{2em}{0pt} \{ \mbox{\rule[-.7em]{0pt}{1.8em} \small #3 \label{eq:#2} \/} \} \\ && } % labelled just
+%\def\nojust#1#2{ &#1& }
+%\def\just#1#2{\\ &#1& \rule{2em}{0pt} \{ \mbox{\rule[-.7em]{0pt}{1.8em} \small #2 \/} \} \nonumber\\ && }
+\newcommand{\justl}[3]%
+{\nonumber \\ & #1 & \rule{2em}{0pt} \{ \mbox{\rule[-.7em]{0pt}{1.8em} \small #3 \label{eq:#2} \/} \} \\ && }
+\newcommand{\ljust}[3]%
+{\\ & #1 \label{eq:#2}  & \rule{2em}{0pt} \{ \mbox{\rule[-.7em]{0pt}{1.8em} \small #3  \/} \} \\ && }
+\newcommand{\just}[2]%
+{\nonumber \\ & #1 & \rule{2em}{0pt} \{ \mbox{\rule[-.7em]{0pt}{1.8em} \small #2 \/} \} \nonumber \\ && }
+\newcommand{\nojust}[2]%
+{ & #1 \nonumber & }
 
 %for some reasons, LaTeX does not like unicode chars outside math mode.
 %therefore we have to define them here.

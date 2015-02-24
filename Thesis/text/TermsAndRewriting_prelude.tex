@@ -1,3 +1,9 @@
+\begin{TODO}
+  \item intro on rewriting... the diagram here could be cool.
+  \item mention eq-reasoning (as a customization of Agda to our needs)
+  \item glue to the rest
+\end{TODO}
+
 
 Agda introduced a reflection API in version 2.2.8. Although not a new feature
 in the world of functional programming (Lisp's \emph{quoting} and \emph{unquoting} 
@@ -22,8 +28,7 @@ named \F{by}. Whenever the user calls (\K{tactic} (\F{by} action)), we will get 
 about the goal and action at that point and try to derive the solution, as long as there exists
 a stratey that can handle the goal action pair.
 
-This chapter starts by giving a brief introduction to Agda's \D{Term} datatype, and presents some
-of the reflection API, in section \ref{sec:tandr:reflection}. 
+This chapter starts by giving a brief introduction to Agda's Equational Reasoning framework, in section \ref{sec:tandr:reasoning}. Following with Agda's \D{Term} datatype and some of the reflection API, in section \ref{sec:tandr:reflection}. 
 On the sequence, section \ref{sec:tandr:representingterms}, we give a description of our \D{RTerm} representation
 and explain how we perform the conversion. A presentation of the operations required for 
 automatic congruence and substitution guessing follows in section \ref{sec:tandr:termoperations}.

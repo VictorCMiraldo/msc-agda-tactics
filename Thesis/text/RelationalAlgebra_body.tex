@@ -391,6 +391,114 @@ In Agda, we have:
 
 The coproduct has instances already defined for decidability and mere propositionality.
 
+\subsection{Relators and Catamorphisms}
+
+Our library already handles a nice portion of Relational Algebra but one of the most
+useful operations, induction! Relational catamorphisms allows one to define relations
+by induction over some specified structure. 
+
+Catamorphisms are defined as the \emph{least} fixed points of certain recursion equations. Their
+dual are Anamorphisms, which are defined as \emph{greatest} fixed points. There recursion equations
+are modelled by recursive functors (which must also be Relators, in the relational setting).\\
+
+\begin{mydef}[Relator]
+Let $F$ be a monotonic endofunctor in \catname{Rel}. We say that $F$ is a \emph{relator}
+iff, if $R \subseteq S$, then $F\;R \subseteq F\;S$.
+\end{mydef}
+
+It can be proved that relators also preserve converse, or, an even more interesting result: a functor
+is a relator if and only if it preserves converses, theorem 5.1 in \cite{Bird97}.
+
+Yet, the purpose of this dissertation is not to explain Relators or Functors, but how to encode them
+in Agda. Going one step at a time, let us look at the tradicional definition of a catamorphism.
+
+Categorically speaking, let $F : \catname{C} \rightarrow \catname{C}$ be an endofunctor with
+initial algebra $(\mu F , in_F)$, then, for any object $B$ and F-algebra $R : F B \rightarrow B$
+the following diagram commutes.
+
+\begin{displaymath}
+\xymatrix{%
+  \mu F \ar@/^/[r]^{in_F^\circ} \ar@{..>}[d]_{\scata{R}}
+     & F (\mu F) \ar@/^/[l]^{in_F} \ar[d]^{F \scata{R}} \\
+  B     & \ar[l]_{R} F B
+}
+\end{displaymath}
+
+\emph{Reading} the universal depicted above, we have:
+\[ \scata{R} \equiv_r R \cdot F\;\scata{R} \cdot in_F^\circ \]
+
+Although it looks (and it indeed is) pretty tricky to encode this directly into Agda, at least it gives
+us a type to follow. Since almost all usefull functors are polymorphic, we will now
+denote $F$ by $F_A$, and regard $F$ as a functor with type $\catname{D} \times \catname{C} \rightarrow \catname{C}$.
+
+We seek to define a relation $\scata R : \mu F_A \rightarrow B$, given $R : F_A B \rightarrow B$,
+or, with Agda types, given a $B \rightarrow F_A B \rightarrow \D{Set}$, we need to build a $B \rightarrow \mu F_A \rightarrow \D{Set}$.
+
+\subsubsection{Shape and Positioning}
+
+The problem's core lies in how to define a fixed point in Agda, which turns out 
+to be impossible\footnote{%
+%%%% BEGIN FOOTNOTE
+With the help of Coinduction one can define fixed points, but this triggers loads of other
+problems when using such fixed points.
+%%%% END FOOTNOTE
+}. One solution is to look at a functor from a different angle. Playing around with
+the List functor we arrive at:
+
+\begin{eqnarray*}
+  F_A X & \cong & 1 + A \times X \\
+        & \cong & 1 \times 1 + A \times X \\
+        & \cong & 1 \times X^\bot + A \times X^1
+\end{eqnarray*}
+
+Which is an instance of the more general form $T_{S, P} X = \Sigma\; (s : S)\; (X^{P\; s})$, for
+$S = 1 + A$ and $P = [ \text{const }\bot , \text{const }1 ]$. It can be proved
+that all polynomial functors can be encoded in that fashion, where $S$ represents
+a set of constructors of our \emph{datatype} and $P$ represents the arity of each constructor.
+In the List example, $nil = \IC{i1\; unit}$ has arity 0 and $cons = \IC{i2 (x, \_)}$ receives
+one recursive argument.
+
+The set $W_S P$ is the set of all \emph{well founded trees} constructed by regarding each $s : S$ 
+as a constructor of arity $P\; s$ \cite{lof84}.
+
+\Agda{Catas}{wtype-def}
+
+The elimination rule for W-types is
+
+\Agda{Catas}{w-elim}
+
+which gives out the generic induction principle for W-types. The important question then becmoes: are we 
+talking about \emph{the same} lists? And the answer is yes. Abbot et al. did a lot of work on container types
+and encoding inductive types as W-types. The most relevant result for us can be found in \cite{Abbott04} and
+says that $W_S P$ coincide with the least fixed point of a functor identified by $S$ and $P$:
+\[
+  W_S P \cong \mu X\; . \;T_{S , P} X
+\]
+
+
+\begin{TODO}
+  \item explain catas --- relational
+  \item give a small intro to W-types.
+  \item present our own "w-rec", W-cata-F scheme.
+  \item Relator typeclass
+\end{TODO}
+
+
+
+\subsection{Properties}
+
+\begin{TODO}
+  \item Give a simple taxonomy of properties we're going to provide.
+        \begin{itemize}
+            \item Galois Connections $\Rightarrow$ almost everything!
+            \item Associativity
+            \item Idempotence
+            \item BiFunctoriality
+            \item Neutral
+            \item Distributivity
+         \end{itemize}
+\end{TODO}
+
 \section{The Library}
 
 The constructions and workarounds explained above do not constitute a full description of the library.
@@ -399,6 +507,11 @@ All the code is available in the following GitHub repository:
 \begin{quote}
 \small https://github.com/VictorCMiraldo/msc-agda-tactics/tree/master/Agda/Rel
 \end{quote}. It is compliant with Agda's version 2.4.2.2; standard library version 0.9.
+
+\begin{TODO}
+  \item MAke a "small" high-level description.
+  \item this section could go to the top of the chapter.
+\end{TODO}
 
 \subsection{Next Versions}
 
@@ -409,6 +522,10 @@ We would like to have both a relational fold and shrinking\cite{Mu2012} in the l
 expressivity we're looking for.
 
 \subsection{Summary}
+
+\begin{TODO}
+  \item Adapt / rewrite
+\end{TODO}
 
 The problem imposed by Agda's (intensional) equality is that it implies
 convertibility. As seen in this chapter, we don't really care about convertibility of relations.
