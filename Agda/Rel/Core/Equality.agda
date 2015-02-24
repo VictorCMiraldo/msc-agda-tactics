@@ -80,11 +80,19 @@ record _≡r_ {A B : Set}(R S : Rel A B) : Set where
       --       of course I'll be able to prove relational equality, which is
       --       set equality over pairs.
 
+≡r-demote : {A B : Set}{R S : Rel A B}
+          → R ≡ S → R ≡r S
+≡r-demote prf rewrite prf = ⊆in (λ a b z → z) , ⊆in (λ a b z → z)
+
 -- Substitution. 
 --
 ≡r-subst : {A B : Set}(P : Rel A B → Set){R S : Rel A B} 
          → R ≡r S → P R → P S
 ≡r-subst p rs pr = subst p (≡r-promote rs) pr
+
+≡r-cong : {A B C D : Set}(f : Rel A B → Rel C D){R S : Rel A B}
+        → R ≡r S → f R ≡r f S
+≡r-cong f prf = ≡r-demote (cong f (≡r-promote prf))
 
 
 -- Another option is to define relational equality using indirect equality.
