@@ -2,6 +2,7 @@ open import Rel.Core
 open import Rel.Core.Equality
 open import Rel.Core.Product
 open import Rel.Core.Coproduct
+open import Rel.Core.Helper.Injections
 
 -- Keeps the bifunctor properties of product and coproduct in rel
 -- together.
@@ -44,6 +45,14 @@ module Rel.Properties.BiFunctor where
   *-bi-functor = TODO
     where postulate TODO : {A : Set} → A
 
+  *-ᵒ-distr : {A B C D : Set}{R : Rel A B}{S : Rel C D}
+            → (R ᵒ * S ᵒ) ≡r (R * S) ᵒ
+  *-ᵒ-distr {R = R} {S = S} 
+    = ⊆in (λ { (b , d) (a , c) (cons-⟨,⟩ ((hb , h1 , cons-fun f) , (hd , h2 , cons-fun g))) 
+           → cons-⟨,⟩ ((a , subst (λ x → R x a) (sym f) h1 , cons-fun refl) , (c , subst (λ x → S x c) (sym g) h2 , cons-fun refl)) })
+    , ⊆in (λ { (b , d) (a , c) (cons-⟨,⟩ ((ha , h1 , cons-fun f) , (hc , h2 , cons-fun g))) 
+           → cons-⟨,⟩ ((b , subst (R b) (sym f) h1 , cons-fun refl) , (d , subst (S d) (sym g) h2 , cons-fun refl)) })
+
   *-id : {A B : Set} → Id * Id ≡r Id {A × B}
   *-id {A} {B} = ⊆in aux1 , ⊆in aux2
     where
@@ -84,6 +93,22 @@ module Rel.Properties.BiFunctor where
                → (R + S) ∙ (H + I) ≡r (R ∙ H) + (S ∙ I)
   +-bi-functor = TODO
     where postulate TODO : {A : Set} → A
+
+  +-ᵒ-distr : {A B C D : Set}{R : Rel A B}{S : Rel C D}
+            → (R ᵒ + S ᵒ) ≡r (R + S) ᵒ
+  +-ᵒ-distr {R = R} {S = S} 
+    = ⊆in (λ { (i1 b) (i1 a) (cons-either (x , y , z))  → cons-either (b , cons-fun refl , subst (R b) (i1-inj (fun.un y)) z)
+             ; (i2 _) (i1 _) (cons-either (_ , (cons-fun () , _)))
+             ; (i1 _) (i2 _) (cons-either (_ , (cons-fun () , _)))
+             ; (i2 d) (i2 c) (cons-either (x , y , z)) → cons-either (d , (cons-fun refl , subst (S d) (i2-inj (fun.un y)) z))
+             }) 
+    , ⊆in (λ { (i1 b) (i1 a) (cons-either (x , y , z)) 
+                   → cons-either (a , cons-fun refl , subst (λ k → R k a) (i1-inj (fun.un y)) z)
+             ; (i2 y) (i1 x) (cons-either (_ , (cons-fun () , _)))
+             ; (i1 _) (i2 _) (cons-either (_ , (cons-fun () , _)))
+             ; (i2 d) (i2 c) (cons-either (x , y , z))
+                   → cons-either (c , cons-fun refl , subst (λ k → S k c) (i2-inj (fun.un y)) z)
+             })
 
   +-id : {A B : Set} → Id + Id ≡r Id {A ⊎ B}
   +-id {A} {B} = ⊆in aux1 , ⊆in aux2

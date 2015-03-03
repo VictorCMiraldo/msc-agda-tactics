@@ -21,14 +21,6 @@ module Rel.Relator where
         ) → (x : W S P) → C x
   W-rec {C = C} c (sup s f) = c s f (W-rec {C = C} c ∘ f)
 
-  {-
-  {-# TERMINATING #-}
-  W-rec-rel : {S : Set}{P : S → Set}{A : Set}
-            → ((s : S) → (p : P s → W S P) → Rel (W S P) A → A → Set)
-            → Rel (W S P) A
-  W-rec-rel {S = S} {P = P} {A = A} h a w = W-rec (λ s p c → h s p (W-rec-rel h) a) w
-  -}
-
   -- Hopefully, it has been proved (by Abbot 2003 and Abbot 2004)
   -- that all polinomial functors are "strictly positive" and,
   -- therefore, have an initial algebra that correspond
@@ -76,7 +68,7 @@ module Rel.Relator where
             → ((s : S) → (p : P s → W S P) → Rel (W S P) A → A → Set)
             → Rel (W S P) A
   W-rec-rel h a w = W-rec (λ s p c → h s p (W-rec-rel h) a) w
-  -- W-rec-rel h a (sup s p) = h s p (W-rec-rel h) a
+
   -- 
   -- With some clever type translations we can encode a cata
   -- in a very relational fashion.

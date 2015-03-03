@@ -7,7 +7,7 @@ open import Rel.Core.Coproduct
 open import Rel.Relator
 
 open import Rel.Reasoning.RelEq-Strategy
-open import RW.RW (rel-strat ∷ [])
+open import RW.RW (rel-≡r-strat ∷ [])
 
 module Rel.Relator.List where
 
@@ -59,30 +59,31 @@ module Rel.Relator.List where
     
     IsRelator-L : IsRelator L
     IsRelator-L = record
-      { fmap-id = {!!}
-      ; fmap-∙  = {!!}
-      ; fmap-ᵒ  = {!!}
-      ; fmap-⊆  = {!!}
+      { fmap-id = lemma-id
+      ; fmap-∙  = lemma-∙
+      ; fmap-ᵒ  = lemma-ᵒ
+      ; fmap-⊆  = lemma-⊆
       } where
         open import Rel.Properties.BiFunctor
         open import Rel.Properties.Neutral
+        open import Rel.Properties.Idempotence
+        open import Rel.Core.Helper.Injections
+        open import Rel.Reasoning.RelationJudgement         
+        open ≡r-Reasoning
   
         lemma-id : {A B C : Set} → Id + (Id * Id) ≡r Id {A ⊎ (B × C)}
         lemma-id {A} {B} {C}
           = subst (λ x → Id {A} + x ≡r Id) (≡r-promote (≡r-sym *-id)) +-id
 
-        lemma-∙ : {I A B C : Set} {R : Rel B C} {S : Rel A B}
-                → Id {A} + (Id {B} * (R ∙ S)) ≡r Id + (Id * R) ∙ Id + (Id * S)
+        lemma-∙ : {I : Set}{A B C : Set} {R : Rel B C} {S : Rel A B}
+                → Id {Unit} + (Id {I} * (R ∙ S)) ≡r Id + (Id * R) ∙ Id + (Id * S)
         lemma-∙ {I} {A} {B} {C} {R} {S} 
           = ≡r-sym (coprod-uni-l (ι₁ ∙ Id) (ι₂ ∙ Id * (R ∙ S)) 
-                                 (≡r-sym aux1) {!!})
+                                 (≡r-sym aux1) (≡r-sym aux2))
           where
-            open import Rel.Reasoning.RelationJudgement         
-            open ≡r-Reasoning
-
-            aux1 : (Id + (Id {B} * R) ∙ Id + (Id * S)) ∙ ι₁ ≡r ι₁ ∙ Id {A}
+            aux1 : (Id + (Id * R) ∙ Id + (Id * S)) ∙ ι₁ ≡r ι₁ ∙ Id
             aux1 = begin 
-                 (Id + (Id {B} * R) ∙ Id + (Id * S)) ∙ ι₁
+                 (Id + (Id * R) ∙ Id + (Id * S)) ∙ ι₁
               ≡r⟨ ≡r-cong (λ s → s ∙ ι₁) +-bi-functor ⟩ 
                  ((Id ∙ Id) + (Id * R ∙ Id * S)) ∙ ι₁
               ≡r⟨ ≡r-sym ι₁-natural ⟩ 
@@ -91,20 +92,50 @@ module Rel.Relator.List where
                  ι₁ ∙ Id
               ∎ 
 
-            aux2 : (Id {A} + (Id {B} * R) ∙ Id + (Id * S)) ∙ ι₂ ≡r ι₂ ∙ Id * (R ∙ S)
+            aux2 : (Id + (Id * R) ∙ Id + (Id * S)) ∙ ι₂ ≡r ι₂ ∙ Id * (R ∙ S)
             aux2 = begin 
                  (Id + (Id * R) ∙ Id + (Id * S)) ∙ ι₂
+              -- TODO: why they dont unify:
+              -- ≡r⟨ (quoteGoal g in  {! by' (quote +-bi-functor) [] g!}) ⟩
               ≡r⟨ ≡r-cong (λ s → s ∙ ι₂) +-bi-functor ⟩ 
                  (Id ∙ Id) + (Id * R ∙ Id * S) ∙ ι₂
               ≡r⟨ ≡r-sym ι₂-natural ⟩ 
                  ι₂ ∙ Id * R ∙ Id * S
-              ≡r⟨ ≡r-cong (_∙_ ι₂) {!!} ⟩
-                  {!ι₂ ∙ (Id * Id) ∙ (R * S)!}
-              ≡r⟨ {!!} ⟩
+              ≡r⟨ ≡r-cong (_∙_ ι₂) *-bi-functor ⟩
+                 ι₂ ∙ (Id ∙ Id) * (R ∙ S)
+              ≡r⟨ ≡r-cong (λ i → ι₂ ∙ i * (R ∙ S)) (≡r-sym (∙-id-r Id)) ⟩
                  ι₂ ∙ Id * (R ∙ S)
               ∎ 
 
-          
+        lemma-ᵒ : {I A B : Set} {R : Rel A B}
+                → Id {Unit} + (Id {I} * (R ᵒ)) ≡r (Id + (Id * R)) ᵒ
+        lemma-ᵒ {R = R} = begin 
+                Id + (Id * (R ᵒ))
+              ≡r⟨ ≡r-cong (λ i → i + (Id * (R ᵒ))) idmp-id-ᵒ ⟩
+                (Id ᵒ) + (Id * (R ᵒ))
+              ≡r⟨ ≡r-cong (λ i → (Id ᵒ) + (i * (R ᵒ))) idmp-id-ᵒ ⟩
+                (Id ᵒ) + ((Id ᵒ) * (R ᵒ))
+              ≡r⟨ ≡r-cong (λ i → (Id ᵒ) + i) *-ᵒ-distr ⟩
+                (Id ᵒ) + ((Id * R) ᵒ)
+              ≡r⟨ +-ᵒ-distr ⟩
+                (Id + (Id * R)) ᵒ
+              ∎
+
+        lemma-⊆ : {I J A B : Set} {R : Rel A B} {S : Rel A B}
+                → R ⊆ S → Id {I} + (Id {J} * R) ⊆ Id + (Id * S)
+        lemma-⊆ {R = R} (⊆in rs) 
+          = ⊆in (λ { (i1 a) (i1 b) (cons-either (h , cons-fun i1b≡h , cons-fun h≡a)) 
+                     → cons-either (b , cons-fun refl , cons-fun (trans h≡a (i1-inj i1b≡h)))
+                   ; (i1 _) (i2 _) (cons-either (_ , cons-fun () , _))
+                   ; (i2 _) (i1 _) (cons-either (_ , cons-fun () , _))
+                   ; (i2 a) (i2 b) (cons-either (h , cons-fun b≡h , cons-⟨,⟩ ((x11 , x12) , (x21 , x22))))
+                     → cons-either (b , (cons-fun refl 
+                       , cons-⟨,⟩ (((p1 h) , (cons-fun (cong p1 (i2-inj b≡h)) , cons-fun (trans (fun.un (p2 x12)) (fun.un (p1 x12))))) 
+                       , x21 , rs x21 (p2 b) (subst (λ i → R (p2 i) x21) (i2-inj b≡h) (p1 x22)) , (p2 x22))))
+                   })
+
+  
+      
   
   l1 : Lw ℕ
   l1 = cons (1 , nil)
@@ -115,12 +146,17 @@ module Rel.Relator.List where
   prefix : Rel (Lw ℕ) (Lw ℕ)
   prefix = ⟦ either nilR (nilR ∪ consR) ⟧₁
 
+  {-# TERMINATING #-}
   prf : prefix l1 l2
-  prf = cons-cata (i2 (1 , nil) 
+  prf = cons-cata 
+      ( i2 (1 , nil) 
       , (cons-either (cons-∪ (i2 (i2 (1 , nil) , (cons-fun refl) , (cons-fun refl)))) 
-      , (cons-either ((1 , nil) 
-      , (cons-fun refl , (cons-⟨,⟩ ((1 , ((cons-fun refl) , (cons-fun refl))) 
-        , cons (2 , nil) , (((i2 (2 , nil)) , ((cons-either (cons-∪ (i1 (i1 unit , cons-fun refl , unit , cons-fun refl , unit)))) 
-      , (cons-either ((2 , nil) , (cons-fun refl , cons-⟨,⟩ ((2 , ((cons-fun refl) , (cons-fun refl))) 
-                     , nil , (((i1 unit) , ((cons-either (i1 unit , cons-fun refl , unit , cons-fun refl 
-      , unit)) , (cons-either (unit , cons-fun refl , cons-fun refl)))) , cons-fun refl))))))) , cons-fun refl))))))))
+          , (cons-either ((1 , nil) 
+            , (cons-fun refl , 
+              (cons-⟨,⟩ ((1 , ((cons-fun refl) , (cons-fun refl))) 
+              , cons (2 , nil) , (((i2 (2 , nil)) , 
+                                 ((cons-either (cons-∪ (i1 (i1 unit , cons-fun refl , unit , cons-fun refl , unit)))) 
+                                 , (cons-either ((2 , nil) , (cons-fun refl , cons-⟨,⟩ ((2 , ((cons-fun refl) , (cons-fun refl))) 
+                                   , nil , (((i1 unit) , ((cons-either (i1 unit , cons-fun refl , unit , cons-fun refl , unit)) 
+                                   , (cons-either (unit , cons-fun refl , cons-fun refl)))) , cons-fun refl)))))
+      )) , cons-fun refl))))))))
