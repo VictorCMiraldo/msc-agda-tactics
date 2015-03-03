@@ -407,7 +407,10 @@ iff, if $R \subseteq S$, then $F\;R \subseteq F\;S$.
 \end{mydef}
 
 It can be proved that relators also preserve converse, or, an even more interesting result: a functor
-is a relator if and only if it preserves converses, theorem 5.1 in \cite{Bird97}.
+is a relator if and only if it preserves converses, theorem 5.1 in \cite{Bird97}. Unfortunately,
+in Agda things are not so simple. The best option is to encode the relator laws as a typeclass.
+
+\Agda{Catas}{relator}
 
 Yet, the purpose of this dissertation is not to explain Relators or Functors, but how to encode them
 in Agda. Going one step at a time, let us look at the tradicional definition of a catamorphism.
@@ -437,10 +440,10 @@ or, with Agda types, given a $B \rightarrow F_A B \rightarrow \D{Set}$, we need 
 \subsubsection{Shape and Positioning}
 
 The problem's core lies in how to define a fixed point in Agda, which turns out 
-to be impossible\footnote{%
+to be very complicated, if not impossible\footnote{%
 %%%% BEGIN FOOTNOTE
-With the help of Coinduction one can define fixed points, but this triggers loads of other
-problems when using such fixed points.
+With the help of Coinduction one can define fixed points, but this triggers some other
+problems when using such fixed points. Not to mention the instability of the Coinduction module.
 %%%% END FOOTNOTE
 }. One solution is to look at a functor from a different angle. Playing around with
 the List functor we arrive at:
@@ -451,37 +454,56 @@ the List functor we arrive at:
         & \cong & 1 \times X^\bot + A \times X^1
 \end{eqnarray*}
 
+\begin{TODO}
+  \item justify $1 \equiv X^\bot$
+\end{TODO}
+
 Which is an instance of the more general form $T_{S, P} X = \Sigma\; (s : S)\; (X^{P\; s})$, for
 $S = 1 + A$ and $P = [ \text{const }\bot , \text{const }1 ]$. It can be proved
-that all polynomial functors can be encoded in that fashion, where $S$ represents
+that all polynomial functors can be encoded in that fashion\cite{Abbott04}, where $S$ represents
 a set of constructors of our \emph{datatype} and $P$ represents the arity of each constructor.
 In the List example, $nil = \IC{i1\; unit}$ has arity 0 and $cons = \IC{i2 (x, \_)}$ receives
 one recursive argument.
 
+\Agda{Catas}{wfunctor}
+
+In the excerpt above we have a polymorphic shape $S$, this parameter
+only represents the type our container is storing. For the sake of simplification we will forget about it.
 The set $W_S P$ is the set of all \emph{well founded trees} constructed by regarding each $s : S$ 
-as a constructor of arity $P\; s$ \cite{lof84}.
+as a constructor of arity $P\; s$. The first definition of W-types is from \cite{lof84}.
 
 \Agda{Catas}{wtype-def}
 
-The elimination rule for W-types is
-
-\Agda{Catas}{w-elim}
-
-which gives out the generic induction principle for W-types. The important question then becmoes: are we 
-talking about \emph{the same} lists? And the answer is yes. Abbot et al. did a lot of work on container types
+The important question being: are we talking about \emph{the same} lists? And the answer 
+is yes. Abbot et al. did a lot of work on container types
 and encoding inductive types as W-types. The most relevant result for us can be found in \cite{Abbott04} and
 says that $W_S P$ coincide with the least fixed point of a functor identified by $S$ and $P$:
 \[
   W_S P \cong \mu X\; . \;T_{S , P} X
 \]
 
+The elimination rule for W-types is
 
-\begin{TODO}
-  \item explain catas --- relational
-  \item give a small intro to W-types.
-  \item present our own "w-rec", W-cata-F scheme.
-  \item Relator typeclass
-\end{TODO}
+\Agda{Catas}{w-elim}
+
+which gives out the generic induction principle for W-types. The dependent type setting, however, allows
+one to tweak the conclusion $C$, depending on the $W_S P$ being \emph{folded}. If we let
+$C = A \rightarrow \D{Set}$, quantified on $A$, we arrive at something very close to:
+
+\Agda{Catas}{w-elim-rel}
+
+Where its parameter function $h$ receives the \emph{shape} and \emph{positioning} of a list $l$
+(that is, the $in^\circ\;l$), a relation built recursively, and something of type $A$.
+The universal law can provide some interesting intuition. It says that $\scata{R}$ is
+the same as opening up the list, checking if the recursive parts \emph{relate} with something,
+then relating the head and that something with $R$. That is exactly how we encode it:
+
+\Agda{Catas}{w-cata}
+
+Now we just need to wrap it over a record to prevent evaluation, but looking at the type
+of \F{W-cata-F}, it is already the type of a relational catamorphism. The finished puzzle is:
+
+\Agda{Catas}{cata}
 
 
 
