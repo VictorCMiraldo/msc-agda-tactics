@@ -8,6 +8,8 @@ open import Rel.Relator
 
 open import Rel.Reasoning.RelEq-Strategy
 open import RW.RW (rel-≡r-strat ∷ [])
+open import RW.Language.RTerm
+open import RW.Language.RTermUtils
 
 module Rel.Relator.List where
 
@@ -96,14 +98,15 @@ module Rel.Relator.List where
             aux2 = begin 
                  (Id + (Id * R) ∙ Id + (Id * S)) ∙ ι₂
               -- TODO: why they dont unify:
-              -- ≡r⟨ (quoteGoal g in  {! by' (quote +-bi-functor) [] g!}) ⟩
-              ≡r⟨ ≡r-cong (λ s → s ∙ ι₂) +-bi-functor ⟩ 
+              ≡r⟨ (tactic (by (quote +-bi-functor))) ⟩
+              -- ≡r⟨ ≡r-cong (λ s → s ∙ ι₂) +-bi-functor ⟩ 
                  (Id ∙ Id) + (Id * R ∙ Id * S) ∙ ι₂
               ≡r⟨ ≡r-sym ι₂-natural ⟩ 
                  ι₂ ∙ Id * R ∙ Id * S
               ≡r⟨ ≡r-cong (_∙_ ι₂) *-bi-functor ⟩
                  ι₂ ∙ (Id ∙ Id) * (R ∙ S)
-              ≡r⟨ ≡r-cong (λ i → ι₂ ∙ i * (R ∙ S)) (≡r-sym (∙-id-r Id)) ⟩
+              -- ≡r⟨ ≡r-cong (λ i → ι₂ ∙ i * (R ∙ S)) (≡r-sym (∙-id-r Id)) ⟩
+              ≡r⟨ (tactic (by (quote ∙-id-r))) ⟩
                  ι₂ ∙ Id * (R ∙ S)
               ∎ 
 

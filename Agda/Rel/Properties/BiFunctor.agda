@@ -88,8 +88,8 @@ module Rel.Properties.BiFunctor where
       , ⊆in (λ a b z → cons-either (either.un z)))
 
   +-bi-functor : {A B C X Y Z : Set}
-                 { R : Rel B C }{H : Rel A B }
-                 { S : Rel Y Z }{I : Rel X Y } 
+                 { R : Rel B C }{ H : Rel A B }
+                 { S : Rel Y Z }{ I : Rel X Y }
                → (R + S) ∙ (H + I) ≡r (R ∙ H) + (S ∙ I)
   +-bi-functor = TODO
     where postulate TODO : {A : Set} → A
