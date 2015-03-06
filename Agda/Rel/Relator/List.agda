@@ -97,15 +97,12 @@ module Rel.Relator.List where
             aux2 : (Id + (Id * R) ∙ Id + (Id * S)) ∙ ι₂ ≡r ι₂ ∙ Id * (R ∙ S)
             aux2 = begin 
                  (Id + (Id * R) ∙ Id + (Id * S)) ∙ ι₂
-              -- TODO: why they dont unify:
               ≡r⟨ (tactic (by (quote +-bi-functor))) ⟩
-              -- ≡r⟨ ≡r-cong (λ s → s ∙ ι₂) +-bi-functor ⟩ 
                  (Id ∙ Id) + (Id * R ∙ Id * S) ∙ ι₂
               ≡r⟨ ≡r-sym ι₂-natural ⟩ 
                  ι₂ ∙ Id * R ∙ Id * S
               ≡r⟨ ≡r-cong (_∙_ ι₂) *-bi-functor ⟩
                  ι₂ ∙ (Id ∙ Id) * (R ∙ S)
-              -- ≡r⟨ ≡r-cong (λ i → ι₂ ∙ i * (R ∙ S)) (≡r-sym (∙-id-r Id)) ⟩
               ≡r⟨ (tactic (by (quote ∙-id-r))) ⟩
                  ι₂ ∙ Id * (R ∙ S)
               ∎ 
@@ -139,7 +136,7 @@ module Rel.Relator.List where
 
   
       
-  
+  {-
   l1 : Lw ℕ
   l1 = cons (1 , nil)
 
@@ -163,3 +160,4 @@ module Rel.Relator.List where
                                    , nil , (((i1 unit) , ((cons-either (i1 unit , cons-fun refl , unit , cons-fun refl , unit)) 
                                    , (cons-either (unit , cons-fun refl , cons-fun refl)))) , cons-fun refl)))))
       )) , cons-fun refl))))))))
+  -}

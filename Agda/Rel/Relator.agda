@@ -59,6 +59,17 @@ module Rel.Relator where
 
   open IsWFunctor1 {{...}}
 
+  μ : (F : Set → Set → Set){{ _ : IsWFunctor1 F }}
+     → Set → Set
+  μ F A = μF {F = F} A
+
+  postulate
+    lambek-1 : {A : Set}{F : Set → Set → Set}{{ _ : IsWFunctor1 F }}
+             → inR {F = F} ∙ outR {F = F} ≡r Id {A = μ F A}
+
+    lambek-2 : {A : Set}{F : Set → Set → Set}{{ _ : IsWFunctor1 F }}
+             → outR {F = F} ∙ inR {F = F} ≡r Id {A = F A (μ F A)}
+
 
   -- A slight variant of W-rec rule allows us to build a Set (or a
   -- relation, for that matter) recursively.
@@ -74,12 +85,12 @@ module Rel.Relator where
   -- in a very relational fashion.
   --
   W-cata-F : {A B : Set}{F : Set → Set → Set}{{ prf : IsWFunctor1 F }}
-             (R : Rel (F A B) B) → Rel (μF {F = F} A) B
+             (R : Rel (F A B) B) → Rel (μ F A) B
   W-cata-F {A} {B} {F} R = W-rec-rel (λ s p h n → gene h n (sup s p))
     where
       -- Here, h is the relation built so far.
       -- By the cata-universsal law we can derive this gene
-      gene : Rel (μF {F = F} A) B → Rel (μF {F = F} A) B
+      gene : Rel (μ F A) B → Rel (μ F A) B
       gene h n l = (R ∙ Fᵣ h) n (outF l)
   
   -- Being a Relator is encoded as a separate structure.
@@ -98,6 +109,8 @@ module Rel.Relator where
       fmap-⊆ : ∀{I A B}{R S : Rel A B}
              → R ⊆ S → Fᵣ {F} {I} R ⊆ Fᵣ S
 
+  open IsRelator {{...}}
+
   ----------------------
   -- * Catamorphism * --
   ----------------------
@@ -105,22 +118,55 @@ module Rel.Relator where
   -- We just need to wrap W-cata-F into a record. Same thing we did
   -- with the other relational constructs.
   record ⟦_⟧₁ {A B : Set}{F : Set → Set → Set}{{ prf : IsWFunctor1 F }}
-              (R : Rel (F A B) B)(b : B)(μFa : μF {F = F} A) : Set
+              (R : Rel (F A B) B)(b : B)(μFa : μ F A) : Set
     where constructor cons-cata
           field un : W-cata-F R b μFa
 
+  -- We are going to postulate the catamorphism universsal law.
+  -- The reason for this is it is unprovable in the generic case.
+  -- Yet, for specific instances of F, it should be fairly easy to prove,
+  -- once it lies in the core of the catamorphism definition.
+  --
+  postulate
+    cata-uni-1 : {A B : Set}{F : Set → Set → Set}
+                 {{ pF : IsWFunctor1 F }}{{ pR : IsRelator F }}
+                 {R : Rel (F A B) B}{X : Rel (μ F A) B}
+               → X ⊆ R ∙ Fᵣ X ∙ outR
+               → X ⊆ ⟦ R ⟧₁
+
+    cata-uni-2 : {A B : Set}{F : Set → Set → Set}
+                 {{ pF : IsWFunctor1 F }}{{ pR : IsRelator F }}
+                 {R : Rel (F A B) B}{X : Rel (μ F A) B}
+               → R ∙ Fᵣ X ∙ outR ⊆ X
+               → ⟦ R ⟧₁ ⊆ X
+
+  -- Then we can proceed to prove the generic cata laws.
+
+  cata-reflex : {A : Set}{F : Set → Set → Set}{{ pF : IsWFunctor1 F }}{{ pR : IsRelator F }}
+              → ⟦ inR {F = F} ⟧₁ ≡r Id {A = μ F A}
+  cata-reflex {A} {F} ⦃ pF ⦄ ⦃ pR ⦄ = cata-uni-2 (≡r-elim1 aux) , cata-uni-1 (≡r-elim2 aux)
+    where
+      open import Rel.Properties.Neutral
+      open import Rel.Reasoning.RelationJudgement
+      open ≡r-Reasoning
+
+      aux : (IsWFunctor1.inR pF {A = A}) ∙ (IsWFunctor1.Fᵣ pF Id) ∙ (IsWFunctor1.outR pF) ≡r Id
+      aux rewrite (≡r-promote (IsRelator.fmap-id pR {B = F A (μ F A)} {A = A})) = {!!}
+      {-
+          = begin
+            (IsWFunctor1.inR pF) ∙ Id ∙ outR
+          ≡r⟨ ≡r-cong (λ i → i ∙ outR) (∙-id-r inR) ⟩
+            inR ∙ outR
+          ≡r⟨ lambek-1 ⟩
+            Id
+          ∎
+      -}
+
   {-
-  -- TODO: the universsal has to be proven for each F.
-  --       we need some insight into F's structure to continue
-  --       the proof, otherwise we're stuck at a W-cata-rel goal.
-  -- And the universsal law
-  cata-uni-1 : {A B : Set}{F : Set → Set → Set}
-               {{ pF : IsWFunctor1 F }}{{ pR : IsRelator F }}
-               {R : Rel (F A B) B}{X : Rel (μF {F = F} A) B}
-             → X  ⊆ R ∙ Fᵣ X ∙ outR
-             → X ⊆ ⟦ R ⟧₁
-  cata-uni-1 (⊆in hip) 
-    = ⊆in (λ la b bXa 
-          → let (fab , bRfab , faμa , y , z) = hip la b bXa
-            in cons-cata {!!}) -}
+  cata-fusion-1 : {A B C : Set}{F : Set → Set → Set}{{pF : IsWFunctor1 F}}{{pR : IsRelator F}}
+                → {T : Rel (F A C) C}{R : Rel (F A B) B}{S : Rel B C}
+                → T ∙ Fᵣ S ⊆ S ∙ R
+                → ⟦ T ⟧₁ ⊆ S ∙ ⟦ R ⟧₁
+  cata-fusion-1 (⊆in hip) = ?
+  -}           
              
