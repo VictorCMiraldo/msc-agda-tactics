@@ -458,8 +458,9 @@ the List functor we arrive at:
 The last step of the above derivation, were we transform $1$ into $X^\bot$, can not be proven
 in Agda. However, it is evident to see it is a valid transformation from the initiality of $\bot$.
 
-It is important to note that the resulting term is an instance of a more general form $T_{S, P} X = \Sigma\; (s : S)\; (X^{P\; s})$, for
-$S = 1 + A$ and $P = [ \text{const }\bot , \text{const }1 ]$. It can be proved
+It is important to note that the resulting term is an instance of a more general form: 
+\[ T_{S, P} X = \Sigma\; (s : S)\; (X^{P\; s})\] 
+For $S = 1 + A$ and $P = [ \text{const }\bot , \text{const }1 ]$. It can be proved
 that all polynomial functors can be encoded in that fashion\cite{Abbott04}, where $S$ represents
 a set of constructors of our \emph{datatype} and $P$ represents the arity of each constructor.
 In the List example, $nil = \IC{i1\; unit}$ has arity 0 and $cons = \IC{i2 (x, \_)}$ receives
