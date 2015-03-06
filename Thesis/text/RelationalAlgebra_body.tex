@@ -320,6 +320,7 @@ but expand it:
 
 
 \subsection{Products}
+\label{sec:relations:products}
 
 Given two relations $R : A \rightarrow B$ and $S : A \rightarrow C$, we can construct a relation
 $\langle R , S \rangle : A \rightarrow B \times C$ such that $(b,c)\;\langle R , S \rangle\;a$ if and only if $b\;R\;a \wedge c\;S\;a$.
@@ -454,11 +455,10 @@ the List functor we arrive at:
         & \cong & 1 \times X^\bot + A \times X^1
 \end{eqnarray*}
 
-\begin{TODO}
-  \item justify $1 \equiv X^\bot$
-\end{TODO}
+The last step of the above derivation, were we transform $1$ into $X^\bot$, can not be proven
+in Agda. However, it is evident to see it is a valid transformation from the initiality of $\bot$.
 
-Which is an instance of the more general form $T_{S, P} X = \Sigma\; (s : S)\; (X^{P\; s})$, for
+It is important to note that the resulting term is an instance of a more general form $T_{S, P} X = \Sigma\; (s : S)\; (X^{P\; s})$, for
 $S = 1 + A$ and $P = [ \text{const }\bot , \text{const }1 ]$. It can be proved
 that all polynomial functors can be encoded in that fashion\cite{Abbott04}, where $S$ represents
 a set of constructors of our \emph{datatype} and $P$ represents the arity of each constructor.
@@ -501,25 +501,50 @@ then relating the head and that something with $R$. That is exactly how we encod
 \Agda{Catas}{w-cata}
 
 Now we just need to wrap it over a record to prevent evaluation, but looking at the type
-of \F{W-cata-F}, it is already the type of a relational catamorphism. The finished puzzle is:
+of \F{W-cata-F}, it is already the type of a relational catamorphism. The final piece of the puzzle looks like:
 
 \Agda{Catas}{cata}
 
+Wrapping it up, in order to handle arbitrary\footnote{
+%%%%%% BEGIN FOOTNOTE
+Not at all that aribtrary, we can just handle strictly positice inductive types, of which
+the polynomial functors are part of.
+%%%%%% END FOOTNOTE
+} functors the idea is to: (a) encode it using W-types; (b) Use a custom elimination rule, derivable
+from the standard W-elimination and (c) translate the relational gene using the cata universal. 
+A small problem with this technique is the need to explicetly prove the cata universal for
+every functor we wish to use. One way of bypassing this would be to postulate it. Since
+we mainly need the universal for rewriting purposes, no actual computaton needs to be performed.
+
+Proving the universal law for a specific functor is straigh-forward. Nevertheless, we adopted
+the postulate strategy to ease the development. Remember that in the relational case, the universal
+law is split in two separate laws:
+
+\Agda{Catas}{cata-uni}
 
 
 \subsection{Properties}
 
-\begin{TODO}
-  \item Give a simple taxonomy of properties we're going to provide.
-        \begin{itemize}
-            \item Galois Connections $\Rightarrow$ almost everything!
-            \item Associativity
-            \item Idempotence
-            \item BiFunctoriality
-            \item Neutral
-            \item Distributivity
-         \end{itemize}
-\end{TODO}
+Besides the main relational constructions, we developed a selection of property-specific modules.
+Given the amount of properties we have in relational algebra, we had to somehow categorize them.
+Modules are divided in the kind of property they provide. The naming scheme is straigh forward:
+names start with a hyphen separated list of relevant operators, followed by the property name.
+If we are looking for $\cdot + \cdot$ and $(\cdot)^\circ$ distributivity, for instance, 
+its name is going to be $+$-$^\circ$-distr. An aditional identification: -$l$, -$r$, 1 or 2; might be found
+appended to the property name, indicating either the direction (left or right) or the part of 
+the conclusion being extracted. One example is the split universal, section \ref{sec:relations:products}.
+A simple taxonomy of modules is provided below.
+
+\begin{enumerate}
+  \item \emph{Group} like properties, such as: neutral elements, absorption, inverse and associativity.
+  \item \emph{Monotonicity} over $\_\subseteq\_$.
+  \item \emph{Idempotence} of operators.
+  \item \emph{BiFunctoriality} for product and coproduct.
+  \item \emph{Correflexive} specific properties.
+  \item \emph{Galois} connections present in Relational Algebra, which provide
+                distributivity over $\_\cap\_$ and $\_\cup\_$, cancelation and
+                more monotonicity.
+\end{enumerate}
 
 \section{The Library}
 
@@ -528,26 +553,15 @@ There are still modules for equational reasoning and a few more constructs imple
 All the code is available in the following GitHub repository: 
 \begin{quote}
 \small https://github.com/VictorCMiraldo/msc-agda-tactics/tree/master/Agda/Rel
-\end{quote}. It is compliant with Agda's version 2.4.2.2; standard library version 0.9.
-
-\begin{TODO}
-  \item MAke a "small" high-level description.
-  \item this section could go to the top of the chapter.
-\end{TODO}
-
-\subsection{Next Versions}
-
-Our Relational Algebra in Agda library is no diferent from other library. It always has some
-feature to be implemented and requries constant maintenance work, to comply with the latest
-Agda standard library. Yet, there are two very important constructs that have not been implemented so far.
-We would like to have both a relational fold and shrinking\cite{Mu2012} in the library. This would give us the
-expressivity we're looking for.
+\end{quote}
+It is compliant with Agda's version 2.4.2.2; standard library version 0.9.
 
 \subsection{Summary}
 
-\begin{TODO}
-  \item Adapt / rewrite
-\end{TODO}
+This chapter discussed, somewhat high level, the implementation and problems
+we found during the development of our Relational Algebra library. Even though some features
+might seem very complex, it is the price we have to pay in exchange for the expressiveness 
+of dependent types. 
 
 The problem imposed by Agda's (intensional) equality is that it implies
 convertibility. As seen in this chapter, we don't really care about convertibility of relations.
@@ -557,5 +571,10 @@ in order to hardcode a proof irrelevance notion was very helpful, besides the co
 code for the end-user. The later option, postulating some axioms that allows one to \emph{trick}
 Agda's equality, revealed itself to be cleaner and to provide both a better interface
 and a completely formal approach, when needed.
+
+Another complicated solution was the use of W-types to encode generic (polynomial) functors,
+with their respective catamorphism. Although some mechanical code had to be pushed to the user
+we finished with an interface very close to what one would write on paper, which closes
+the features we were looking forward to have.
 
 

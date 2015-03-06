@@ -36,6 +36,10 @@ record IsWFunctor1 (F : Set → Set → Set) : Set1 where
 
 \begin{code}
 open IsWFunctor1 {{...}}
+
+μ : (F : Set → Set → Set){{ _ : IsWFunctor1 F }}
+   → Set → Set
+μ F A = μF {F = F} A
 \end{code}
 
 \begin{code}
@@ -98,8 +102,25 @@ record IsRelator (F : Set → Set → Set) {{ p : IsWFunctor1 F }}
 %<*cata>
 \begin{code}
 record ⟦_⟧₁ {A B : Set}{F : Set → Set → Set}{{ prf : IsWFunctor1 F }}
-            (R : Rel (F A B) B)(b : B)(μFa : μF {F = F} A) : Set
+            (R : Rel (F A B) B)(b : B)(μFa : μF A) : Set
   where constructor cons-cata
         field un : W-cata-F R b μFa
 \end{code}
 %</cata>
+
+%<*cata-uni>
+\begin{code}
+postulate
+  cata-uni-1 : {A B : Set}{F : Set → Set → Set}
+               {{ pF : IsWFunctor1 F }}{{ pR : IsRelator F }}
+               {R : Rel (F A B) B}{X : Rel (μF A) B}
+             → X ⊆ R ∙ Fᵣ X ∙ outR
+             → X ⊆ ⟦ R ⟧₁
+
+  cata-uni-2 : {A B : Set}{F : Set → Set → Set}
+               {{ pF : IsWFunctor1 F }}{{ pR : IsRelator F }}
+               {R : Rel (F A B) B}{X : Rel (μF A) B}
+             → R ∙ Fᵣ X ∙ outR ⊆ X
+             → ⟦ R ⟧₁ ⊆ X
+\end{code}
+%</cata-uni>

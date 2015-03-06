@@ -1,9 +1,19 @@
-\begin{TODO}
-  \item intro on rewriting... the diagram here could be cool.
-  \item mention eq-reasoning (as a customization of Agda to our needs)
-  \item glue to the rest
-\end{TODO}
+Rewriting can be looked upon from a lot of differen angles. Neverheless, a very general approach
+is already largely used in logic: substitutivity of predicates. If we want to discuss
+the vailidity of an arbitrary statement, lets take $0 \leq 3^2 \leq 10$, for instance. We can
+substitute \emph{sub-statements} by equal \emph{sub-statements}. In our case, $3^2 = 9$,
+which renders the final proposition to be $0 \leq 9 \leq 10$. That is obviously true.
+In a more formal maner, let $P$ be a predicate
+over a set $S$ and $s_1, s_2 \in S$, if $P\;s_1$ holds and $s_1 \equiv s_2$, then, obviously
+$P\;s_2$ holds. This notion is called substitutivity.
 
+Whenever we work with pen-and-paper mathematics, it is common to structure our thoughts
+in a series of \emph{equivalent} statements. To our luck, Agda also has a very interesting
+customization feature called equational reasoning, which we will explore in this chapter.
+Yet, no matter when one performs a rewrite on paper, substituvity rarely comes to mind.
+Mostly because it is purely mechanical, and one believes that such things are \emph{evident}.
+We seek to make those steps evident to Agda, and recreate a validated \emph{pen-and-paper}
+environment.
 
 Agda introduced a reflection API in version 2.2.8. Although not a new feature
 in the world of functional programming (Lisp's \emph{quoting} and \emph{unquoting} 
@@ -32,5 +42,5 @@ This chapter starts by giving a brief introduction to Agda's Equational Reasonin
 On the sequence, section \ref{sec:tandr:representingterms}, we give a description of our \D{RTerm} representation
 and explain how we perform the conversion. A presentation of the operations required for 
 automatic congruence and substitution guessing follows in section \ref{sec:tandr:termoperations}.
-We finish this chapter in section \ref{sec:tandr:rwtactic} where we explain the library entry-point function: the RW function.
+We finish this chapter in section \ref{sec:tandr:rwtactic} where we explain the library entry-point function: the \emph{by} function.
 Some guidance for when one wants to use our rewrite feature in different domains is also given.
