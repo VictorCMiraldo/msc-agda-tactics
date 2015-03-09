@@ -28,6 +28,14 @@ module Rel.Properties.Correflexive where
       aux2 a b (c , cons-φ h1 , cons-φ h2) 
         = cons-φ (trans (p1 h1) (p1 h2) , p2 h1)
 
+  φ⊆Id : ∀{A : Set}{P : A → Set}
+       → φ P ⊆ Id
+  φ⊆Id = ⊆in (λ a b x → cons-fun (sym $ p1 $ φ.un x))
+
+  ρ-intro : ∀{A B : Set}(R : Rel A B) → R ≡r ρ R ∙ R
+  ρ-intro r = (⊆in (λ a b x → b , cons-ρ ((a , (x , x)) , refl) , x)) 
+            , (⊆in (λ a b x → subst (λ k → r k a) (sym $ p2 $ ρ.un $ p1 $ p2∙ x) (p2 (p2∙ x))))
+
   {- 
 
   TODO :

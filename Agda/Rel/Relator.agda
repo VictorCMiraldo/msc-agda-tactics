@@ -151,22 +151,24 @@ module Rel.Relator where
       open ≡r-Reasoning
 
       aux : (IsWFunctor1.inR pF {A = A}) ∙ (IsWFunctor1.Fᵣ pF Id) ∙ (IsWFunctor1.outR pF) ≡r Id
-      aux rewrite (≡r-promote (IsRelator.fmap-id pR {B = F A (μ F A)} {A = A})) = {!!}
-      {-
-          = begin
-            (IsWFunctor1.inR pF) ∙ Id ∙ outR
+      aux = let FId≡Id = IsRelator.fmap-id pR {B = A} in
+          begin
+            (IsWFunctor1.inR pF) ∙ Fᵣ Id ∙ (IsWFunctor1.outR pF)
+          ≡r⟨ ≡r-cong (λ i → inR ∙ i ∙ outR) FId≡Id ⟩
+            (IsWFunctor1.inR pF) ∙ Id {A = F A (μ F A)} ∙ (IsWFunctor1.outR pF)
           ≡r⟨ ≡r-cong (λ i → i ∙ outR) (∙-id-r inR) ⟩
             inR ∙ outR
           ≡r⟨ lambek-1 ⟩
             Id
           ∎
-      -}
 
-  {-
   cata-fusion-1 : {A B C : Set}{F : Set → Set → Set}{{pF : IsWFunctor1 F}}{{pR : IsRelator F}}
                 → {T : Rel (F A C) C}{R : Rel (F A B) B}{S : Rel B C}
                 → T ∙ Fᵣ S ⊆ S ∙ R
                 → ⟦ T ⟧₁ ⊆ S ∙ ⟦ R ⟧₁
-  cata-fusion-1 (⊆in hip) = ?
-  -}           
+  cata-fusion-1 {A} {B} {C} {F} ⦃ pF ⦄ ⦃ pR ⦄ {T} {R} {S} (⊆in hip) = cata-uni-2 (⊆in aux)
+    where
+      aux : (a : μ F A)(c : C) → (T ∙ Fᵣ (S ∙ ⟦ R ⟧₁) ∙ outR) c a →  (S ∙ ⟦ R ⟧₁) c a
+      aux a c (fac , (cTfac , ._ , (fr , cons-fun refl))) 
+        = ?
              
