@@ -122,6 +122,11 @@ complete our goal. The general algorithm is as follows:
 The last step, of converting everything back to Agda's \D{Term} type, should be modular.
 A simple idea is to use different strategies triggered by specific $(hd_g,\;hd_a)$ pairs.
 This should give us enough freedom to use our library even on very particular scenarios.
+Remembering, though, that the specific constructors of a given case study should be
+deeply embeded into, at least, a record. Otherwise, normalization is going to render
+terms incompatible.
+
+\section{Interfacing}
 
 \section{Unification}
 
