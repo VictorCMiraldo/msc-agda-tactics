@@ -1,9 +1,5 @@
-\begin{TODO}
-  \item glue
-\end{TODO} 
-
-The best way to explain how we implemented the \emph{by} tactic is to extensively
-work out a few examples. This should provide the justification of some design decisions
+The best way to explain how we implemented the \emph{by} tactic is to work out a few examples by hand. 
+This should provide the justification of some design decisions
 and give a tutorial on how to extend our framework.
 
 We are going to focus on two scenarios. The first one is a simple associativity proof
@@ -21,7 +17,7 @@ for list concatenation. Whereas the second is a relational proof of a trivial le
 
 One could fill in the holes manually, with the terms presented in table \ref{tbl:example_solutions}.
 Our task is to generate such terms automatically from the information supplied by Agda: the goal type and
-context list\footnote{list of types, in the same order as the De Bruijn indexes of the function parameters};
+context list\footnote{A context list is a list of types, in the same order as the De Bruijn indexes of the function parameters};
 together with the action given by the user (identified by orange text in table \ref{tbl:example_solutions}).
 
 \begin{table}[h]
@@ -37,10 +33,10 @@ It is already easy to see how different relations will take different solutions.
 a congruence suffices, since we're dealing with propositional equality and a data constructor (which is always a congruence).
 Hole two, on the other hand, needs a partially applied \F{subst}. And this will be the case whenever we're
 handling relational equality inside our \emph{squiggol} environment. For the time being, however, let us
-forget about this detail.
+forget about this detail. Indeed, let us explore the simpler example first.
 
 Figure \ref{fig:goal_act_notation} gives the notation we are going to use to identify subterms in the given
-goal and action. We will denote the $n$-th goal by $(hd_n, g_1, g_2)$ and a given action $A$ by $(hd_a, a_1, a_2)$.
+goal and action. We will denote the first goal by $(hd_1, g_1, g_2)$ and a given action $A$ by $(hd_a, a_1, a_2)$.
 Inside the library, this is represented by a \D{RBinApp}, which forces all terms that we propose to handle
 to have a binary relation on their heads.
 
@@ -60,10 +56,17 @@ to have a binary relation on their heads.
 
 An interesting observation is that if we take only the common subterms $g_1$ and $g_2$, we could obtain something like:
 \[
-  g_\square = g_1 \cap g_2 = (x \; ∷\; \square\; \conc\; \square) \stackrel{lift}{\rightarrow} (x \; ∷\; \square)
+  g_\square = g_1 \cap g_2 = (x \; ∷\; \square\; \conc\; \square)
 \]
-Which is very close to the abstraction we are looking forward to derive. The \emph{lift} arrow represents
-a lifting of holes, that is, definitions whose arguments are all holes become a single hole.
+Which is very close to the abstraction we are looking forward to derive. Yet, a congruence receives
+a unary function and our intersection is yielding a term with \emph{two} holes. This behaviour is
+actually correct, both $g_1$ and $g_2$ have a concatenation below $\_::\_\;x$.
+This is easily fixed with a simple convention. We define a hole lifting operation where definitions whose arguments are all holes become a single hole. In the end, we arrive at:
+
+\[
+g_\square = g_1 \cap g_2 = (x \; ∷\; \square\; \conc\; \square) \stackrel{lift}{\rightarrow} (x \; ∷\; \square)
+\]
+
 This small intuition not only gives a simple decidable algorithm for deriving the abstraction from the goal type alone,
 but also gives some clues on how to represent terms. The term representation one is looking for has to support \emph{holes}, or, behave as a zipper structure. So far we need a parametrized simplification of Agda's \D{Term}. The representation
 we chose is:
@@ -79,7 +82,12 @@ is how much more expressiveness one gets from a parametrized type such as \D{RTe
 The translation of an Agda term into a \D{RTerm} actually returns a \D{RTerm $\bot$}, from which
 we can prove that there are no \IC{ovar} occurences (the actual object of type \D{RTerm $\bot$} \emph{is} the proof).
 
-In fact, we rely heavily on term intersection:
+\begin{TODO}
+  \item glue
+  \item present some translation functions
+  \item all vars become ivars
+  \item present lift-ivar
+\end{TODO}
 
 \Agda{RTerm}{rterm-intersect-type}
 
@@ -124,12 +132,97 @@ A simple idea is to use different strategies triggered by specific $(hd_g,\;hd_a
 This should give us enough freedom to use our library even on very particular scenarios.
 Remembering, though, that the specific constructors of a given case study should be
 deeply embeded into, at least, a record. Otherwise, normalization is going to render
-terms incompatible.
+terms incompatible. We are going to discuss this topic later.
 
-\section{Interfacing}
+\section{Instantiation}
 
-\section{Unification}
+Until now, we know how to extract a congruence (if possible) from the goal type only. Nevertheless,
+we have more information to use. The action type namelly. From it, we should be able to extract
+the parameters we need to apply automatically. Let us take a look at the second example
+for this ilustration, that is, hole 1 in table \ref{tbl:example_solutions}.
 
+Lemma \F{∙-id-r} receives a relation $R$ and returns a proof of $R \equiv_r R ∙ Id$. Abstracting
+over variable names and adopting their De Bruijn index intead we get a tree, similar to figure \ref{fig:debruijn_idr}. Whereas, performing the steps described in the previous section
+for the goal in question will result in $g_\square = R \subseteq \square$, $u_1 = g_\square - g_1 = R$
+and $u_2 = g_\square - g_2 = R \cdot Id$.
+
+\begin{wrapfigure}{r}{0.50\textwidth}
+\begin{displaymath}
+\scalebox{0.8}{%
+\xymatrix{%
+ & \equiv_r \ar@{.>}[dl]_{a_1} \ar@{.>}[dr]^{a_2} & & \\
+0 & & \cdot \ar[dl] \ar[dr] & \\
+& 0 & & Id
+}}
+\end{displaymath}
+\caption{\F{∙-id-r}'s type}
+\label{fig:debruijn_idr}
+\end{wrapfigure}
+
+Comparing $u_1$ with $a_1$ and $u_2$ with $a_2$ should give the intuition that, if the
+variable indexed by $0$ is instantiated to $R$, the types match. In fact, $R$ is the solution.
+Long story short, we need to obtain two agreeing substitutions $\sigma_1$ and $\sigma_2$ such
+that $\sigma_i\;a_i = u_i$, for $i\in\{1 , 2\}$. Such problem is known as instantiation.
+We heavily based ourselfes in \cite{wouter13}, with a few modifications to handle both implicit
+parameters and our more expressive term language. These adjustments will be discussed below,
+together with a more formal approach to the problem.
+
+Before going any further with instantiation, we need to comply with Agda's termination checker.
+A neat way of doing so is to resort to \D{RTerm}s indexed by a \emph{finite} number of elements.
+
+\Agda{FinTerm_Inst}{finterm-def}
+
+\begin{TODO}
+  \item explain Fin? Possibly in a special "Neat tricks in Agda" section,
+        after background. A good hook is the termination checker.
+\end{TODO}
+
+Given an action with $n$ visible, that is, not implicit, variables, we therefore will need to instantiate all $n$ of its parameters to be able to
+obtain the desired result. However, the order in which we find their instances
+might not be the usual natural number ordering. We therefore rely on a
+partial substitution datatype defined by a vector where each position $i$ contains
+either a closed term, meaning that the $i$-th De Bruijn variable of our action should be instantiated to that closed term or a symbolical value representing that we did not find an instance for such variable.
+
+\Agda{FinTerm_Inst}{X-def}
+
+The empty substitution is easily defined by recursion on the number of elements we wish to instantiate.
+
+\Agda{FinTerm_Inst}{empty-X-def}
+
+A few simple operations are also needed before going further:
+
+\Agda{FinTerm_Inst}{lookup-X-def}\\
+\Agda{FinTerm_Inst}{apply-X-def}
+
+Where \F{$\_<\$>\_$} is the same as in Haskell's Control.Applicative, and \F{mapM} is the lifting of map to the Maybe monad. The \F{apply-X} function is straight forward. An important note, however, is that we just substitute \IC{ovar}s. This distinction between \emph{out} variables and \emph{in} variables is more important than what initially meets the eye. 
+
+Relaxing the syntax to improve readability, we can say that the general form of an Agda type is composed of $n$ implicit parameters, $k$ explicit parameters and a, possibly dependent, conclusion.
+\[
+aux\;:\;\{ i_1 \}\{ i_2 \} \cdots \{ i_n \} \rightarrow ( e_1 )( e_2) \cdots (e_k) \rightarrow C\;i_1\cdots i_n\;e_1\cdots e_k
+\]
+
+Therefore we have a total of $n+k$ parameters. Yet, whenever we need the conclusion from $aux$ we just need to provide $k$ arguments, since the first
+$n$ implicit parameters are going to be figured out by Agda. It follows that our instantiation algorithm only needs to figure out $k$ parameters. Rewriting the above type with De Bruijn indices we have:
+\[
+aux\;:\;\{ n+k - 1 \}\{ n+k - 2\} \cdots \{ k \} \rightarrow (k-1)(k-2) \cdots (0) \rightarrow C\;(n+k - 1) \cdots 0
+\]
+
+We are not really concerned with all the implicit parameters anyway. If they can not be guessed by Agda, an error will happen at unquoting. We proceed to
+model the variables we need to instantiate as an \IC{ovar}, whereas the other ones become a \IC{ivar}. The instantatiation algorithm is given below. 
+
+\Agda{FinTerm_Inst}{instantiation}
+
+The \F{inst} function receives one term with $n$ \IC{ovar}s and a closed term. It returns a partial substitution for $n$ variables and it works by calling an auxiliar version with a substitution as its state. Notice how an \IC{ivar} does not change the substitution and is simply accepted, whereas an \IC{ovar} triggers an extension, which will be discussed later.
+
+The return type being a \F{Maybe (X n)} has a somewhat confusing interpretation. If instantiation returns \IC{nothing}, it means that the terms have an incompatible structure. On the other hand, if it returns a \IC{just $\sigma$} there are two possible cases. Either $\sigma$ is complete or not. In the former situation, everything is fine and we have just figured out our parameters. The later scenario means that we did not have enough information to instantiate every variable \emph{yet}. Nevertheless, given two partial substitutions we might be able to build a complete one, as long as they agree on the variables defined on both and there is no variable undefined on both. Substitution concatenation is given by \F{$\_\conc_x\_$}.
+
+\Agda{FinTerm_Inst}{rsubst-concat}
+
+The extension of a substitution $\sigma$ for $n = t$ is a simple traverse to the desired position, $n$, and, if such variable was not yet figured we simply return $t$. If it was already defined to a $t'$, after all, then they must agree, that is, $t = t'$. This requirement preserves the injectivity of
+the substitution being computed. 
+
+\Agda{FinTerm_Inst}{extend-X-def}
+ 
 %\Agda{RTerm}{rterm-data}\\
 %\Agda{RTerm}{rtermname-data}\\
 %\Agda{RTerm}{rterm-replace}\\

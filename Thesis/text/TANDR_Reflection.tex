@@ -7,9 +7,20 @@ perform computations over it and return the resulting term before resuming compi
 We will not delve into much detail on Agda's abstract representation. 
 The interested reader should go to Paul van der Walt's thesis\cite{vdWalt2012}, where,
 although somewhat outdated, Paul gives a in-depth explanation of reflection in Agda.
+However, the following excerpt gives a taste of how reflection looks like.
 
-We implemented the \emph{by} tactic in agda, which will try to figure out congruences
-or substitutions to solve a given goal. The implementation will be discussed below.
+\Agda{ReflectionExample}{example}
+
+Although very small, it states that the abstract representation of \IC{suc} is a constructor,
+whose name is \F{suc} and has no arguments whatsoever. The \D{Term} datatype, exported from
+the Reflection module, has a large number of constructors and options. We are just interested
+in a small subset of such terms, which is enough motive to build our own term datatype.
+That is the reason why we will not explain reflection in depth. Nevertheless, the next
+section provides a discussion on our interface to reflection.
+
+Another interesting factor is to note how Agda normalizes a term before quoting it. Note
+how it performed a $\eta$-reduction automatically. To prevent this is the reason why we need all those \K{record}
+boilerplate in our Relational Algebra library.
 
 \begin{center}
 \begin{table}[h]
@@ -26,7 +37,3 @@ or substitutions to solve a given goal. The implementation will be discussed bel
 \label{tbl:agda_reflection_api}
 \end{table}
 \end{center}
-
-\begin{TODO}
-  \item How much of reflection should I write about?
-\end{TODO}

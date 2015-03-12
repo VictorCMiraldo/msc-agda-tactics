@@ -44,7 +44,9 @@ CODE_AGDA_MODULES=Basic\
                   Universes\
                   RTerm\
                   RTerm-Examples\
-                  Catas
+                  Catas\
+                  ReflectionExample\
+                  FinTerm_Inst
 
 COMPILER=pdflatex -etex
 
