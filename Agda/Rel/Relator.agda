@@ -141,7 +141,7 @@ module Rel.Relator where
                → ⟦ R ⟧₁ ⊆ X
 
   -- Then we can proceed to prove the generic cata laws.
-
+  {-
   cata-reflex : {A : Set}{F : Set → Set → Set}{{ pF : IsWFunctor1 F }}{{ pR : IsRelator F }}
               → ⟦ inR {F = F} ⟧₁ ≡r Id {A = μ F A}
   cata-reflex {A} {F} ⦃ pF ⦄ ⦃ pR ⦄ = cata-uni-2 (≡r-elim1 aux) , cata-uni-1 (≡r-elim2 aux)
@@ -172,3 +172,4 @@ module Rel.Relator where
       aux a c (fac , (cTfac , ._ , (fr , cons-fun refl))) 
         = ?
              
+  -}
