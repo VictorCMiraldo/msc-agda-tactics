@@ -384,3 +384,38 @@ module Rel.Core where
   record ρ {A B : Set}(R : Rel A B)(b : B)(b′ : B) : Set where
     constructor cons-ρ
     field un : (img R) b b′ × b ≡ b′ 
+
+  
+  ------------------
+  -- * Taxonomy * --
+  ------------------
+
+  isReflexive : {A : Set} → Rel A A → Set
+  isReflexive R = Id ⊆ R
+
+  isCorreflexive : {A : Set} → Rel A A → Set
+  isCorreflexive R = R ⊆ Id
+
+  isEntire : {A B : Set} → Rel A B → Set
+  isEntire R = Id ⊆ ker R
+
+  isInjective : {A B : Set} → Rel A B → Set
+  isInjective R = ker R ⊆ Id
+
+  isSimple : {A B : Set} → Rel A B → Set
+  isSimple R = img R ⊆ Id
+
+  isSurjective : {A B : Set} → Rel A B → Set
+  isSurjective R = Id ⊆ img R
+
+  isTransitive : {A : Set} → Rel A A → Set
+  isTransitive R = R ∙ R ⊆ R
+
+  isAntiSymmetric : {A : Set} → Rel A A → Set
+  isAntiSymmetric R = R ∩ R ᵒ ⊆ Id
+
+  isSymmetric : {A : Set} → Rel A A → Set
+  isSymmetric R = R ⊆ R ᵒ × R ᵒ ⊆ R
+
+  isConnected : {A : Set} → Rel A A → Set
+  isConnected R = R ∪ R ᵒ ⊆ Top × Top ⊆ R ∪ R ᵒ

@@ -76,11 +76,11 @@ coprod-uni-r2 {X = X} r s (prf1 , prf2)
 --
 coprod-uni-l-aux1 : ∀{A B C}{X : Rel (A ⊎ B) C}
                   → (R : Rel A C) → (S : Rel B C)
-                  → (R ≡r X ∙ ι₁) → (S ≡r X ∙ ι₂)
+                  → (X ∙ ι₁ ⊆ R) → (X ∙ ι₂ ⊆ S)
                   → X ⊆ either R S
 coprod-uni-l-aux1  {X = X} r s pr ps
-  = ⊆in λ { (i1 a) c hip → cons-either ((⊆out (≡r-elim2 pr)) a c (coprod-lemma-i1 {X = X} a c hip))
-          ; (i2 b) c hip → cons-either ((⊆out (≡r-elim2 ps)) b c (coprod-lemma-i2 {X = X} b c hip))
+  = ⊆in λ { (i1 a) c hip → cons-either ((⊆out pr) a c (coprod-lemma-i1 {X = X} a c hip))
+          ; (i2 b) c hip → cons-either ((⊆out ps) b c (coprod-lemma-i2 {X = X} b c hip))
           }
   where
     coprod-lemma-i1 : ∀{A B C}{X : Rel (A ⊎ B) C}
@@ -100,12 +100,12 @@ coprod-uni-l-aux1  {X = X} r s pr ps
 --
 coprod-uni-l-aux2 : ∀{A B C}{X : Rel (A ⊎ B) C}
                   → (R : Rel A C) → (S : Rel B C)
-                  → (R ≡r X ∙ ι₁) → (S ≡r X ∙ ι₂)
+                  → (R ⊆ X ∙ ι₁) → (S ⊆ X ∙ ι₂)
                   → either R S ⊆ X
 coprod-uni-l-aux2 {X = X} r s pr ps
-  = ⊆in λ { (i1 a) c hip → let a1 , a2 = (⊆out (≡r-elim1 pr)) a c (either.un hip)
+  = ⊆in λ { (i1 a) c hip → let a1 , a2 = (⊆out pr) a c (either.un hip)
                            in subst (X c) (sym (fun.un (p2 a2))) (p1 a2)
-          ; (i2 b) c hip → let a1 , a2 = (⊆out (≡r-elim1 ps)) b c (either.un hip)
+          ; (i2 b) c hip → let a1 , a2 = (⊆out ps) b c (either.un hip)
                            in subst (X c) (sym (fun.un (p2 a2))) (p1 a2)
           }
 
@@ -114,36 +114,6 @@ coprod-uni-l : ∀{A B C}{X : Rel (A ⊎ B) C}
              → (R : Rel A C) → (S : Rel B C)
              → (R ≡r X ∙ ι₁) → (S ≡r X ∙ ι₂)
              → X ≡r either R S
-coprod-uni-l r s pr ps = ≡r-intro (coprod-uni-l-aux1 r s pr ps) (coprod-uni-l-aux2 r s pr ps)
+coprod-uni-l r s (pr1 , pr2) (ps1 , ps2) 
+  = ≡r-intro (coprod-uni-l-aux1 r s pr2 ps2) (coprod-uni-l-aux2 r s pr1 ps1)
 
-----------------------------
--- * General Properties * --
-----------------------------
-
-id+id≡id : {A B : Set} → Id + Id ≡r Id {A ⊎ B}
-id+id≡id {A} {B} = ⊆in aux1 , ⊆in aux2
-  where
-    aux1 : (a b : A ⊎ B) → (Id + Id) b a → Id b a
-    aux1 (i1 x) b (cons-either (w , c)) 
-      rewrite fun.un (p2 c) = cons-fun (fun.un (p1 c))
-    aux1 (i2 y) b (cons-either (w , c)) 
-      rewrite fun.un (p2 c) = cons-fun (fun.un (p1 c))
-
-    aux2 : (a b : A ⊎ B) → Id b a → (Id + Id) b a
-    aux2 a b (cons-fun un) rewrite un
-      with b
-    ...| i1 b′ = cons-either (b′ , cons-fun refl , cons-fun refl)
-    ...| i2 b′ = cons-either (b′ , cons-fun refl , cons-fun refl)
-
-{-
-i1-natural : {A B C D : Set}{R : Rel A B}{S : Rel C D}
-           → (R + S) ∙ ι₁ ≡r ι₁ ∙ R
-i1-natural = ⊆in (λ { a (i1 b) (.(i1 a) , cons-either (.b , cons-fun refl , h3) , cons-fun refl) → b , cons-fun refl , h3 
-                    ; a (i2 b) hip → {!!}
-                    }) 
-           , ⊆in {!!}
-
-i2-natural : {A B C D : Set}{R : Rel A B}{S : Rel C D}
-           → (R + S) ∙ ι₂ ≡r ι₂ ∙ S
-i2-natural = {!!} 
--}

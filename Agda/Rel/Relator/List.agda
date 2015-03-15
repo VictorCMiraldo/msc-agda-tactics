@@ -14,15 +14,14 @@ open import RW.Language.RTermUtils
 module Rel.Relator.List where
 
   -- A List encoded as a W-type
-  private
-    L : Set → Set → Set
-    L A X = Unit ⊎ (A × X)
+  L : Set → Set → Set
+  L A X = Unit ⊎ (A × X)
 
-    Ls : Set → Set
-    Ls = _⊎_ Unit
+  Ls : Set → Set
+  Ls = _⊎_ Unit
 
-    Lp : {A : Set} → Ls A → Set
-    Lp = +-elim (const ⊥) (const Unit)
+  Lp : {A : Set} → Ls A → Set
+  Lp = +-elim (const ⊥) (const Unit)
 
   Lw : Set → Set
   Lw A = W (Ls A) Lp

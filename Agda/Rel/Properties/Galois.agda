@@ -100,8 +100,18 @@ module Rel.Properties.Galois where
 
     ∙-\\-isGC : {A B : Set}{Y : Rel A B} 
               → _⊢_ {A} {A} {A} {B} (λ R → Y ∙ R) (λ S → Y \\ S)
-    ∙-\\-isGC = TODO
-      where postulate TODO : ∀{a}{A : Set a} → A
+    ∙-\\-isGC = record
+      { gc-1 = λ { (⊆in hip) 
+                 → ⊆in (λ a₁ a₂ a₂Ra₁ → cons-\ (λ b bYa₁ → hip a₂ b ({!!} , {!!} , {!!}))) 
+                 }
+      ; gc-2 = λ { {R = R} (⊆in hip)
+                 → ⊆in (λ a b bYRa → _\\_.un (hip (p1∙ bYRa) a {!!}) b {!!}) 
+                 }
+      ; gc-distr-1 = {!!}
+      ; gc-distr-2 = {!!}
+      ; gc-mono-1  = {!!}
+      ; gc-mono-2  = {!!}
+      }
 
     δ-Top-isGC : {A B : Set}
                → _⊢_ {A} {B} δ (_∙_ Top)

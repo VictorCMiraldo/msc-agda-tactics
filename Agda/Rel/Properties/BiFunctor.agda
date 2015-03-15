@@ -80,12 +80,20 @@ module Rel.Properties.BiFunctor where
       ( ⊆in (λ a b z → cons-either (either.un z)) 
       , ⊆in (λ a b z → cons-either (either.un z)))
 
+  ι₁-cancel : {A B C : Set}{R : Rel A B}{S : Rel C B}
+            → either R S ∙ ι₁ ≡r R
+  ι₁-cancel {R = R} {S = S} = ≡r-sym (coprod-uni-r1 R S ≡r-refl)
+
   ι₂-natural : {A B C D : Set}{R : Rel A B}{S : Rel C D}
              → ι₂ ∙ S ≡r (R + S) ∙ ι₂
   ι₂-natural {R = R} {S = S} 
     = coprod-uni-r2 (ι₁ ∙ R) (ι₂ ∙ S) 
       ( ⊆in (λ a b z → cons-either (either.un z))
       , ⊆in (λ a b z → cons-either (either.un z)))
+
+  ι₂-cancel : {A B C : Set}{R : Rel A B}{S : Rel C B}
+            → either R S ∙ ι₂ ≡r S
+  ι₂-cancel {R = R} {S = S} = ≡r-sym (coprod-uni-r2 R S ≡r-refl)
 
   +-bi-functor : {A B C X Y Z : Set}
                  { R : Rel B C }{ H : Rel A B }
@@ -124,3 +132,14 @@ module Rel.Properties.BiFunctor where
         with b
       ...| i1 b′ = cons-either (b′ , cons-fun refl , cons-fun refl)
       ...| i2 b′ = cons-either (b′ , cons-fun refl , cons-fun refl)
+
+
+  either-+-abs : {A B X Y Z : Set}{R : Rel X Z}{S : Rel Y Z}{T : Rel A X}{U : Rel B Y}
+               → either R S ∙ (T + U) ≡r either (R ∙ T) (S ∙ U)
+  either-+-abs = TODO
+    where postulate TODO : ∀{a}{A : Set a} → A
+
+  either-abs : {X Y Z K : Set}{R : Rel X Z}{S : Rel Y Z}{T : Rel Z K}
+             → T ∙ either R S ≡r either (T ∙ R) (T ∙ S)
+  either-abs = TODO
+    where postulate TODO : ∀{a}{A : Set a} → A
