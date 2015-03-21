@@ -1,0 +1,72 @@
+Computing a term that allows a \emph{rewrite}, which is our main task here, is divided in three parts. First we extract data from the goal and action type. We
+make sure that these terms have the expected form and satisfy the requirements
+imposed on them. The dependent type setting allows us to encode such requirements
+at the type-level. This data is called \F{RWData}.
+
+\Agda{Strat}{RWData-def}
+
+Note how we can be sure that both the goal is a closed binary application and the action has the correct number of variables to be instantiated, since $act\mathbb{N}$ represents the action arity. The context is unused so far, but since
+it is given by the \K{tactic} keyword we decided to keep it there. To compute such structure one calls:
+
+\Agda{RW}{make-RWData-def}
+
+where \F{Ag2RTypeFin} is defined by:
+
+\Agda{RW}{ag2rtypefin-def}
+
+Which means that we first translate a type normally, for which we get a \F{RTerm $\bot$}, then we lift all \IC{ivar}s there to \IC{ovar}s. \F{R2FinType} finishes up by converting the variables $n$ such that $n \le act\mathbb{N}$ to a finite
+representation and downgrades other variables back to \IC{ivar}s. This
+gives a term that can be passed directly to instantiation without further processing.
+
+Having computed a \F{RWData}, we need to extract the congruence (resp. substitution) and the parameters, if any, to give to the action. That is, we are now going to compute some \emph{unification data} out of a \F{RWData}.
+
+\Agda{Strat}{UData-def}
+
+Which is composed of a single-hole abstraction, named $\square$. A substitution
+for the action parameters, translated to a list of \F{$\mathbb{N} \times \text{RTerm } \bot$} for easier handling and a list of transformations to be applied. Let us postpone this last detail a bit longer. Section \ref{sec:tandr:representingterms} gives a description of how to compute $\square$ and what to instantiate with what afterwards. These could be summarized by the
+following unification strategy.
+
+\Agda{Strat}{basic-def}
+
+Some housekeeping functions are present to make sure we perform the correct
+conversions. Nevertheless, the statements inside the \K{let} block correspond to the description given in section \ref{sec:tandr:representingterms}. It is
+ evident that wrapping everything in an Error monad makes programming much easier. Not only that, but it also allow us to compose strategies in a neat fashion:
+ 
+\Agda{Strat}{runUStrats-def}
+
+Where \F{basic-sym} is the same as \F{basic}, but instantiates the first part of the goal with the second parameter of the action and vice-versa. If such instantiation yields a substitution, we add \emph{symmetry} to the list of
+transformations to be applied. In fact, it is the only transformation we support so far. The alternative operator has the same Haskell semantics for
+the Error monad.
+
+If we are able to compute a \F{UData} successfuly, the last step is to convert
+all that information back into a term. This is where customization can take place.
+
+\Agda{Strat}{TStrat-def}
+
+The \F{when} field is a predicate over the goal relation name and the action relation name, in that order, which specifies when \F{how} should be applied.
+Whereas \F{how} receives the action name and unification data and should generate a closed term to close the goal in question.
+
+As a simple example, the \F{TStrat} for handling propositional equality is shown below.
+
+\Agda{Strat}{strat-propeq}
+
+\subsection{Interfacing}
+
+One interesting feature of Agda is the possibility of providing \emph{module parameters}. Importing the rewrite module requires a \emph{term strategy} database:
+
+\Agda{RW}{module-decl}
+
+Not only this makes the code very modular, but also allows one to use different strategies for the same relations, if the need arise.
+
+Finally we have been through all the ingredients we need to build our automatic rewrite tactic. It comes in two flavors. The first one
+returns a bunch of information usefull for debugging whereas the
+later is intended to be used for production.
+
+\Agda{RW}{by'-def}\\
+\Agda{RW}{by-def}
+
+\begin{TODO}
+  \item wrap it up...
+\end{TODO}
+
+

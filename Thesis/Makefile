@@ -24,6 +24,7 @@ TEXT_PARTS=Agda_prelude \
            TANDR_EqReasoning \
            TANDR_Representation \
            TANDR_Reflection \
+           TANDR_Tactic \
            thesis_core
 
 
@@ -46,7 +47,9 @@ CODE_AGDA_MODULES=Basic\
                   RTerm-Examples\
                   Catas\
                   ReflectionExample\
-                  FinTerm_Inst
+                  FinTerm_Inst\
+                  Strat\
+                  RW
 
 COMPILER=pdflatex -etex
 

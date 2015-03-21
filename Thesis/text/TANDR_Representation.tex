@@ -1,3 +1,7 @@
+\begin{TODO}
+  \item Add a state of the art somewhere. Compare what we do to what Sozeau did in \cite{Sozeau09}. Explain that we do not get to choose over which relation we're performing a rewrite, since Agda only rewrites over propositional equality.
+\end{TODO}
+
 The best way to explain how we implemented the \emph{by} tactic is to work out a few examples by hand. 
 This should provide the justification of some design decisions
 and give a tutorial on how to extend our framework.
@@ -222,6 +226,11 @@ The extension of a substitution $\sigma$ for $n = t$ is a simple traverse to the
 the substitution being computed. 
 
 \Agda{FinTerm_Inst}{extend-X-def}
+
+Representing terms abstractly, operations defined on such representation and
+the instantiation algorithm are all the pieces we need to figure out abstractions and parameters to actions. In the next section we are going to
+discuss how do they fit together and how the users can extend the library
+to suit their needs.
  
 %\Agda{RTerm}{rterm-data}\\
 %\Agda{RTerm}{rtermname-data}\\
