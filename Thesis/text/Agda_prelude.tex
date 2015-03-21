@@ -165,6 +165,37 @@ In case our element is not in $l_1$'s head, it might be either in the rest of $l
 Note that we pass a \emph{structurally smaller} proof to the recursive call. This is a condition required by
 Agda's termination checker.
 
+\subsection{Finite Types}
+
+The theory of types is not only roses. The soundness requirement is that every function must
+terminate. In fact, Agda passes all definitions through its termination checker and if
+it does not recognize a definition as terminating, it will output an error.
+
+An interesting technique to write terminating functions is to use finite types. One example
+where we need to use such finite types is first-order unification, as in \cite{mcbride03}.
+As the unification algorithm progresses, the terms are growing bigger, since variables are being
+substituted by (possibly) more complex terms. Yet, the number of variables to be substituted
+decreases by one in each step. This is modeled by a function with type $\D{Fin}\;(\IC{suc}\;n) \rightarrow \D{Fin}\;n$,
+where \D{Fin $n$} is a type with $n$ elements. 
+
+Agda, and dependently typed languages in general, allows one to speak about type \emph{families}
+in a very structured way. To define the family $(\D{Fin}\;n)_{n \in \mathbb{N}}$ of types with 
+\emph{exactly} $n$ elements we proceed as follows.
+
+\Agda{Fin}{fin-def}
+
+If we wish to enumerate, for instance, the inhabintants of type \D{Fin 3}, we would find
+that they are: \IC{fz}, \IC{fs fz} and \IC{fs fs fz}. Now, how many inhabitants does \D{Fin 0} have?
+It is indeed an uninhabited type, which is congruent with the intuition of having \emph{exactly} zero elements.
+
+The careful reader might have noticed a slight syntax difference between \D{Fin}'s defnition
+and the other datatypes presented before. In general, Agda allows one to define datatypes
+with parameters $p_1, \cdots, p_n$ and indices $i_1 , \cdots, i_k$. The parameters works just like
+a Haskell type parameter. Indices, on the other hand, is what allows us to define inductive families
+in Agda. As stated in the excerpt above, the \emph{type} of \D{Fin} is \D{$\mathbb{N} \rightarrow$ Set}.
+In a \K{data} declaration, parameters are the variables before the colon, whereas indices appear after the colon.
+Vectors of a fixed length are another famous inductive family example. 
+
 \subsection{Closing Remarks}
 
 The small introduction to Agda given above tells a tiny bit of what the language is capable of,

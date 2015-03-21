@@ -25,6 +25,7 @@ TEXT_PARTS=Agda_prelude \
            TANDR_Representation \
            TANDR_Reflection \
            TANDR_Tactic \
+           TANDR_Transitivity \
            thesis_core
 
 
@@ -49,7 +50,8 @@ CODE_AGDA_MODULES=Basic\
                   ReflectionExample\
                   FinTerm_Inst\
                   Strat\
-                  RW
+                  RW\
+                  Fin
 
 COMPILER=pdflatex -etex
 
