@@ -38,21 +38,42 @@ module Rel.Properties.Basic where
                (≡r-cong (λ i → i ∙ R) ∙-assoc)
 
   ᵒ-idp : {A B : Set}{R : Rel A B} → (R ᵒ) ᵒ ≡r R
-  ᵒ-idp = (⊆in (λ a b z → z)) , (⊆in (λ a b z → z))
+  ᵒ-idp = (⊆in (λ a b z → _ᵒ.un (_ᵒ.un z))) 
+        , (⊆in (λ a b z → cons-ᵒ (cons-ᵒ z)))
 
-  ᵒ-∙-distr : {A B C : Set}{R : Rel A B}{S : Rel B C}
+  ᵒ-∙-distr : {A B C : Set}(R : Rel A B)(S : Rel B C)
             → R ᵒ ∙ S ᵒ ≡r (S ∙ R) ᵒ
-  ᵒ-∙-distr = (⊆in (λ a b x → p1∙ x , (p2 $ p2∙ x) , (p1 $ p2∙ x))) 
-            , (⊆in (λ a b x → p1∙ x , (p2 $ p2∙ x) , (p1 $ p2∙ x)))
+  ᵒ-∙-distr _ _ = ⊆in (λ a b x 
+              → cons-ᵒ (p1∙ x , ((_ᵒ.un $ p2 $ p2∙ x) , (_ᵒ.un $ p1 $ p2∙ x))))
+            , ⊆in (λ a b x 
+              → p1∙ (_ᵒ.un x) , ((cons-ᵒ $ p2 $ p2∙ (_ᵒ.un x)) 
+                              , (cons-ᵒ $ p1 $ p2∙ (_ᵒ.un x))))
 
   ᵒ-∙-distr3 : {A B C D : Set}{R : Rel A B}{S : Rel B C}{T : Rel C D}
              → R ᵒ ∙ S ᵒ ∙ T ᵒ ≡r (T ∙ S ∙ R) ᵒ
   ᵒ-∙-distr3 {R = R} {S = S} {T = T}
+    = begin 
+      R ᵒ ∙ S ᵒ ∙ T ᵒ
+    ≡r⟨ ≡r-cong (λ z → R ᵒ ∙ z) (ᵒ-∙-distr S T) ⟩
+      R ᵒ ∙ (T ∙ S) ᵒ
+    ≡r⟨ ᵒ-∙-distr R (T ∙ S) ⟩
+      ((T ∙ S) ∙ R) ᵒ
+    ≡r⟨ ≡r-cong (λ z → z ᵒ) ∙-assoc ⟩
+      (T ∙ S ∙ R) ᵒ
+    ∎
+    where
+      open import Rel.Reasoning.RelationJudgement
+        using (module ≡r-Reasoning)
+      open ≡r-Reasoning
+
+
+  {-
     = ≡r-trans ᵒ-∙-distr 
          (≡r-trans (≡r-cong (λ i → (i ∙ R) ᵒ) (≡r-sym ᵒ-∙-distr)) 
             (≡r-trans (≡r-cong (λ i → ((i ∙ (S ᵒ) ᵒ) ∙ R) ᵒ) ᵒ-idp) 
               (≡r-trans (≡r-cong (λ i → ((T ∙ i) ∙ R) ᵒ) ᵒ-idp) 
                 (≡r-cong (λ i → i ᵒ) ∙-assoc))))
+  -}
 
   -- Id is left neutral
   ∙-id-l : ∀{A B}{R : Rel A B}

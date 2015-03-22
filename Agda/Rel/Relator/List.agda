@@ -32,6 +32,9 @@ module Rel.Relator.List where
   cons : {A : Set} → A × Lw A → Lw A
   cons (h , t) = sup (i2 h) (const t)
 
+  pattern L-nil      = sup (i1 unit) _
+  pattern L-cons h p = sup (i2 h) p
+
   inL : {A : Set} → L A (Lw A) → Lw A
   inL = +-elim (const nil) cons
 

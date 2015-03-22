@@ -110,7 +110,7 @@ module Rel.CaseStudies.EvenTwice where
 
   -------------------------------------------------------------
   -- * The actual equational proof that twice respects even.
-
+  
   open import Rel.Reasoning.RelEq-Strategy using (rel-⊆-strat)
   open import RW.RW (rel-⊆-strat ∷ [])
 

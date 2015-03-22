@@ -7,6 +7,7 @@ open import RW.Language.Instantiation using (RSubst)
 open import RW.Utils.Error
 open import RW.Strategy
 
+open import Rel.Core
 open import Rel.Core.Equality
 
 module Rel.Reasoning.RelEq-Strategy where
@@ -52,3 +53,11 @@ module Rel.Reasoning.RelEq-Strategy where
     { when = rel-≡r-when
     ; how  = rel-≡r-how
     }
+
+  open import RW.RW (rel-⊆-strat ∷ rel-≡r-strat ∷ [])
+  
+  by*-⊆ : by*-tactic
+  by*-⊆ = by* (quote ⊆-trans)
+
+  by*-≡r : by*-tactic
+  by*-≡r = by* (quote ≡r-trans)

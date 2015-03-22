@@ -72,8 +72,22 @@ module Rel.CaseStudies.SelectionSort where
      open import RW.RW (rel-≡r-strat ∷ [])
      open import Rel.Reasoning.RelationJudgement   
 
+     cata-⊥ : {A : Set}{F : Set → Set → Set}{{pF : IsWFunctor1 F}}{{pR : IsRelator F}}{R : Rel (F A (μ F A)) (μ F A)}
+            → (a b : μ F A) → (R b (outF a) → ⊥) → ⟦ R ⟧₁ b a → ⊥
+     cata-⊥ a b hip = {!!}
+
      perm-idp : perm ≡r perm ᵒ
-     perm-idp = (⊆in {!!}) , {!!}
+     perm-idp = ⊆in (λ a b x → aux b a x) , ⊆in aux
+       where
+         lemma-add : ∀{b pb l} → either nilR add (sup (i1 unit) l) (outL (sup (i2 b) pb)) → ⊥
+         lemma-add (cons-either ((l1 , l2) , cons-fun c1 , w2 , cons-⟨,⟩ (c21 , c22) , w3 , c3 , c4)) = {!!}
+
+         aux : (a b : μ L A) → perm a b → perm b a
+         aux (sup (i1 unit) l) (sup (i2 b) pb) x 
+           = ⊥-elim (cata-⊥ {A = A} {F = L} {R = either nilR add} (sup (i2 b) pb) (sup (i1 unit) l) {!!} x)
+         aux (L-cons _ _) L-nil x = {!!}
+         aux L-nil L-nil (cons-cata x) = {!!}
+         aux (L-cons a pa) (L-cons b pb) (cons-cata x) = {!!}
 
      ordered-idp : ordered ≡r ordered ᵒ
      ordered-idp = (⊆in (λ a b x → cons-cata {!!})) , {!!}

@@ -361,9 +361,10 @@ module Rel.Core where
   -- * Converse * --
   ------------------
 
-  -- The converse of a relation.
-  _ᵒ : {A B : Set} → Rel A B → Rel B A
-  (R ᵒ) a b = R b a 
+  -- The converse of a relation.  
+  record _ᵒ {A B : Set}(R : Rel A B)(a : A)(b : B) : Set where
+    constructor cons-ᵒ
+    field un : R b a
 
   --------------------------
   -- * Kernel and Image * --

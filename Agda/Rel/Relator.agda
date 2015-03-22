@@ -149,7 +149,6 @@ module Rel.Relator where
                 → {T : Rel (F A C) C}{R : Rel (F A B) B}{S : Rel B C}
                 → S ∙ R ⊆ T ∙ Fᵣ S
                 → S ∙ ⟦ R ⟧₁ ⊆ ⟦ T ⟧₁
-
     
 
   -- Then we can proceed to prove the generic cata laws.
