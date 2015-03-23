@@ -51,7 +51,8 @@ CODE_AGDA_MODULES=Basic\
                   FinTerm_Inst\
                   Strat\
                   RW\
-                  Fin
+                  Fin\
+                  Transitivity
 
 COMPILER=pdflatex -etex
 

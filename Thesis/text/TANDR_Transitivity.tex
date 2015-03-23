@@ -4,3 +4,44 @@
         That is, we assume a type-less system and really see all outcomes.
         The first chain to connect is chosen.
 \end{TODO}
+
+So far, we are able to handle one goal at a time, yet, we should be able to
+apply a series of rewrite steps in a single go. In fact, if our relation
+is transitive, we can do that! To implement this, however, we face a few
+difficulties. The biggest problem, which is the size of the searchspace,
+does not have an easy workaround. Nevertheless, some contexts have an acceptable runtime.
+ 
+Lets imagine we want to prove an exchange law for natural numbers and sum, something
+in the line of:
+
+\Agda{Transitivity}{exch-law-type}
+
+Since that sum is commutative and associative, this should be pretty straight forward
+given such lemmas.
+
+\Agda{Transitivity}{comm-def}\\
+\Agda{Transitivity}{id-def}
+
+One possible implementation for \F{exch} could be:
+
+\Agda{Transitivity}{exch-law-impl-1}
+
+Which is a good place to start. We are looking forward to derive something close the above
+right-hand-side term. The two arguments for \F{trans} can already be derived using the \F{by}
+tactic. Unfortunately, we need a concrete goal to call \F{by}, otherwise we can not infer the
+context (abstraction) where the rewrite happens.
+
+The term intersection we defined in the previous chapter is of no use here, since in general,
+rewrites do \emph{not} happen in independent subterms. One option is to simply substitute, according
+to \F{+-comm}'s type, \emph{one} occurence of $a + b$ for $b + a$ in $g_1 = x + y$, repeating
+the procedure for \F{+-id}. The possiblities are:
+
+\begin{displaymath}
+\xymatrix{%
+  & & (y + 0) + x \\
+x + y \ar[r]^{comm} & y + x \ar[ur]^{id} \ar[r]^{id} \ar[dr]^{id} & y + (x + 0) \\
+& & (y + x) + 0
+}
+\end{displaymath}
+
+Note that if we apply first \F{+-id}, the amount of possiblities increases drastically.

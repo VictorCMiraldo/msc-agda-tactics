@@ -318,6 +318,12 @@ but expand it:
 
 \Agda{RelationsCore}{composition-final}
 
+Agda also provides an \K{abstract} keyword. An abstract definition is treated just
+like a \K{postulate}, but with a proof. This is another way of forcing definitions to \emph{not}
+expand or evaluate. It does not serve our purpose, however. If we declare a relational construct
+using an abstract (or a postulate for that matter) definition, Agda does not know
+how to introduce or eliminate it from terms and evaluation is blocked.
+
 
 \subsection{Products}
 \label{sec:relations:products}
