@@ -10,10 +10,10 @@ module Rel.Properties.Correflexive where
     where
       aux1 : (a b : A) → φ P b a → (φ P ᵒ) b a
       aux1 a b (cons-φ (prf , pa)) 
-        rewrite prf = cons-φ (refl , pa)
+        rewrite prf = cons-ᵒ (cons-φ (refl , pa))
 
       aux2 : (a b : A) → (φ P ᵒ) b a → φ P b a
-      aux2 a b (cons-φ (prf , pa)) 
+      aux2 a b (cons-ᵒ (cons-φ (prf , pa))) 
         rewrite prf = cons-φ (refl , pa)
 
   φ≡φ∙φ : {A : Set}{P : A → Set}
@@ -33,7 +33,7 @@ module Rel.Properties.Correflexive where
   φ⊆Id = ⊆in (λ a b x → cons-fun (sym $ p1 $ φ.un x))
 
   ρ-intro : ∀{A B : Set}(R : Rel A B) → R ≡r ρ R ∙ R
-  ρ-intro r = (⊆in (λ a b x → b , cons-ρ ((a , (x , x)) , refl) , x)) 
+  ρ-intro r = (⊆in (λ a b x → b , cons-ρ ((a , (x , cons-ᵒ x)) , refl) , x)) 
             , (⊆in (λ a b x → subst (λ k → r k a) (sym $ p2 $ ρ.un $ p1 $ p2∙ x) (p2 (p2∙ x))))
 
   {- 

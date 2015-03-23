@@ -28,4 +28,4 @@ module Rel.Properties.Monotonicity where
 
   ᵒ-mono : {A B : Set}{R S : Rel A B}
          → R ⊆ S → R ᵒ ⊆ S ᵒ
-  ᵒ-mono (⊆in rs) = ⊆in (λ a b → rs b a)
+  ᵒ-mono (⊆in rs) = ⊆in (λ a b z → cons-ᵒ (rs b a (_ᵒ.un z)))

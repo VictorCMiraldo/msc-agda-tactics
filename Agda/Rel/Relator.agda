@@ -140,6 +140,11 @@ module Rel.Relator where
                → R ∙ Fᵣ X ∙ outR ⊆ X
                → ⟦ R ⟧₁ ⊆ X
 
+    cata-cancel : {A B : Set}{F : Set → Set → Set}
+                  {{ pF : IsWFunctor1 F }}{{ pR : IsRelator F }}
+                  {R : Rel (F A B) B}
+                → ⟦ R ⟧₁ ∙ inR ≡r R ∙ Fᵣ ⟦ R ⟧₁
+
     cata-fusion-1 : {A B C : Set}{F : Set → Set → Set}{{pF : IsWFunctor1 F}}{{pR : IsRelator F}}
                 → {T : Rel (F A C) C}{R : Rel (F A B) B}{S : Rel B C}
                 → T ∙ Fᵣ S ⊆ S ∙ R
@@ -150,7 +155,6 @@ module Rel.Relator where
                 → S ∙ R ⊆ T ∙ Fᵣ S
                 → S ∙ ⟦ R ⟧₁ ⊆ ⟦ T ⟧₁
     
-
   -- Then we can proceed to prove the generic cata laws.
   {-
   cata-reflex : {A : Set}{F : Set → Set → Set}{{ pF : IsWFunctor1 F }}{{ pR : IsRelator F }}
