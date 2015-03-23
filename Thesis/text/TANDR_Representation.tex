@@ -63,7 +63,7 @@ An interesting observation is that if we take only the common subterms $g_1$ and
   g_\square = g_1 \cap g_2 = (x \; ∷\; \square\; \conc\; \square)
 \]
 Which is very close to the abstraction we are looking forward to derive. Yet, a congruence receives
-a unary function and our intersection is yielding a term with \emph{two} holes. This behaviour is
+a unary function and our intersection is yielding a term with \emph{two} holes. This behavior is
 actually correct, both $g_1$ and $g_2$ have a concatenation below $\_::\_\;x$.
 This is easily fixed with a simple convention. We define a hole lifting operation where definitions whose arguments are all holes become a single hole. In the end, we arrive at:
 
@@ -72,7 +72,7 @@ g_\square = g_1 \cap g_2 = (x \; ∷\; \square\; \conc\; \square) \stackrel{lift
 \]
 
 This small intuition not only gives a simple decidable algorithm for deriving the abstraction from the goal type alone,
-but also gives some clues on how to represent terms. The term representation one is looking for has to support \emph{holes}, or, behave as a zipper structure. So far we need a parametrized simplification of Agda's \D{Term}. The representation
+but also gives some clues on how to represent terms. The term representation one is looking for has to support \emph{holes}, or, behave as a zipper structure. So far we need a parametric simplification of Agda's \D{Term}. The representation
 we chose is:
 
 \Agda{RTerm}{rtermname-data}\\
@@ -81,10 +81,10 @@ we chose is:
 
 Where \D{RTermName} distinguishes from definitions, constructors and function types. Such
 distinction is important once we need to convert these back to Agda's \D{Term} before unquoting.
-The \D{RTerm} functor is very straight-forward for a Haskell programmer. What might pass by unoticed
-is how much more expressiveness one gets from a parametrized type such as \D{RTerm} in agda.
+The \D{RTerm} functor is very straight-forward for a Haskell programmer. What might pass by unnoticed
+is how much more expressiveness one gets from a parametric type such as \D{RTerm} in Agda.
 The translation of an Agda term into a \D{RTerm} actually returns a \D{RTerm $\bot$}, from which
-we can prove that there are no \IC{ovar} occurences (the actual object of type \D{RTerm $\bot$} \emph{is} the proof).
+we can prove that there are no \IC{ovar} occurrences (the actual object of type \D{RTerm $\bot$} \emph{is} the proof).
 
 \begin{TODO}
   \item glue
@@ -101,8 +101,8 @@ a intersection term, with type \D{RTerm (Maybe $\bot$)}, we actually cast it to 
 They are isomorphic. One could argue that the intersection type could be made simpler, but it
 wouldn't be as generic as we wanted our operations to be.
 
-Having defined an intersection, which works somewhat as a term \emph{roadmap}. It makes sense to be
-able to fetch the differences in two terms, or, in a term and a \emph{roadmap}:
+Having defined an intersection, which works somewhat as a term \emph{road map}. It makes sense to be
+able to fetch the differences in two terms, or, in a term and a \emph{road map}:
 
 \Agda{RTerm}{rterm-difference-type}
 
@@ -135,18 +135,18 @@ The last step, of converting everything back to Agda's \D{Term} type, should be 
 A simple idea is to use different strategies triggered by specific $(hd_g,\;hd_a)$ pairs.
 This should give us enough freedom to use our library even on very particular scenarios.
 Remembering, though, that the specific constructors of a given case study should be
-deeply embeded into, at least, a record. Otherwise, normalization is going to render
+deeply embedded into, at least, a record. Otherwise, normalization is going to render
 terms incompatible. We are going to discuss this topic later.
 
 \section{Instantiation}
 
 Until now, we know how to extract a congruence (if possible) from the goal type only. Nevertheless,
-we have more information to use. The action type namelly. From it, we should be able to extract
+we have more information to use. The action type namely. From it, we should be able to extract
 the parameters we need to apply automatically. Let us take a look at the second example
-for this ilustration, that is, hole 1 in table \ref{tbl:example_solutions}.
+for this illustration, that is, hole 1 in table \ref{tbl:example_solutions}.
 
 Lemma \F{∙-id-r} receives a relation $R$ and returns a proof of $R \equiv_r R ∙ Id$. Abstracting
-over variable names and adopting their De Bruijn index intead we get a tree, similar to figure \ref{fig:debruijn_idr}. Whereas, performing the steps described in the previous section
+over variable names and adopting their De Bruijn index instead we get a tree, similar to figure \ref{fig:debruijn_idr}. Whereas, performing the steps described in the previous section
 for the goal in question will result in $g_\square = R \subseteq \square$, $u_1 = g_\square - g_1 = R$
 and $u_2 = g_\square - g_2 = R \cdot Id$.
 
@@ -167,7 +167,7 @@ Comparing $u_1$ with $a_1$ and $u_2$ with $a_2$ should give the intuition that, 
 variable indexed by $0$ is instantiated to $R$, the types match. In fact, $R$ is the solution.
 Long story short, we need to obtain two agreeing substitutions $\sigma_1$ and $\sigma_2$ such
 that $\sigma_i\;a_i = u_i$, for $i\in\{1 , 2\}$. Such problem is known as instantiation.
-We heavily based ourselfes in \cite{wouter13}, with a few modifications to handle both implicit
+We heavily based ourselves in \cite{wouter13}, with a few modifications to handle both implicit
 parameters and our more expressive term language. These adjustments will be discussed below,
 together with a more formal approach to the problem.
 
@@ -212,11 +212,11 @@ aux\;:\;\{ n+k - 1 \}\{ n+k - 2\} \cdots \{ k \} \rightarrow (k-1)(k-2) \cdots (
 \]
 
 We are not really concerned with all the implicit parameters anyway. If they can not be guessed by Agda, an error will happen at unquoting. We proceed to
-model the variables we need to instantiate as an \IC{ovar}, whereas the other ones become a \IC{ivar}. The instantatiation algorithm is given below. 
+model the variables we need to instantiate as an \IC{ovar}, whereas the other ones become a \IC{ivar}. The instantiation algorithm is given below. 
 
 \Agda{FinTerm_Inst}{instantiation}
 
-The \F{inst} function receives one term with $n$ \IC{ovar}s and a closed term. It returns a partial substitution for $n$ variables and it works by calling an auxiliar version with a substitution as its state. Notice how an \IC{ivar} does not change the substitution and is simply accepted, whereas an \IC{ovar} triggers an extension, which will be discussed later.
+The \F{inst} function receives one term with $n$ \IC{ovar}s and a closed term. It returns a partial substitution for $n$ variables and it works by calling an auxiliary version with a substitution as its state. Notice how an \IC{ivar} does not change the substitution and is simply accepted, whereas an \IC{ovar} triggers an extension, which will be discussed later.
 
 The return type being a \F{Maybe (X n)} has a somewhat confusing interpretation. If instantiation returns \IC{nothing}, it means that the terms have an incompatible structure. On the other hand, if it returns a \IC{just $\sigma$} there are two possible cases. Either $\sigma$ is complete or not. In the former situation, everything is fine and we have just figured out our parameters. The later scenario means that we did not have enough information to instantiate every variable \emph{yet}. Nevertheless, given two partial substitutions we might be able to build a complete one, as long as they agree on the variables defined on both and there is no variable undefined on both. Substitution concatenation is given by \F{$\_\conc_x\_$}.
 

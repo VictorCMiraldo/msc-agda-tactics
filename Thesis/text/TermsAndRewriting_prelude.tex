@@ -1,16 +1,16 @@
-Rewriting can be looked upon from a lot of differen angles. Neverheless, a very general approach
+Rewriting can be looked upon from a lot of different angles. Nevertheless, a very general approach
 is already largely used in logic: substitutivity of predicates. If we want to discuss
-the vailidity of an arbitrary statement, lets take $0 \leq 3^2 \leq 10$, for instance. We can
+the validity of an arbitrary statement, lets take $0 \leq 3^2 \leq 10$, for instance. We can
 substitute \emph{sub-statements} by equal \emph{sub-statements}. In our case, $3^2 = 9$,
 which renders the final proposition to be $0 \leq 9 \leq 10$. That is obviously true.
-In a more formal maner, let $P$ be a predicate
+In a more formal manner, let $P$ be a predicate
 over a set $S$ and $s_1, s_2 \in S$, if $P\;s_1$ holds and $s_1 \equiv s_2$, then, obviously
 $P\;s_2$ holds. This notion is called substitutivity.
 
 Whenever we work with pen-and-paper mathematics, it is common to structure our thoughts
 in a series of \emph{equivalent} statements. To our luck, Agda also has a very interesting
 customization feature called equational reasoning, which we will explore in this chapter.
-Yet, no matter when one performs a rewrite on paper, substituvity rarely comes to mind.
+Yet, no matter when one performs a rewrite on paper, substitutivity rarely comes to mind.
 Mostly because it is purely mechanical, and one believes that such things are \emph{evident}.
 We seek to make those steps evident to Agda, and recreate a validated \emph{pen-and-paper}
 environment.
@@ -18,7 +18,7 @@ environment.
 Agda introduced a reflection API in version 2.2.8. Although not a new feature
 in the world of functional programming (Lisp's \emph{quoting} and \emph{unquoting} 
 and Template Haskell, for instance, are similar techniques) 
-it is proving to be very usefull for implementing interesting things. 
+it is proving to be very useful for implementing interesting things. 
 One application for reflection, which we chose to explore, is 
 the possibility to write custom tactics for proving propositions. 
 Somewhat close to how Coq proves propositions.
@@ -28,7 +28,7 @@ by \emph{quoting} it.
 The keywords that bridge the world of programs and their abstract representations 
 are \K{quoteTerm} and \K{unquote}, inverses of each other. 
 The former transforms a normal term into it's \D{Term} representation whereas the 
-later does exactly the oposite. Due to Agda's complexity, however, the type \D{Term} is difficult
+later does exactly the opposite. Due to Agda's complexity, however, the type \D{Term} is difficult
 to handle. A much simpler option is to use a intermediate representation, which we called \D{RTerm},
 for implementing the required operations.
 
@@ -36,7 +36,7 @@ After a simpler representation was figured out, we continued by implementing sev
 \D{RTerm} operations. From these operations we could provide an interesting tactic,
 named \F{by}. Whenever the user calls (\K{tactic} (\F{by} action)), we will get information
 about the goal and action at that point and try to derive the solution, as long as there exists
-a stratey that can handle the goal action pair.
+a strategy that can handle the goal action pair.
 
 This chapter starts by giving a brief introduction to Agda's Equational Reasoning framework, in section \ref{sec:tandr:reasoning}. Following with Agda's \D{Term} datatype and some of the reflection API, in section \ref{sec:tandr:reflection}. 
 On the sequence, section \ref{sec:tandr:representingterms}, we give a description of our \D{RTerm} representation
@@ -45,5 +45,5 @@ automatic congruence and substitution guessing follows in section \ref{sec:tandr
 We finish this chapter in section \ref{sec:tandr:rwtactic} where we explain the library entry-point function: the \emph{by} function.
 Some guidance for when one wants to use our rewrite feature in different domains is also given.
 
-The majority of the code is ommited from this chapter in order to improve readability. We
-stress that the project is publicaly available at the author's GitHub repository.
+The majority of the code is omitted from this chapter in order to improve readability. We
+stress that the project is publicly available at the author's GitHub repository.

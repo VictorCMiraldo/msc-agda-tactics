@@ -27,7 +27,7 @@ in the Algebra of Programming book \cite{Bird97}.
 For our Agda encoding of Relations, we shall use a slight modification of the "$\powerset$ approach".
 We begin by encoding set theoretic notions, the most important of all being undoubtedly
 the membership notion $\cdot \in \cdot$. One way of encoding a subset of a set $A$ is using a function $f$
-of type $A \rightarrow Bool$, the subset beeing obtained by $\{\; a \in A\; |\; f\;a\; \}$. Yet, in Agda, this would
+of type $A \rightarrow Bool$, the subset being obtained by $\{\; a \in A\; |\; f\;a\; \}$. Yet, in Agda, this would
 force that we deal only with decidable domains, which is not a problem if everything is finite, but
 for infinite domains this would not work.
 
@@ -144,7 +144,7 @@ as we shall present in the next sections.
   type theory, a statement $a : A$ is interpreted as $a$ is an element of the set $A$. In HoTT, however,
   we say that $a$ is a point in space $A$. Objects are seen as points in a space and the type $a = b$ is seen as a path 
   from point $a$ to point $b$.
-  It iss obvious that for every point $a$ there is a path from $a$ to $a$, therefore $a = a$, giving us reflexivity.
+  It is obvious that for every point $a$ there is a path from $a$ to $a$, therefore $a = a$, giving us reflexivity.
   If we have a path from $a$ to $b$, we also have one from $b$ to $a$, resulting in symmetry.
   \emph{Chaining} of paths together corresponds to transitivity. So we have an equivalence relation $=$.
   
@@ -239,7 +239,7 @@ as we shall present in the next sections.
   
   \Agda{Universes}{data-U} 
   
-  With its interpretation back to Agda \D{Set}s beeing:
+  With its interpretation back to Agda \D{Set}s being:
    
   \Agda{Universes}{data-sharp}
   
@@ -272,7 +272,7 @@ as we shall present in the next sections.
   to be, but this can significantly increase development speed. In the first stages of development, where
   the base relations might change a lot (and, if instances were written, they would consequently change),
   one can keep developing with the $\releq$ promotion. Once this model is stable, it can completely
-  formalizeb by adding the desired instances and using subrelation anti-symmetry.
+  formalized by adding the desired instances and using subrelation anti-symmetry.
 
 \section{Constructions}
 
@@ -406,7 +406,7 @@ by induction over some specified structure.
 
 Catamorphisms are defined as the \emph{least} fixed points of certain recursion equations. Their
 dual are Anamorphisms, which are defined as \emph{greatest} fixed points. There recursion equations
-are modelled by recursive functors (which must also be Relators, in the relational setting).\\
+are modeled by recursive functors (which must also be Relators, in the relational setting).\\
 
 \begin{mydef}[Relator]
 Let $F$ be a monotonic endofunctor in \catname{Rel}. We say that $F$ is a \emph{relator}
@@ -415,12 +415,12 @@ iff, if $R \subseteq S$, then $F\;R \subseteq F\;S$.
 
 It can be proved that relators also preserve converse, or, an even more interesting result: a functor
 is a relator if and only if it preserves converses, theorem 5.1 in \cite{Bird97}. Unfortunately,
-in Agda things are not so simple. The best option is to encode the relator laws as a typeclass.
+in Agda things are not so simple. The best option is to encode the relator laws as a type-class.
 
 \Agda{Catas}{relator}
 
 Yet, the purpose of this dissertation is not to explain Relators or Functors, but how to encode them
-in Agda. Going one step at a time, let us look at the tradicional definition of a catamorphism.
+in Agda. Going one step at a time, let us look at the traditional definition of a catamorphism.
 
 Categorically speaking, let $F : \catname{C} \rightarrow \catname{C}$ be an endofunctor with
 initial algebra $(\mu F , in_F)$, then, for any object $B$ and F-algebra $R : F B \rightarrow B$
@@ -438,7 +438,7 @@ the following diagram commutes.
 \[ \scata{R} \equiv_r R \cdot F\;\scata{R} \cdot in_F^\circ \]
 
 Although it looks (and it indeed is) pretty tricky to encode this directly into Agda, at least it gives
-us a type to follow. Since almost all usefull functors are polymorphic, we will now
+us a type to follow. Since almost all useful functors are polymorphic, we will now
 denote $F$ by $F_A$, and regard $F$ as a functor with type $\catname{D} \times \catname{C} \rightarrow \catname{C}$.
 
 We seek to define a relation $\scata R : \mu F_A \rightarrow B$, given $R : F_A B \rightarrow B$,
@@ -449,8 +449,8 @@ or, with Agda types, given a $B \rightarrow F_A B \rightarrow \D{Set}$, we need 
 The problem's core lies in how to define a fixed point in Agda, which turns out 
 to be very complicated, if not impossible\footnote{%
 %%%% BEGIN FOOTNOTE
-With the help of Coinduction one can define fixed points, but this triggers some other
-problems when using such fixed points. Not to mention the instability of the Coinduction module.
+With the help of Co-induction one can define fixed points, but this triggers some other
+problems when using such fixed points. Not to mention the instability of the Co-induction module.
 %%%% END FOOTNOTE
 }. One solution is to look at a functor from a different angle. Playing around with
 the List functor we arrive at:
@@ -514,16 +514,16 @@ of \F{W-cata-F}, it is already the type of a relational catamorphism. The final 
 
 Wrapping it up, in order to handle arbitrary\footnote{
 %%%%%% BEGIN FOOTNOTE
-Not at all that aribtrary, we can just handle strictly positice inductive types, of which
+Not at all that arbitrary, we can just handle strictly positive inductive types, of which
 the polynomial functors are part of.
 %%%%%% END FOOTNOTE
 } functors the idea is to: (a) encode it using W-types; (b) Use a custom elimination rule, derivable
 from the standard W-elimination and (c) translate the relational gene using the cata universal. 
-A small problem with this technique is the need to explicetly prove the cata universal for
+A small problem with this technique is the need to explicitly prove the cata universal for
 every functor we wish to use. One way of bypassing this would be to postulate it. Since
-we mainly need the universal for rewriting purposes, no actual computaton needs to be performed.
+we mainly need the universal for rewriting purposes, no actual computation needs to be performed.
 
-Proving the universal law for a specific functor is straigh-forward. Nevertheless, we adopted
+Proving the universal law for a specific functor is straight-forward. Nevertheless, we adopted
 the postulate strategy to ease the development. Remember that in the relational case, the universal
 law is split in two separate laws:
 
@@ -534,10 +534,10 @@ law is split in two separate laws:
 
 Besides the main relational constructions, we developed a selection of property-specific modules.
 Given the amount of properties we have in relational algebra, we had to somehow categorize them.
-Modules are divided in the kind of property they provide. The naming scheme is straigh forward:
+Modules are divided in the kind of property they provide. The naming scheme is straight forward:
 names start with a hyphen separated list of relevant operators, followed by the property name.
 If we are looking for $\cdot + \cdot$ and $(\cdot)^\circ$ distributivity, for instance, 
-its name is going to be $+$-$^\circ$-distr. An aditional identification: -$l$, -$r$, 1 or 2; might be found
+its name is going to be $+$-$^\circ$-distr. An additional identification: -$l$, -$r$, 1 or 2; might be found
 appended to the property name, indicating either the direction (left or right) or the part of 
 the conclusion being extracted. One example is the split universal, section \ref{sec:relations:products}.
 A simple taxonomy of modules is provided below.
@@ -549,7 +549,7 @@ A simple taxonomy of modules is provided below.
   \item \emph{BiFunctoriality} for product and coproduct.
   \item \emph{Correflexive} specific properties.
   \item \emph{Galois} connections present in Relational Algebra, which provide
-                distributivity over $\_\cap\_$ and $\_\cup\_$, cancelation and
+                distributivity over $\_\cap\_$ and $\_\cup\_$, cancellation and
                 more monotonicity.
 \end{enumerate}
 

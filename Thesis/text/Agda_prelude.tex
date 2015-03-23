@@ -184,11 +184,11 @@ in a very structured way. To define the family $(\D{Fin}\;n)_{n \in \mathbb{N}}$
 
 \Agda{Fin}{fin-def}
 
-If we wish to enumerate, for instance, the inhabintants of type \D{Fin 3}, we would find
+If we wish to enumerate, for instance, the inhabitants of type \D{Fin 3}, we would find
 that they are: \IC{fz}, \IC{fs fz} and \IC{fs fs fz}. Now, how many inhabitants does \D{Fin 0} have?
 It is indeed an uninhabited type, which is congruent with the intuition of having \emph{exactly} zero elements.
 
-The careful reader might have noticed a slight syntax difference between \D{Fin}'s defnition
+The careful reader might have noticed a slight syntax difference between \D{Fin}'s definition
 and the other datatypes presented before. In general, Agda allows one to define datatypes
 with parameters $p_1, \cdots, p_n$ and indices $i_1 , \cdots, i_k$. The parameters works just like
 a Haskell type parameter. Indices, on the other hand, is what allows us to define inductive families

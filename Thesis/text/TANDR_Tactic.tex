@@ -38,7 +38,7 @@ Where \F{basic-sym} is the same as \F{basic}, but instantiates the first part of
 transformations to be applied. In fact, it is the only transformation we support so far. The alternative operator has the same Haskell semantics for
 the Error monad.
 
-If we are able to compute a \F{UData} successfuly, the last step is to convert
+If we are able to compute a \F{UData} successfully, the last step is to convert
 all that information back into a term. This is where customization can take place.
 
 \Agda{Strat}{TStrat-def}
@@ -59,7 +59,7 @@ One interesting feature of Agda is the possibility of providing \emph{module par
 Not only this makes the code very modular, but also allows one to use different strategies for the same relations, if the need arise.
 
 Finally we have been through all the ingredients we need to build our automatic rewrite tactic. It comes in two flavors. The first one
-returns a bunch of information usefull for debugging whereas the
+returns a bunch of information useful for debugging whereas the
 later is intended to be used for production.
 
 \Agda{RW}{by'-def}\\
