@@ -1,0 +1,14 @@
+#! /bin/bash
+
+AGDA_INCLUDE="-i /home/victor/Documents/UU/Thesis/agda-rw
+              -i /home/victor/Documents/UU/Thesis/msc-agda-tactics/Agda
+              -i /home/victor/.include/agda-stdlib
+              -i ."
+             
+if [[ $# -ne 1 ]]; then
+  echo "Plz, provide a file name"
+  exit 1
+else             
+  agda $AGDA_INCLUDE +RTS -K64M -M2.5G -s -RTS $1
+  exit 0
+fi   
