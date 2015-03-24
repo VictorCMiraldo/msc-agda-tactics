@@ -1,16 +1,9 @@
-\begin{TODO}
-  \item Explain transitivity.
-  \item Mention poor runtime, due to our naive instantiation/application/substitution.
-        That is, we assume a type-less system and really see all outcomes.
-        The first chain to connect is chosen.
-\end{TODO}
-
 So far, we are able to handle one goal at a time, yet, we should be able to
 apply a series of rewrite steps in a single go. In fact, if our relation
 is transitive, we can do that! To implement this, however, we face a few
 difficulties. The biggest problem, which is the size of the searchspace,
-does not have an easy workaround. Nevertheless, some contexts have an acceptable runtime.
- 
+does not have an easy workaround. Nevertheless, some contexts have an acceptable runtime. 
+
 Lets imagine we want to prove an exchange law for natural numbers and sum, something
 in the line of:
 
@@ -34,14 +27,56 @@ context (abstraction) where the rewrite happens.
 The term intersection we defined in the previous chapter is of no use here, since in general,
 rewrites do \emph{not} happen in independent subterms. One option is to simply substitute, according
 to \F{+-comm}'s type, \emph{one} occurence of $a + b$ for $b + a$ in $g_1 = x + y$, repeating
-the procedure for \F{+-id}. The possiblities are:
+the procedure for \F{+-id}. The possiblities are displayed in figure \ref{fig:trans}
 
+\begin{wrapfigure}{r}{0.50\textwidth}
 \begin{displaymath}
+\scalebox{0.8}{%
 \xymatrix{%
   & & (y + 0) + x \\
 x + y \ar[r]^{comm} & y + x \ar[ur]^{id} \ar[r]^{id} \ar[dr]^{id} & y + (x + 0) \\
 & & (y + x) + 0
-}
+}}
 \end{displaymath}
+\caption{Substitution outcomes}
+\label{fig:trans}
+\end{wrapfigure}
 
 Note that if we apply first \F{+-id}, the amount of possiblities increases drastically.
+
+The implementation uses the List monad to model non-deterministic computations. The core idea
+is modeled by the following three functions. For the more curious reader, we reiterate that
+the complete code is available online.
+
+As we already mentioned, the hability to non-deterministically perform a \emph{single} substitution
+in a term is central. Given a term $g$ and a pair of terms $m , n$, \F{$g[m , n]$} will return
+a term with \emph{one} occurence of $m$ substituted by $n$. 
+
+\Agda{Transitivity}{subst-def}
+
+Note how the type of \F{$\_[\_] $} requires all terms involved to have the same parameter $A$,
+also remember that in the previous section we modeled actions with $n$ explicit parameters as \F{$FinTerm n$}.
+Yet, our goal have type \F{$RTerm\; \bot$}. This type mismatch captures the instantiation problem,
+depicted in figure \ref{fig:trans}. In fact, we need to chose parameters from our goal to feed
+the given action, and only then substitute. 
+
+\Agda{Transitivity}{apply-def}
+
+The function \F{apply g t}, for $\F{t : FinTerm\; n}$, is computed by induction in $n$.
+When $n = 0$ it means our action have no more free variables and we can substitute \F{$g[t_1, t_2]$}. 
+When $n = k + 1$, however, \F{apply} will non-deterministically
+instantiate the last parameter, transforming $t$ to $\F{t' : FinTerm\; k}$, and call itself recursively.
+The finite type workaround does not fully work to prove termination, which have to still be explicetly mentioned here.
+
+We finish off with a function that will select, from all the chains produced with \F{$\_[\_]$} and \F{apply},
+those that start and finish with the correct terms.
+
+\Agda{Transitivity}{divideGoal-def}
+
+After dividing our goal into a list of intermediate terms, it is just a matter of applying the
+tactic to every single one of them and combining everything with a suitable transitivity function.
+It is important to note that there are two different explosions of our search space here. The
+number of actions we want to apply in a row will determine how \emph{tall} our tree will grow,
+whereas a bigger number of parameters of the actions itself will result in a \emph{wider} tree, that is,
+more bifurcations at our nodes.
+
