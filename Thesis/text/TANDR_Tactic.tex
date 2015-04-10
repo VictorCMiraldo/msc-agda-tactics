@@ -65,8 +65,23 @@ later is intended to be used for production.
 \Agda{RW}{by'-def}\\
 \Agda{RW}{by-def}
 
-\begin{TODO}
-  \item wrap it up...
-\end{TODO}
+Using the \F{by} tactic should be straight-forward. Just import the desired term strategy, pass it
+as a parameter to the RW module and it will be good to go. The overhead introduced by our tactic
+at compile time is very acceptable.
 
+\subsection{Closing Remarks}
+
+This chapter presented the construction of a meta-programming tool to help mathematicians
+with mechanical steps in the development process they usually face. Agda proved
+to be a tool with enough strength for that task. In fact, a very interesting detail is
+how we can use Agda itself, to generate Agda programs. This contrasts with most proof assistants
+that provide custom tactics. Coq, for instance, has three different languages for creating
+customized tactics.
+
+We reiterate that, although this chapter does not display the full source code of our tactic,
+the tactic is available on GitHub for the community to test, fork and modify! The repository
+can be found at the following url.
+\begin{quote}
+\small \url{https://github.com/VictorCMiraldo/agda-rw}
+\end{quote}
 

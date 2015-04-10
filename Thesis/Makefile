@@ -25,7 +25,9 @@ TEXT_PARTS=Agda_prelude \
            TANDR_Representation \
            TANDR_Reflection \
            TANDR_Tactic \
-           TANDR_Transitivity \
+           TANDR_VAR_Transitivity \
+           TANDR_VAR_Prelude \
+           TANDR_VAR_Trie \
            thesis_core
 
 
