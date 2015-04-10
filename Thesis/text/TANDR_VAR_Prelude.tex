@@ -1,0 +1,12 @@
+Chapter \ref{chap:termsandrewritting} discussed the construction of a tactic that handles \emph{one}
+goal, given \emph{one} action. What if we tried to generalize this?
+The best case scenario would be the handling a number of goals and actions at the same time, 
+maintaining a linear time complexity. That is a very hard achievement! 
+Such tool would be a completely automatic theorem prover. By compiling all theorems and 
+lemmas of a given theory in Agda and ask for proofs, such ideal tool would return the proof 
+objects regardless of the theorem to be proved.
+
+It is plausible, however, to try to handle either \emph{multiple} goals, with given actions or to find
+the correct action, given \emph{multiple} actions, to solve \emph{one} goal. These possible
+extensions to the library are the object of discussion of this chapter. Sections \ref{sec:tandr:transitivity}
+and \ref{sec:tandr:trie} explore those options, respectively.

@@ -1,0 +1,32 @@
+The handling of multiple actions for the same goal would bring us closer to what
+\emph{auto} or \emph{tauto} do in Coq. We could have whole theories compiled in some sort
+of database and let our tool figure out which of those lemmas to apply. Since the goal is
+fixed, there should be one solution. A naive extension to our library could be made:
+
+\Agda{RW}{by+-def}
+
+However, a \F{List} of names is a bad data structure to use here. We need to search
+every single action, where, we could rule out actions purely based on their structure.
+Indeed, we are going to explore an alternative data structure to speed up search and get
+instantiation for free, during lookup.
+
+\begin{TODO}
+  \item cite Tries, Edward Fredkin
+\end{TODO}
+
+This section starts with a summarized explanation of Tries and then follows with our
+generalization of the same concept. The structure we arrive at is a type-indexed data structure,
+in the sense of \cite{Hinze04}. Yet, our lookup and insertion methods have to be significantly different
+since we have to handle variables, that can be arbitralily instantiated.
+
+\subsection{Tries}
+
+\begin{TODO}
+  \item Explain Tries... write some code
+\end{TODO}
+
+\subsection{Towards a Generalization}
+
+\subsection{Lookup}
+
+\subsection{Insertion}
