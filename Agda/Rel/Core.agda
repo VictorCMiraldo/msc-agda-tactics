@@ -294,10 +294,7 @@ module Rel.Core where
     where constructor _,_
           field on  : C → A → B
                 prf : ∀ c a → R c (on c a) × S (on c a) a
-          -- OLD:   : ∀ c a → (R ∙ S) c a →  R c (on c a) × S (on c a) a
-          -- Is this really what I need? I'm stating that there exists a function
-          -- over (C × A) such that for all c and a I can prove R c b and S b a for
-          -- b = on c a. What if they don't compose for a particular choice of inputs?
+
   open Composes {{...}}
 
   instance
@@ -335,6 +332,14 @@ module Rel.Core where
         decide : {A B : Set}(f : A → B)(b : B)(a : A) → Dec (f a ≡ b) → Dec (fun f b a)
         decide f₁ b a (yes p) = yes (cons-fun p)
         decide f₁ b a (no ¬p) = no  (¬p ∘ fun.un)
+
+    {- 
+    This shows the problem with Composes
+    
+    fun-Composes : {A B C : Set}{f : A → B}{g : B → C} → Composes (fun g) (fun f)
+    fun-Composes {A} {B} {C} {f = f} {g = g}
+      = (λ _ → f) , (λ c a → (cons-fun {!!}) , (cons-fun refl))
+    -}
 
   -- We can prove that function composition distributes over functional lifting.
   fun-comp : {A B C : Set} {f : B → C} {g : A → B}

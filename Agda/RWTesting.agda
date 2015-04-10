@@ -84,24 +84,34 @@ module Test where
     test1 x y
       = begin
         (x + y) + 0
-      ≡⟨ (tactic (by (quote +-right-identity))) ⟩
+      ≡⟨ (tactic (by+ acts)) ⟩
         x + y
       ≡⟨ +-comm x y ⟩
         y + x
-      ≡⟨ (tactic (by (quote +-right-identity))) ⟩
+      ≡⟨ (tactic (by+ acts)) ⟩
         (y + x) + 0
-      ≡⟨ (tactic (by (quote +-assoc))) ⟩
+      ≡⟨ (tactic (by+ acts)) ⟩
         y + (x + 0)
       ∎
+      where
+        acts : List Name
+        acts = quote +-right-identity ∷ quote +-assoc ∷ []
 
-    -- This is pretty slow...
-    test2 : (x y : ℕ) → (x + y) + 0 ≡ y + (x + 0)
-    test2 x y
-      = begin
-        (x + y) + 0
-      ≡⟨ (tactic (by*-≡ (quote +-comm ∷ quote +-assoc ∷ []))) ⟩
-        y + (x + 0)
-      ∎
+    open import RW.Language.RTermTrie
+    open import RW.Data.BTrie
+
+    open IsTrie {{...}}
+
+    test : ℕ
+    test 
+      = let i1 = quote +-right-identity
+            t1 = typeResult (Ag2RType (type i1))
+        
+            i2 = quote +-assoc
+            t2 = typeResult (Ag2RType (type i2))
+      in {!insertTerm i2 t2 (insertTerm i1 t1 (0 , BTrieEmpty))!}
+
+    
 
 module Test2 where
 
@@ -135,11 +145,13 @@ module Test2 where
      ∎
 
    -- It is interesting to see how, if we keep the parameters
-   -- to ᵒ-∙-implicit, by doesn't find that it needs a ≡r-sym!
+   -- to ᵒ-∙-implicit, "by" doesn't find that it needs a ≡r-sym!
    -- why?
+   {-
    goalTest2 : {A B C : Set}(S : Rel A B)(R : Rel B C)
              → (R ∙ S) ᵒ ≡r (S ᵒ ∙ Id) ∙ R ᵒ
    goalTest2 R S = tactic (by*-≡r (quote ᵒ-∙-distr ∷ quote ∙-id-r ∷ []))
+   -}
 
    goalTest3 : {A B C : Set}(S : Rel A B)(R : Rel B C)
              → (R ∙ S) ᵒ ≡r (S ᵒ ∙ Id) ∙ R ᵒ

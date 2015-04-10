@@ -23,23 +23,26 @@ import Control.Monad
 type Name = String
 
 data Term
-  = Var Int
-  | Lit Int
+  = Var  Int
+  | Ivar Int
+  | Lit  Int
   | Lam Term
   | App String [Term]
   deriving (Eq, Show)
   
 data TermCtx a
-  = VarC Int
-  | LitC Int
+  = VarC  Int
+  | LitC  Int
+  | IvarC Int
   | LamC (TermCtx a)
   | AppC String [TermCtx a]
   | Ctx a
   deriving (Eq , Show)
   
 data TermId
-  = VarId Int
-  | LitId Int
+  = VarId  Int
+  | IvarId Int
+  | LitId  Int
   | LamId
   | AppId String
   deriving (Eq, Show, Ord)
@@ -51,6 +54,7 @@ data TermId
 termId :: Term -> TermId
 termId (Var i)   = VarId i
 termId (Lit i)   = LitId i
+termId (Ivar i)  = IvarId i
 termId (Lam _)   = LamId
 termId (App n _) = AppId n
 
@@ -63,6 +67,13 @@ termRec _          = []
 -- Opened variation of a term.
 out :: Term -> (TermId , [Term])
 out t = (termId t , termRec t)
+
+_close :: (TermId , [Term]) -> Term
+_close (VarId i , []) = Var i
+_close (LitId i , []) = Lit i
+_close (IvarId i, []) = Ivar i
+_close (LamId  , [t]) = Lam t
+_close (AppId n , ts) = App n ts
 
 type instance Idx Term = TermId
 
@@ -77,10 +88,7 @@ instance IsTrie TermId Term Name where
   
   fromSym = VarId
   
-  close (VarId i , []) = Var i
-  close (LitId i , []) = Lit i
-  close (LamId  , [t]) = Lam t
-  close (AppId n , ts) = App n ts
+  close = _close
   
   open = out
   
@@ -91,6 +99,9 @@ instance IsTrie TermId Term Name where
 intersect :: Term -> Term -> TermCtx ()
 intersect (Var i) (Var j)
   | i == j    = VarC i
+  | otherwise = Ctx ()
+intersect (Ivar i) (Ivar j)
+  | i == j    = IvarC i
   | otherwise = Ctx ()
 intersect (Lit i) (Lit j)
   | i == j    = LitC i
@@ -117,6 +128,9 @@ intersectBinApp (App _ [i , j])
 subt :: TermCtx a -> Term -> Maybe [Term]
 subt (Ctx _) t = Just [t]
 subt (VarC i) (Var j)
+  | i == j    = Just []
+  | otherwise = Nothing
+subt (IvarC i) (Ivar j)
   | i == j    = Just []
   | otherwise = Nothing
 subt (LitC i) (Lit j)

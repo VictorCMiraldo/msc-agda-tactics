@@ -1,3 +1,5 @@
+open import Prelude hiding (_*_; _+_) renaming (either to +-elim)
+
 open import Rel.Core
 open import Rel.Core.Coproduct
 open import Rel.Core.Product
@@ -13,53 +15,28 @@ module Rel.CaseStudies.SelectionSort where
   module Generic
        {A : Set}
        (eqA : (a₁ a₂ : A) → Dec (a₁ ≡ a₂))
-       (R : Rel A A) 
-       (isConR : isConnected R)
-       (isASym : isAntiSymmetric R)
-       (isTrR  : isTransitive R)
-       (isRefl : isReflexive R)
+       (_≤_ : Rel A A) 
+       (isConR : isConnected _≤_)
+       (isASym : isAntiSymmetric _≤_)
+       (isTrR  : isTransitive _≤_)
+       (isRefl : isReflexive _≤_)
      where
 
      open import Rel.Relator
      open import Rel.Relator.List
+     open import Rel.Relator.List.Defs
 
      open IsWFunctor1 {{...}}
      open IsRelator {{...}}
 
-     -- List concatenation, using the W-encoding.
-     _++ₗ_ : Lw A → Lw A → Lw A
-     (sup (i1 _) _) ++ₗ l2 = l2
-     (sup (i2 s) p) ++ₗ l2 = sup (i2 s) (λ ss → p ss ++ₗ l2)
-
-     -- Membership Relation
-     elem : Rel A (Lw A)
-     elem (sup (i1 _) _) _ = ⊥
-     elem (sup (i2 y) x) a with eqA y a
-     ...| yes _ = Unit
-     ...| no  _ = elem (x unit) a
-
-     -- exch, defined directly via a function.
-     exch : {X Y Z : Set} → Rel (X × (Y × Z)) (Y × (X × Z))
-     exch = fun (λ xyz → p1 (p2 xyz) , (p1 xyz , p2 (p2 xyz)) )
-     
-     -- cat relation, as defined in the AoP book.
-     cat : Rel (Lw A × Lw A) (Lw A)
-     cat = fun (uncurry _++ₗ_)
-
-     add : Rel (A × Lw A) (Lw A)
-     add = cat ∙ (Id * consR) ∙ exch ∙ (Id * cat ᵒ)
-
-     perm : Rel (Lw A) (Lw A)
-     perm = ⟦ either nilR add ⟧₁
-
-     permLemma : perm ∙ consR ≡r perm ∙ consR ∙ (Id * perm)
-     permLemma = {!!}
-
      ok : A × Lw A → Set
-     ok (a , x) = ∀ b → elem x b → R b a
+     ok (a₁ , x) = (a₂ : A) → elem {{ eq eqA }} x a₂ → a₂ ≤ a₁
+
+     perm-preserves-ok : (l1 l2 : Lw A) → perm l1 l2 → (a : A) → ok (a , l1) → ok (a , l2)
+     perm-preserves-ok l1 l2 hip a₁ aok a₂ a₂∈l2 = {!!}
 
      ok-perm-natural : φ ok ∙ (Id * perm) ≡r (Id * perm) ∙ φ ok
-     ok-perm-natural = {!!}
+     ok-perm-natural = ⊆in {!!} , ⊆in {!!}
 
      ordered : Rel (μ L A) (μ L A)
      ordered = ⟦ either nilR (consR ∙ φ ok) ⟧₁
@@ -77,20 +54,15 @@ module Rel.CaseStudies.SelectionSort where
      cata-⊥ a b hip = {!!}
 
      perm-idp : perm ≡r perm ᵒ
-     perm-idp = ⊆in (λ a b x → aux b a x) , ⊆in aux
+     perm-idp = cata-uni-2 {!!} , cata-uni-1 {!!}
        where
-         lemma-add : ∀{b pb l} → either nilR add (sup (i1 unit) l) (outL (sup (i2 b) pb)) → ⊥
-         lemma-add (cons-either ((l1 , l2) , cons-fun c1 , w2 , cons-⟨,⟩ (c21 , c22) , w3 , c3 , c4)) = {!!}
-
-         aux : (a b : μ L A) → perm a b → perm b a
-         aux (sup (i1 unit) l) (sup (i2 b) pb) x 
-           = ⊥-elim (cata-⊥ {A = A} {F = L} {R = either nilR add} (sup (i2 b) pb) (sup (i1 unit) l) {!!} x)
-         aux (L-cons _ _) L-nil x = {!!}
-         aux L-nil L-nil (cons-cata x) = {!!}
-         aux (L-cons a pa) (L-cons b pb) (cons-cata x) = {!!}
+         aux1 : either nilR add ∙ (Id + (Id * (perm ᵒ))) ∙ outR ⊆ perm ᵒ
+         aux1 = {!!}
 
      ordered-idp : ordered ≡r ordered ᵒ
-     ordered-idp = (⊆in (λ a b x → cons-cata {!!})) , {!!}
+     ordered-idp = {!!}
+
+     {-
      
      prf1 : ordered ∙ perm ≡r (perm ∙ ⟦ either nilR (consR ∙ φ ok) ⟧₁) ᵒ
      prf1 = begin
@@ -175,4 +147,4 @@ module Rel.CaseStudies.SelectionSort where
   
   
   
-  
+  -}

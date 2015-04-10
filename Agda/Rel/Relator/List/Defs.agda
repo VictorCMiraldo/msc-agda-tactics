@@ -4,6 +4,7 @@ open import Rel.Core
 open import Rel.Core.Equality
 open import Rel.Core.Product
 open import Rel.Core.Coproduct
+open import Rel.Core.Correflexive
 open import Rel.Relator
 
 open import Rel.Properties.BiFunctor
@@ -123,5 +124,3 @@ module Rel.Relator.List.Defs where
             → perm {A = A} ∙ consR ≡r perm ∙ consR ∙ (Id * perm)
   permLemma = ≡r-trans permcons-lemma 
               (≡r-trans (≡r-cong (λ z → z ∙ Id * perm) add≡permcons) ∙-assoc)
-
-      

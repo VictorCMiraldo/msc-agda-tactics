@@ -159,3 +159,25 @@ t6 = App "=="
   [ App "*" [App "+" [Var 0 , Lit 5] , Lit 3] 
   , App "*" [App "+" [Lit 5 , Var 0] , Lit 3]
   ]
+  
+----------------------------------
+-- Ivar testing
+
+lemma_ri_ivar :: Term
+lemma_ri_ivar = App "=="
+  [ App "+" [ Var 0 , Lit 0 ]
+  , Var 0
+  ]
+  
+myTrieIvar
+  = insert "RI" lemma_ri_ivar
+  $ insert "RN" lemma_sum_inv
+  $ insert "MI" lemma_mul_id
+  $ insert "MN" lemma_mul0
+  $ btrieObjEmpty
+  
+testTerm :: Term
+testTerm = App "=="
+  [ App "*" [Var 0 , App "+" [ App "%" [Var 1 , Lit 5 ] , Lit 0]] 
+  , App "*" [Var 0 , App "%" [Var 1 , Lit 5]]
+  ]

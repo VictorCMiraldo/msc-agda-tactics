@@ -45,14 +45,15 @@ genTermId varRange
   = do
     i <- frequency $ zip freqs gens
     case i of
-      1 -> VarId <$> choose (0 , varRange)
-      2 -> LitId <$> arbitrary `suchThat` (>= 0)
-      3 -> return LamId
-      4 -> AppId <$> elements ops
+      1 -> VarId  <$> choose (0 , varRange)
+      2 -> IvarId <$> choose (0 , varRange)
+      3 -> LitId  <$> arbitrary `suchThat` (>= 0)
+      4 -> return LamId
+      5 -> AppId <$> elements ops
       _ -> error "impossible"
   where
-    gens = map genN [1..4]
-    freqs = [15 , 25 , 5 , 35]
+    gens = map genN [1..5]
+    freqs = [15 , 10 , 25 , 5 , 35]
 
 instance Arbitrary TermId where
   arbitrary = genTermId 5
@@ -64,8 +65,7 @@ genTerm varRange
       case tid of
         (AppId k) -> replicateM (arity k) arbitrary >>= return . App k
         LamId     -> genTerm varRange >>= return . Lam
-        VarId n   -> return (Var n)
-        LitId n   -> return (Lit n)
+        t         -> return $ _close (t , [])
       
 instance Arbitrary Term where
   arbitrary = genTerm 5
@@ -86,6 +86,7 @@ lazyHeight :: Int -> Term -> Bool
 lazyHeight 0 _ = True
 lazyHeight n (Var _) = False
 lazyHeight n (Lit _) = False
+lazyHeight n (Ivar _) = False
 lazyHeight n (Lam t) = lazyHeight (n-1) t
 lazyHeight n (App _ ts) = or $ map (lazyHeight $ n-1) ts
     
@@ -111,6 +112,7 @@ genTermFor t@(App "==" [i , j])
     substVar dict (Var i)
       | (Just res) <- M.lookup i dict = res
       | otherwise                     = Var i
+    substVar _    (Ivar i) = Ivar i
     substVar _    (Lit j) = Lit j
     substVar dict (Lam t) = Lam $ substVar dict t
     substVar dict (App n ts)

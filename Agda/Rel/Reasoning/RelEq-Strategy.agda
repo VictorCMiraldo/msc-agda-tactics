@@ -56,8 +56,8 @@ module Rel.Reasoning.RelEq-Strategy where
 
   open import RW.RW (rel-⊆-strat ∷ rel-≡r-strat ∷ [])
   
-  by*-⊆ : by*-tactic
+  by*-⊆ : by*-tactic 
   by*-⊆ = by* (quote ⊆-trans)
 
-  by*-≡r : by*-tactic
+  by*-≡r : by*-tactic 
   by*-≡r = by* (quote ≡r-trans)

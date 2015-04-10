@@ -7,7 +7,10 @@ open import Rel.Core.Coproduct
 open import Rel.Relator
 open import Rel.Relator.List
 
--- Does not typecheck. Last time I tried with 2.5GB of heap and 64MB of stack.
+-- Does not typecheck without marking isDec-cataL as terminating.
+-- Last time I tried with 2.5GB of heap and 64MB of stack.
+--
+-- 
 --
 -- agda: Heap exhausted;
 -- Current maximum heap size is 2684354560 bytes (2560 MB);
@@ -39,6 +42,7 @@ open import Rel.Relator.List
 module Rel.Relator.List.Instances where
 
   open IsWFunctor1 {{...}}
+  open IsDec       {{...}}
 
   instance
     -- L's action on arrows is decidable, as long the target arrow R is decidable and A has decidable equality.
@@ -77,6 +81,7 @@ module Rel.Relator.List.Instances where
     --
     -- We need to be able to 'choose' a b′ from the indicated composition!
     --
+    {-# TERMINATING #-}
     isDec-cataL : {A B : Set}{R : Rel (L A B) B}{{ dR : IsDec R }}{{ c : Composes (R ∙ ι₂) (Id * ⟦ R ⟧₁) }}
                 → IsDec ⟦ R ⟧₁
     isDec-cataL {A} {B} {R} {{ dec dR }} {{ fc , prfc }} = dec decide
