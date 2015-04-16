@@ -54,7 +54,8 @@ CODE_AGDA_MODULES=Basic\
                   Strat\
                   RW\
                   Fin\
-                  Transitivity
+                  Transitivity\
+                  BTrie
 
 COMPILER=pdflatex -etex
 
