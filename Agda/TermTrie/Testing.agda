@@ -130,6 +130,13 @@ module TermTrie.Testing where
   !Just nothing  = blah
     where postulate blah : ∀{a}{A : Set a} → A
 
+  open import TermTrie.TrieObj
+
+  -- This import tells to open module Auto, from RW.RW
+  -- using the Trie called myTrie and, whatever the goal is,
+  -- search for terms that are a relational equality.
+  open Auto myTrie (λ _ → (rdef $ quote _≡r_))
+
   twiceIsEven : (twiceR ∙ evenR ⊆ evenR ∙ twiceR) ⇐ Unit
   twiceIsEven 
     = begin
@@ -140,11 +147,11 @@ module TermTrie.Testing where
 
       twiceR ∙ evenR ⊆ (ρ twiceR) ∙ twiceR
 
-    ⇐⟨ (tactic (by (quote ρ-intro))) ⟩
+    ⇐⟨ (tactic auto) ⟩
 
       twiceR ∙ evenR ⊆ twiceR
 
-    ⇐⟨ (quoteGoal g in {!g!} ) ⟩
+    ⇐⟨ (tactic auto ) ⟩
 
       twiceR ∙ evenR ⊆ twiceR ∙ Id
 

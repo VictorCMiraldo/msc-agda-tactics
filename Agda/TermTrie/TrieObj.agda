@@ -3,19 +3,16 @@ open import RW.Language.RTerm
 open import RW.Language.RTermUtils
 open import RW.Language.RTermIdx
 open import RW.Data.RTrie
+open import RW.Language.RTermTrie
 
 open import TermTrie.Imports
+open import Rel.Properties.Correflexive
 
 module TermTrie.TrieObj where
 
-  add-action : Name → ℕ × RTrie → ℕ × RTrie
-  add-action act bt
-    = let
-      ty = lift-ivar $ typeResult $ Ag2RType $ type act
-    in insertTerm act ty bt
-
+  -- unquote (quoteTerm ...) -- forces normalization!!!
   myTrie : RTrie
-  myTrie = p2
+  myTrie = unquote (quoteTerm (p2
          -- $ add-action (quote ∙-assocl)
          -- $ add-action (quote ∙-assocr)
          $ add-action (quote ∙-assoc)
@@ -24,7 +21,8 @@ module TermTrie.TrieObj where
          -- $ add-action (quote ᵒ-∙-distr)
          $ add-action (quote ∙-id-l)
          $ add-action (quote ∙-id-r)
-         $ 0 , BTrieEmpty
+         $ add-action (quote ρ-intro)
+         $ 0 , BTrieEmpty))
 
   myTrieObj : RTrie
   myTrieObj = Fork
@@ -36,7 +34,7 @@ module TermTrie.TrieObj where
               Fork
               (((Leaf [] ,
                  (rappᵢ (rdef (quote _ᵒ)) ,
-                  Fork (((Leaf [] , []) , (0 , Gr 6 ∷ []) ∷ []) ∷ []))
+                  Fork (((Leaf [] , []) , (0 , Gr 8 ∷ []) ∷ []) ∷ []))
                  ∷ [])
                 , [])
                ∷ []))
@@ -46,11 +44,11 @@ module TermTrie.TrieObj where
               (((Leaf [] ,
                  (rappᵢ (rdef (quote _∙_)) ,
                   Fork
-                  (((Leaf [] , []) , (0 , Gr 8 ∷ []) ∷ []) ∷
-                   ((Leaf [] , []) , (1 , Tr 8 9 ∷ []) ∷ []) ∷ []))
+                  (((Leaf [] , []) , (0 , Gr 10 ∷ []) ∷ []) ∷
+                   ((Leaf [] , []) , (1 , Tr 10 11 ∷ []) ∷ []) ∷ []))
                  ∷ [])
                 , [])
-               ∷ ((Leaf [] , []) , (2 , Tr 9 10 ∷ []) ∷ []) ∷ []))
+               ∷ ((Leaf [] , []) , (2 , Tr 11 12 ∷ []) ∷ []) ∷ []))
              ∷ [])
             , (0 , Gr 1 ∷ []) ∷ [])
            ∷
@@ -58,66 +56,41 @@ module TermTrie.TrieObj where
              (rappᵢ (rdef (quote _∙_)) ,
               Fork
               (((Leaf [] ,
+                 (rappᵢ (rdef (quote ρ)) ,
+                  Fork (((Leaf [] , []) , (0 , Tr 1 2 ∷ []) ∷ []) ∷ []))
+                 ∷
                  (rappᵢ (rdef (quote fun)) ,
                   Fork
                   (((Leaf [] ,
-                     (rlamᵢ , Fork (((Leaf (Tr 1 4 ∷ []) , []) , []) ∷ [])) ∷ [])
+                     (rlamᵢ , Fork (((Leaf (Tr 1 6 ∷ []) , []) , []) ∷ [])) ∷ [])
                     , [])
                    ∷ []))
                  ∷ [])
-                , (0 , Tr 1 2 ∷ Tr 10 11 ∷ []) ∷ [])
+                , (0 , Tr 1 4 ∷ Tr 12 13 ∷ []) ∷ [])
                ∷
                ((Leaf [] ,
                  (rappᵢ (rdef (quote fun)) ,
                   Fork
                   (((Leaf [] ,
-                     (rlamᵢ , Fork (((Leaf (Fr 2 (quote ∙-id-r) ∷ []) , []) , []) ∷ []))
+                     (rlamᵢ , Fork (((Leaf (Fr 4 (quote ∙-id-r) ∷ []) , []) , []) ∷ []))
                      ∷ [])
                     , [])
                    ∷ []))
                  ∷
                  (rappᵢ (rdef (quote _∙_)) ,
                   Fork
-                  (((Leaf [] , []) , (1 , Tr 11 12 ∷ []) ∷ []) ∷
-                   ((Leaf [] , []) , (2 , Fr 12 (quote ∙-assoc) ∷ []) ∷ []) ∷ []))
+                  (((Leaf [] , []) , (1 , Tr 13 14 ∷ []) ∷ []) ∷
+                   ((Leaf [] , []) , (2 , Fr 14 (quote ∙-assoc) ∷ []) ∷ []) ∷ []))
                  ∷ [])
-                , (0 , Fr 4 (quote ∙-id-l) ∷ []) ∷ [])
+                , (0 , Fr 2 (quote ρ-intro) ∷ Fr 6 (quote ∙-id-l) ∷ []) ∷ [])
                ∷ []))
              ∷ [])
-            , (0 , Fr 6 (quote ᵒ-idp) ∷ []) ∷ [])
+            , (0 , Fr 8 (quote ᵒ-idp) ∷ []) ∷ [])
            ∷ []))
          ∷ [])
         , [])
-       ∷ []) 
-
-  replicateM : {A : Set} → List (Maybe A) → Maybe (List A)
-  replicateM [] = just []
-  replicateM (nothing ∷ _)  = nothing
-  replicateM (just x  ∷ xs) with replicateM xs
-  ...| just xs' = just (x ∷ xs')
-  ...| nothing  = nothing
-   
-  search : AgTerm → List (List (ℕ × RTerm ⊥) × Name)
-  search ag
-    = let
-      rt = forceBinary $ Ag2RTerm ag
-    in maybe searchAux (([] , search-err) ∷ []) rt
-    where
-      postulate search-err : Name
-
-      searchAux : RBinApp ⊥ → List (List (ℕ × RTerm ⊥) × Name)
-      searchAux (hd , g₁ , g₂)
-        = let
-          g□ = g₁ ∩↑ g₂
-          u₁ = g□ -↓ g₁
-          u₂ = g□ -↓ g₂
-          ul = (u₁ ∷ u₂ ∷ [])
-        in maybe (λ l → lookupTerm (rapp hd l) myTrieObj
-                        -- symmetric?!
-                     ++ lookupTerm (rapp hd (reverse l)) myTrieObj)
-                 [] (replicateM ul)
-          
-
+       ∷ [])
+  {-
   open import Rel.Core
   open import Rel.Core.Correflexive
 
@@ -255,6 +228,8 @@ module TermTrie.TrieObj where
   !Just nothing  = blah
     where postulate blah : ∀{a}{A : Set a} → A
 
+  -- Looks like it's working! how to solve the head problem, tho?
+  -- I mean, we're forcing it to be a ≡r
   test : ℕ
   test
     = let
@@ -264,4 +239,5 @@ module TermTrie.TrieObj where
       u₂ = !Just $ g□ -↓ g₂
       ul = (u₂ ∷ u₁ ∷ [])
       newT = rapp (rdef (quote _≡r_)) ul
-    in {!lookupTerm newT myTrieObj!}
+    in {! lookupTerm newT myTrieObj!}
+  -}
