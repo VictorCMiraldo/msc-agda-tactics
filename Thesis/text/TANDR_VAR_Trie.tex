@@ -17,12 +17,12 @@ instantiation for free, during lookup.
 This section starts with a summarized explanation of Tries and then follows with our
 generalization of the same concept. The structure we arrive at is a type-indexed data structure,
 in the sense of \cite{Hinze04}. Yet, our lookup and insertion methods have to be significantly different
-since we have to handle variables, that can be arbitralily instantiated.
+since we have to handle variables, that can be arbitrarily instantiated.
 
 \subsection{Tries}
 
 There a few variations on of a Trie, suited for different applications. We will, however,
-restrict ourselfesto the original definition, which is also the simplest. This small digression
+restrict ourselfes to the original definition, which is also the simplest. This small digression
 has the purpose of introducing the underlying idea without too many technicalities.
 
 \begin{wrapfigure}{r}{0.30\textwidth}
@@ -83,7 +83,7 @@ such as a list. R. Hinze, J. Jeuring and A. L\"{o}h provides a solution to that,
 by defining a special kind of Tries that can be indexed by arbitrary data-types. The idea, in a nutshell,
 is to work with the algebraic representation of the indexes (data-types) and have nested maps at every node.
 This is a bit too general for our needs here. We are looking for a structure that can be indexed
-by a given term language, which follows the tipical sum-of-products form. An additional complication
+by a given term language, which follows the typical sum-of-products form. An additional complication
 arises when we start to allow variables in the index.
 
 \subsection{Towards a Generalization}
@@ -92,7 +92,7 @@ arises when we start to allow variables in the index.
   \item REWRITE!!! We specialized our Trie after all.
 \end{TODO}
 
-\newcommand{\mytrie}{NAMEIT }
+\newcommand{\mytrie}{RTrie}
 
 Following the popular saying -- A picture is worth a thousand words -- let us begin
 with a simple representation. Just like a trie, our \mytrie trie was designed to
@@ -124,7 +124,7 @@ in the left child of $\equiv$. Well, our topmost operator is now a $+^{\star_2}$
 now, look for $(2 \times x)$ in the left child of the left $+$. Here, we can choose
 to instantiate variable 0 as $(2 \times x)$ and collect label $r_1$ or
 instantiate variable 2, with the same term, and collect label $l_1$. Since we cannot know beforehand
-which variable to instante, we instantiate both! At this point, the state of our lookup is
+which variable to instantiate, we instantiate both! At this point, the state of our lookup is
 $(0 \mapsto 2 \times x , r_1) \vee (2 \mapsto 2 \times x , l_1)$.
 We proceed to look for the literal $0$ in the right trie of $+^{\star_2}$, taking us to a leaf node with
 a rewrite rule stating $r_1 \vdash r_2$. This reads $r_1$ should be rewritten by $r_2$. We apply
@@ -139,7 +139,7 @@ right child labeled with a $+$, leaving us with to compare the instantiation gat
 variable 0 in the left-hand-side of $\equiv^{\star_1}$ to $2 \times x$. They are indeed the same,
 which allows us to apply the rule $r_2 \vdash RI$. Which concludes the search, rewriting label $r_2$
 by $RI$, or, any other code for \F{+-right-identity}. By returning not only the final label, but
-also the enviroment gathered, we get the instantiation for variables for free.
+also the environment gathered, we get the instantiation for variables for free.
 The result of such search should be $(0 \mapsto 2 \times x , RI) :: []$.
 
 This small worked example already provides a few insights not only on how to code lookup, but
@@ -147,20 +147,29 @@ also on how to define our \mytrie. We have faced two kinds of nodes. Fork nodes,
 are composed by a list of cells, and, Leaf nodes, which contain a list of (rewrite) rules.
 Indeed, we define \mytrie by:
 
-\Agda{BTrie}{btrie-rule-def}\\
-\Agda{BTrie}{btrie-def}
+\Agda{RTrie}{btrie-rule-def}\\
+\Agda{RTrie}{btrie-def}
 
 Rewrite rules are divided in three different kinds: Gather, Transition and Final rules.
-The type \F{to} comes from \texttt{\scriptsize RW.Data.PMap X IsEqX}, and represents a partial
-from $X$ to some other type.
+The type \F{to} comes from \texttt{\scriptsize RW.Data.PMap X IsEqX}, and represents a partial map
+from $X$ to some other type. The \F{default} modifier adds a default value to the map, making
+it possible to totalize it.
 
-\subsection{Some notions about types}
+The idea is to separate the binding symbols from the non-binding ones. The second component of the
+\F{Cell} product correspond to these binding symbols. We used a list to be able to easily map
+over it. The \F{IdxMap.to} on the other hand, is used to store non-binding indexes, where the
+default value of such map will give us \emph{free} rules to apply when nothing else can be done.
+They act in a similar way as just accepting \IC{ivar}s, like we did with the instantiation
+algorithm, in section \ref{sec:tandr:representingterms}.
 
-Where $t$ is the index type and $c$ is the conclusions, or keys, we are indexing by different
+\subsection{Polymorphic vs. Monomorphic}
+
+In a first attempt to encode our \mytrie in Agda, we went generic, polymorphic. Type variable $t$ is the index 
+type and $c$ is the conclusion type, which we are being indexed by different
 elements $t_1, \cdots t_n\; :\; t$. The assumption we make, however, states that $t$ must
 have a \F{IsTrie} instance. Such record is defined by:
 
-\Agda{BTrie}{istrie-def}
+\Agda{RTrie}{istrie-def}
 
 Such record states that for a given $t$, there exists an index type \F{Idx}, with a decidable
 underlying equality. We must be able to at least differentiate between different indexes, after all.
@@ -168,20 +177,150 @@ We also state the we must be able to open and close such term. It is easy to pro
 sum-of-products recursive type, we can construct a type \F{Idx} satisfying these properties.
 Just ignore the recursive arguments and make a label for each constructor.
 
-The indexes for \D{RTerm} datatype are defined by:
+This generic approach works reasonably well for simple cases. In our scenario, however,
+we need more control on the lookup and insertion functions. This topic will be explained further
+in the following sections. Nevertheless, we have the indexes for \D{RTerm} datatype defined by:
 
-\Agda{BTrie}{rterm-idx-data}
+\Agda{RTrie}{rterm-idx-data}
 
 One interesting part, however, is the \F{toSym} function. These \F{Sym}bols are the binding
 symbols. We are stating that some of our indexes are in fact binding symbols, therefore
 we need a way to both distinguish between binding and non-binding indexes, and convert
 to a standard representation. DeBruijn indexes were adopted as this representation.
 
+\Agda{RTrie}{rterm-idx-ops}
+
+Note that whenever an index is \emph{not} a symbol, we can cast it to arbitrary types.
+This will be very important if we want to maintain the type of the interface, in the sense
+that we only return closed instantiations, or, maps from $\mathbb{N}$ to \F{RTerm $\bot$}. 
+
 \subsection{Lookup}
 
-\begin{TODO}
-  \item Explain my lookup monad.
-  \item Present the algorithm.... which language?
-\end{TODO}
+Looking up a term in a \mytrie, as we stated in the example given in the beginning of this section,
+will involve a fair amount of components. Here, we will just give the outline of the algorithm. The
+details can be checked directly in the source code. The same will happen with insertion.
+
+Most of the lookup functionality will happen inside a reader monad, that is, the partially applied function type: $(r \rightarrow)$, for some $r$. In our case, we will read list of configurations,
+representing the disjunctions used in the example. Henceforth, we have
+
+\Agda{RTrieLkup}{L-monad}
+
+where \F{Lst} represents a single state, or, an instantiation with a possible label
+representing the last path we took on the \mytrie. In Agda:
+
+\Agda{RTrieLkup}{label-lst-def}
+
+Retrieving a term from a \mytrie relies mostly on the rewrite rules. The \F{ruleList} function
+will try the application of a list of rules to \emph{all} states it receives. If we cannot apply a rule,
+we prune that state out of the search.
+
+\Agda{RTrieLkup}{ruleList-type}
+
+The main component is the following function, with its smaller helper function types presented
+below.
+
+\Agda{RTrieLkup}{lkup-aux-def}\\
+\Agda{RTrieLkup}{lkup-list-type}\\
+\Agda{RTrieLkup}{lkup-inst-type}
+
+Spelling out the definition, we can see that looking something up in a \IC{Leaf} is 
+just a simple application of the rules in that leaf. The term itself does not matter, since
+even if we can extract an index out of it, we have nowhere to traverse next. Retrieving data
+from a \IC{Fork} with one cell is a bit trickier, though. We can either
+instantiate some variables and proceed, or lookup the term index to find out which subtree
+to traverse. If we do not find any, we look something up in the default branch. This default branch
+is useful for simulating the behavior instantiation had with \IC{ivar}s, of accepting
+\IC{ivar}s without checking anything. We return the concatenation of the configurations produced
+by instantiation and recursion.
+
+Instantiation deserves a more in-depth discussion. Given a state $lst$ and, a cell with possible
+instantiations $bs$ : \F{List $(\mathbb{N} \times \text{List Rule})$}, and a term $t$. 
+We can choose to instantiate \emph{one}
+$b \in bs$ at a given time. We will end up with a list of states $map\; (instantiate\; lst)\; bs$,
+representing the disjunction of possible instantiation choices we have at the moment.
+Now, lets fix a $b \in bs$ and explore the $instantiate$ function. If $b$ is unbound in $lst$ yet,
+we simply add an entry $b \mapsto t$ and apply the rules associated with such binding.
+If $b$ is already instantiated to $lst(b)$, we need to check whether or not everything
+is right. If $lst(b) \equiv t$, we can apply the rules and continue. Otherwise, we discard such state
+since it is carrying an inconsistent instantiation.
+
 
 \subsection{Insertion}
+
+Inserting a new key in an already existing RTrie is not too different from
+insertion in a regular trie. Lets say we want to insert term $t$, with $out\; t \equiv (t_{id} , t_{r})$,
+in a cell $((def, m_{idx}) , m_{sym})$, where $(def , m_{idx})$ is the total map from indexes
+to RTries and $m_{sym}$ is the list of possible bindings at this node. Now, everything
+depends on what $t_{id}$ turns out to be. Case $t_{id}$ is:
+\begin{enumerate}
+  \item \IC{rlit$_i$} l; which implies $t_{r} \equiv []$, and it means that we are going
+        to either add a \IC{Leaf} node in our $m_{idx}$ map, or append rules to an existing
+        $m_{idx}(rlit_i\; l)$.
+        
+  \item \IC{rlam$_i$}; with $t_{r} \equiv [t']$. Just like the above case, we are going
+        to traverse $m_{idx}$. Lets assume $m_{idx}(rlam_i) = r$ (if $rlam_i \notin dom(m_{idx})$, we simply
+        add a $ rlam_i \mapsto RTrieEmpty$), we proceed by inserting $t'$ in $r$.  
+  
+  \item \IC{rapp$_i$} n; in this situation $t_{r}$ might be an arbitrary list of terms. 
+        Assuming $m_{idx}(rapp_i\; n) = Fork\; l$, we proceed by inserting each $t_{r}$
+        in their respective cell in $l$. Or, $map (uncurry\;insert) (zip\;t_{r}\;l)$.
+  
+  \item \IC{ovar$_i$} x; we found a binding symbol! We need to modify $m_{sym}$ here. 
+        We simply construct a new rule and either add or append it to $m_{sym}(n)$, depending
+        on whether or not $m_{sym}(n)$ was already defined. 
+         
+  \item \IC{ivar$_i$} x; we will change the default value of our index map. This means that
+        we are going to ignore \IC{ivar$_i$}, just like we did with instantiation, in our
+        first approach. The modification applied to $d$ is to simply add a new rule to it.
+\end{enumerate}
+
+The implementation revolves around a state monad, carrying a label and a counter to generate
+new rules. That is considered housekeeping and we will skip through it.
+
+\Agda{RTrieInsert}{I-monad}
+
+Steps 1 to 5 have a interesting similarity. They all traverse the trie and, some of them, must
+perform changes \emph{after} the recursive step has been completed. This is very close
+to what a zipper does, and can be achieved with one.
+
+\Agda{RTrieInsert}{CellCtx-decl}
+
+Let us define a function $\mathcal{M}$ that given a \F{Cell} and an index $i$,
+will traverse the cell following $i$'s \emph{direction}, just like described above. 
+The return value, however, is a pair containing a RTrie to be traversed by the caller
+for the recursive case and a context, to reconstruct the cell with the given RTrie.
+
+\Agda{RTrieInsert}{M-def}
+
+We divide it in two other functions. Either we are handling a binding symbol or a simple index.
+
+\Agda{RTrieInsert}{mIdx-def}\\
+\Agda{RTrieInsert}{mSym-def}
+
+If we are handling a binding symbol, then it is obvious we do not have any recursive argument
+to take care of. Note how \F{mSym} returns a constant context and the empty RTrie.
+When we handle indexes, however, note how we just change the default value of the index map
+in case we find an \IC{ivar$_i$}. 
+
+Our life becomes much easier now. Imagine we need to insert an opened term $(t_{id} , t_{r})$
+in a Cell $c$. Well, by calling $\mathcal{M}\;c\;t_{id}$ we are going to get a context $ctx$ and
+a RTrie $rt$ to insert our $t_{r}$ into. Assuming this insertion results in an RTrie $rt'$,
+we just need to reconstruct our current cell with $ctx\;rt'$.
+
+Indeed, the main insertion function is defined by
+
+\Agda{RTrieInsert}{insert-def}
+
+Afterwards, it is just a matter of running the monad and providing a cleaner interface.
+After we finished inserting the term we traverse the tree again substituting the last
+used label by the name we want to store.
+
+\begin{TODO}
+  \item fix the interface.
+  \item Emacs plugin for compiling the database once?
+  \item Discuss the need for a more serious complexity analysis.
+  \item Stress that this is by no means final, and we're still
+        tweaking the algorithm and observing how it changes.
+  \item Provide the intuition for the performance increase.
+\end{TODO}
+

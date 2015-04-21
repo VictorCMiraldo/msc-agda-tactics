@@ -86,12 +86,24 @@ is how much more expressiveness one gets from a parametric type such as \D{RTerm
 The translation of an Agda term into a \D{RTerm} actually returns a \D{RTerm $\bot$}, from which
 we can prove that there are no \IC{ovar} occurrences (the actual object of type \D{RTerm $\bot$} \emph{is} the proof).
 
-\begin{TODO}
-  \item glue
-  \item present some translation functions
-  \item all vars become ivars
-  \item present lift-ivar
-\end{TODO}
+It is also valid to ask why did we chose to add two constructors for representing variables.
+A specific, simple constructor, \IC{ivar}, and a more general one, \IC{ovar}. The reasons are
+manifold. Besides the usual excuse that a polymorphic type provides more expressiveness, we
+stress the importance of being able to differentiate \emph{important} variables from the rest.
+Some algorithms also require more complicated types, rather than $\mathbb{N}$, for indexes.
+
+Indeed, one important operation we can perform on RTems is the lifting of \IC{ivar}s to \IC{ovar}s,
+defined below.
+
+\Agda{RTerm}{lift-ivar-def}
+
+Unfortunately, we can not simply substitute all \IC{ivar} constructor by \IC{ovar}. We could
+be shadowing variables by performing this operation carelessly. Another reason for adding a polymorphic
+constructor to our RTerm type will become clear in the types of the term operations we are going to declare.
+We will not provide the full source-code for them to improve readability. 
+
+The central operation is the intersection of two RTerms. It is used to find out \emph{where}
+the differences are, and, therefore, providing the context for applying congruences or substitutions later. 
 
 \Agda{RTerm}{rterm-intersect-type}
 

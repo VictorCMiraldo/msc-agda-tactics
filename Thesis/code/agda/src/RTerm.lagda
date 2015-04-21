@@ -4,13 +4,9 @@ open import Level using (Level) renaming (zero to lz; suc to ls)
 open import Data.List.Properties as ListProps renaming (∷-injective to ∷-inj)
 open import Data.Maybe using (Maybe; just; nothing)
 open import Data.String
-open import Data.Nat as Nat using (decTotalOrder; _≤_; s≤s; z≤n)
+open import Data.Nat as Nat using (decTotalOrder; _≤_; s≤s; z≤n; _≤?_)
 open import Relation.Binary using (module DecTotalOrder)
 open import Reflection renaming (Term to AgTerm; Type to AgType)
-
-record Eq (A : Set) : Set where
-  constructor eq
-  field cmp : (x y : A) → Dec (x ≡ y)
 
 open Eq {{...}}
 \end{code}
@@ -90,5 +86,24 @@ _-_ : ∀{A} ⦃ eqA : Eq A ⦄
 \begin{code}
 _-_ = ?
 \end{code}
+
+\begin{code}
+{-# TERMINATING #-}
+\end{code}
+%<*lift-ivar-def>
+\begin{code}
+lift-ivar : RTerm ⊥ → RTerm ℕ
+lift-ivar = lift-ivar' 0
+  where
+    lift-ivar' : ℕ → RTerm ⊥ → RTerm ℕ
+    lift-ivar' _ (ovar ())
+    lift-ivar' d (ivar n) with d ≤? n
+    ...| yes _ = ovar n
+    ...| no  _ = ivar n
+    lift-ivar' _ (rlit l) = rlit l
+    lift-ivar' d (rlam t) = rlam (lift-ivar' (suc d) t)
+    lift-ivar' d (rapp n ts) = rapp n (map (lift-ivar' d) ts)
+\end{code}
+%</lift-ivar-def>
 
 
