@@ -57,8 +57,9 @@ CODE_AGDA_MODULES=Basic\
                   Transitivity\
                   RTrie\
                   RTrieLkup\
-                  RTrieInsert
-
+                  RTrieInsert\
+                  RTermTrie
+                  
 COMPILER=pdflatex -etex
 
 

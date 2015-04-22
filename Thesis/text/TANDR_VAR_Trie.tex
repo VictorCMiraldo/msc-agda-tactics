@@ -88,10 +88,6 @@ arises when we start to allow variables in the index.
 
 \subsection{Towards a Generalization}
 
-\begin{TODO}
-  \item REWRITE!!! We specialized our Trie after all.
-\end{TODO}
-
 \newcommand{\mytrie}{RTrie}
 
 Following the popular saying -- A picture is worth a thousand words -- let us begin
@@ -314,6 +310,29 @@ Indeed, the main insertion function is defined by
 Afterwards, it is just a matter of running the monad and providing a cleaner interface.
 After we finished inserting the term we traverse the tree again substituting the last
 used label by the name we want to store.
+
+Insertion has poor performance, mostly due to the reconstruction needed at every step.
+A good idea is to trick Agda into normalizing the trie that represents an action database
+using \K{unquote} and \K{quoteTerm}. Quoting forces normalization, which will make Agda
+\emph{compile} it to its normal form in the \texttt{\small agdai} file. This technique
+ensures that we only create the database once.
+
+\subsection{The \emph{auto} tactic}
+
+Equipped with our RTries, we are ready to handle multiple actions in a manner far better
+than what we did with lists. We can also reuse a big portion of the library and,
+for instance, make the lookup acutally return a \F{Name × UData} object. Making
+it possible to use the same user created term strategies, discussed in section \ref{sec:tandr:rwtactic},
+to reconstruct the Agda term filling the goal.
+
+\Agda{RTermTrie}{search-action-def}
+
+Note how we can not just look up the goal term. We need to find out where the canges are,
+just like we did with the \emph{by} tactic, and construct a term using these differences
+and a \F{RTermName} to use as a new head.
+
+
+
 
 \begin{TODO}
   \item fix the interface.
