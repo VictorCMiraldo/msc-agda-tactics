@@ -1,5 +1,5 @@
 open import Level using (Level)
-open import Function using (_∘_; id; flip)
+open import Function using (_∘_; id; flip; _$_)
 open import Data.Fin as Fin using (Fin; fromℕ) renaming (zero to fz; suc to fs)
 open import Data.Nat as Nat using (ℕ; suc; zero; _+_; _⊔_; decTotalOrder; _<_; _≤_; s≤s; z≤n) renaming (_≟_ to _≟-ℕ_)
 open import Data.Nat.Properties.Simple using (+-comm; +-right-identity; +-assoc)
@@ -18,6 +18,8 @@ open import Relation.Binary using (module DecTotalOrder)
 open import Relation.Binary.PropositionalEquality as PropEq using (_≡_; refl; cong; sym; subst)
 open import Reflection renaming (Term to AgTerm; _≟_ to _≟-AgTerm_)
 open import Algebra using (module CommutativeSemiring; module DistributiveLattice)
+
+open import Data.Empty using (⊥)
 
 open import RW.Language.RTerm
 open import RW.Language.RTermUtils
@@ -106,10 +108,33 @@ module Test where
     test 
       = let i1 = quote +-right-identity
             t1 = typeResult (Ag2RType (type i1))
+
+            tx : RTerm ⊥
+            tx = rapp (rdef (quote _+_)) ( ivar 0 ∷ ivar 1 ∷ [])
+
+            taux : RTerm ⊥
+            taux = rapp (rdef (quote _≡_))
+                   ( rapp (rdef (quote _+_))
+                      ( tx ∷ rapp (rcon (quote zero)) [] ∷ [] )
+                   ∷ tx
+                   ∷ []
+                   )
         
             i2 = quote +-assoc
             t2 = typeResult (Ag2RType (type i2))
-      in {!insertTerm i2 t2 (insertTerm i1 t1 (0 , BTrieEmpty))!}
+      in {! insertTerm i3 t3 (9 , myTrie) !}
+      where
+        open import Rel.Properties.BiFunctor
+        open import Rel.Core
+
+        i3 : Name
+        i3 = quote *-bi-functor
+    
+        t3 : RTerm ℕ
+        t3 = lift-ivar (typeResult (Ag2RType (type i3)))
+
+        t5 : RTerm ⊥
+        t5 = Ag2RTerm $ quoteTerm Id
 
     
 

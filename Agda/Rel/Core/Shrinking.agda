@@ -96,7 +96,7 @@ module Rel.Core.Shrinking where
   shrink-absorb r
     = ⊆in (λ a b bRBota 
            → let bRa = p1∩ $ _↾_.un bRBota
-             in (_/_.un $ p2∩ $ _↾_.un bRBota) b bRa)
+             in (_/_.un $ p2∩ $ _↾_.un bRBota) b (cons-ᵒ bRa))
     , ⊆in (λ a b → λ ()) 
 
 

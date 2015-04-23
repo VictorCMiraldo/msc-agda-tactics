@@ -331,15 +331,32 @@ Note how we can not just look up the goal term. We need to find out where the ca
 just like we did with the \emph{by} tactic, and construct a term using these differences
 and a \F{RTermName} to use as a new head.
 
+The final tactic is provided inside a submodule of \texttt{\small RW.RW}, where
+we can abstract over the RTrie being used as a database and a function for modifying
+\F{RTermName}s.
 
+\Agda{RW}{auto-module-decl}
 
+The importance of \F{newHd} is not evident. When computing terms with the \F{by} tactic,
+we have both the goal and the action head (that is, the topmost operator of both terms),
+which allow us to choose which strategy to apply, if any. Using the \F{auto} tactic, however,
+we need to find an action to apply to our goal. Let $g_\square$ be the context infered from
+our goal and $u_1$ and $u_2$ the subtraction of $g_\square$ from the goal. We will search
+for an action with type $\IC{rapp}\; (\F{newHd }g_{hd})\;(u_1\;::\;u_2\;::\;[])$. The tactic is defined as follows.
 
-\begin{TODO}
-  \item fix the interface.
-  \item Emacs plugin for compiling the database once?
-  \item Discuss the need for a more serious complexity analysis.
-  \item Stress that this is by no means final, and we're still
-        tweaking the algorithm and observing how it changes.
-  \item Provide the intuition for the performance increase.
-\end{TODO}
+\Agda{RW}{tactic-auto}\\
+\Agda{RW}{tactic-auto-internal}
+
+This abstraction over which relation to use given the topmost goal relation opens up a few interesting
+possibilities for future work. Let's assume that \F{newHd} had the following, more complex type: 
+\[
+\F{RTermName} \rightarrow \F{List }(\F{RTermName} \times (\F{Maybe }\F{RTerm }\bot))
+\]
+Satisfying something property close to: $\forall (n , m) \in \F{newHd }g_{hd}$, if $m \equiv \IC{just }t$
+for some term $t$, then $t$ has type $n \rightarrow g_{hd}$. This is roughly the introduction
+of a lattice of convertible relations, with $g_{hd}$ being the minimal. If we imagine
+our goal head was $\_\leq\_$, we could start by searching actions which had the same head,
+if that did not work, we could start looking for actions whose head is $\_\equiv\_$. Although
+simple in its core, this idea has a few not so straight-forward details for the goal context $g_\square$
+must also be taken into account. For this reason we left this loose end open, to be tied in the future.
 

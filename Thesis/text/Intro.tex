@@ -21,6 +21,13 @@ a lot of room for proof automation. By automating mechanical tasks in the develo
 critical software or models we can help the programmer to focus on what is really important
 rather than making he write boilerplate code that is mechanical in nature.
 
+As we said above, proof assistants depend on the logic they run on top of. Some of them,
+however, support some form of metaprogramming. That is, we can write programs that generate
+programs. This is achieved by having the programming language itself as a first class datatype.
+Examples include LISP and Prolog. One of the goals of this project is to explore how can
+we exploit such feature to automate the repetitive task of rewriting terms for other,
+proven to be equal, terms.
+
 The tool of choice for this project is the Agda language, developed at Chalmers \cite{norell07}. Agda uses a intensional
 variant of Martin-L\"{o}f's theory of types and provides a nice interactive construction feature. After
 the Curry-Howard isomorphism \cite{Howard01}, interactive program construction and assisted theorem proving are essentially

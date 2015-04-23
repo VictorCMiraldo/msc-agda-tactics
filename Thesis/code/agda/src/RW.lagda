@@ -90,3 +90,58 @@ by+ (a ∷ as) ctx goal with runErr (make-RWData a goal ctx >>= RWerr a)
 ...| i2 t = R2AgTerm ∘ p2 ∘ p2 $ t
 \end{code}
 %</by+-def>
+
+\begin{code}
+open import RW.Data.RTrie
+\end{code}
+
+%<*auto-module-decl>
+\begin{code}
+module Auto 
+    (bt    : RTrie)
+    (newHd : RTermName → RTermName)
+  where
+\end{code}
+%</auto-module-decl>
+
+\begin{code}
+  open import RW.Language.RTermTrie
+
+  our-strategy : RTermName → Name → UData → Err StratErr (RTerm ⊥)
+  our-strategy goal 
+    = maybe 
+      TStrat.how 
+      (const $ const $ i1 no-strat) 
+    $ filter-db db
+    where
+      no-strat : StratErr
+      no-strat = NoTStrat goal (newHd goal)
+
+      filter-db : TStratDB → Maybe TStrat
+      filter-db [] = nothing
+      filter-db (s ∷ ss) with TStrat.when s goal (newHd goal)
+      ...| false = filter-db ss
+      ...| true  = just s
+\end{code}
+
+%<*tactic-auto-internal>
+\begin{code}
+  auto-internal : List (Arg AgType) → AgTerm → Err StratErr AgTerm
+  auto-internal _ goal with forceBinary $ Ag2RTerm goal
+  ...| nothing = i1 $ Custom "non-binary goal"
+  ...| just (hd , g₁ , g₂)
+    = let
+      options = search-action (newHd hd) (hd , g₁ , g₂) bt
+      strat   = uncurry $ our-strategy hd
+      err     = Custom "No option was succesful"
+    in try-all strat err options >>= return ∘ R2AgTerm
+\end{code}
+%</tactic-auto-internal>
+%<*tactic-auto>
+\begin{code}
+  auto : List (Arg AgType) → AgTerm → AgTerm
+  auto ctx goal with runErr (auto-internal ctx goal)
+  ...| i1 err = RW-error err
+  ...| i2 r   = r
+\end{code}
+%</tactic-auto>

@@ -51,14 +51,14 @@ module Rel.Properties.Galois where
   instance
     ᵒ-isGC : {A B : Set} → _⊢_ {A} {B} {B} {A} (_ᵒ) (_ᵒ)
     ᵒ-isGC = record
-      { gc-1 = λ { (⊆in prf) → ⊆in (λ a b → prf b a) }
-      ; gc-2 = λ { (⊆in prf) → ⊆in (λ a b → prf b a) }
-      ; gc-distr-1 = ⊆in (λ a b z → cons-∪ (_∪_.un z))
-                   , ⊆in (λ a b z → cons-∪ (_∪_.un z))
-      ; gc-distr-2 = ⊆in (λ a b z → cons-∩ (_∩_.un z))
-                   , ⊆in (λ a b z → cons-∩ (_∩_.un z))
-      ; gc-mono-1 = λ { (⊆in prf) → ⊆in (λ a b → prf b a) }
-      ; gc-mono-2 = λ { (⊆in prf) → ⊆in (λ a b → prf b a) }
+      { gc-1 = λ { (⊆in prf) → ⊆in (λ a b bRa → cons-ᵒ (prf b a (cons-ᵒ bRa))) }
+      ; gc-2 = λ { (⊆in prf) → ⊆in (λ a b → λ z → _ᵒ.un (prf b a (_ᵒ.un z))) }
+      ; gc-distr-1 = ⊆in (λ a b z → cons-∪ {!!})
+                   , ⊆in (λ a b z → {!!})
+      ; gc-distr-2 = ⊆in (λ a b z → {!!})
+                   , ⊆in (λ a b z → {!!})
+      ; gc-mono-1 = λ { (⊆in prf) → ⊆in (λ a b → {!!}) }
+      ; gc-mono-2 = λ { (⊆in prf) → ⊆in (λ a b → {!!}) }
       }
         
     ∙-/-isGC : {A B C : Set}{Y : Rel B A} 
