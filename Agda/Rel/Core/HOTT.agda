@@ -220,3 +220,17 @@ postulate
   fun-ext : ∀{a b}{A : Set a}{B : Set b}{f g : A → B}
           → (∀ x → f x ≡ g x)
           → f ≡ g
+
+
+-----------------------------
+-- Propositional Truncation
+
+data ∥_∥ (A : Set) : Set where
+  one  : (a : A) → ∥ A ∥
+ 
+postulate
+  ∥_∥-eq : {A : Set} → isProp ∥ A ∥
+
+truncate-× : {A B : Set} → ∥ A × B ∥ → ∥ A ∥ × ∥ B ∥
+truncate-× (one (f , g)) = one f , one g
+
