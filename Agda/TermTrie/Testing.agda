@@ -125,11 +125,6 @@ module TermTrie.Testing where
   open import TermTrie.TrieObj
   open import RW.Data.RTrie
 
-  !Just : ∀{a}{A : Set a} → Maybe A → A
-  !Just (just a) = a
-  !Just nothing  = blah
-    where postulate blah : ∀{a}{A : Set a} → A
-
   open import TermTrie.TrieObj
 
   -- This import tells to open module Auto, from RW.RW
