@@ -42,8 +42,19 @@ module Rel.Properties.BiFunctor where
                  { R : Rel B C }{H : Rel A B }
                  { S : Rel Y Z }{I : Rel X Y } 
                → (R * S) ∙ (H * I) ≡r (R ∙ H) * (S ∙ I)
-  *-bi-functor = TODO
-    where postulate TODO : {A : Set} → A
+  *-bi-functor {A} {B} {C} {X} {Y} {Z} {R} {H} {S} {I} 
+    = ⊆in aux1 , ⊆in aux2
+    where
+      aux1 : (a : A × X) (b : C × Z) → (R * S ∙ H * I) b a → ((R ∙ H) * (S ∙ I)) b a
+      aux1 (a , x) (c , z) ((w1 , w2) , (cons-⟨,⟩ (p11 , p12) , cons-⟨,⟩ (p21 , p22))) 
+        = cons-⟨,⟩ ((a , ((w1 , (fun-kill-1 p11 , fun-kill-1 p21)) , (cons-fun refl))) 
+                   , x , ((w2 , (fun-kill-1 p12 , fun-kill-1 p22)) , (cons-fun refl)))
+
+      aux2 : (a : A × X) (b : C × Z) → ((R ∙ H) * (S ∙ I)) b a → (R * S ∙ H * I) b a
+      aux2 (a , x) (c , z) (cons-⟨,⟩ ((wh1 , ph11 , ph12) , (wh2 , ph21 , ph22))) 
+        = (p1∙ ph11 , p1∙ ph21) 
+        , cons-⟨,⟩ (((p1∙ ph11) , ((p1 $ p2∙ ph11) , (cons-fun refl))) , ((p1∙ ph21) , ((p1 $ p2∙ ph21) , (cons-fun refl))))
+        , cons-⟨,⟩ ((wh1 , (p2 $ p2∙ ph11) , ph12) , (wh2 , (p2 $ p2∙ ph21) , ph22))
 
   *-ᵒ-distr : {A B C D : Set}{R : Rel A B}{S : Rel C D}
             → (R ᵒ * S ᵒ) ≡r (R * S) ᵒ
@@ -99,8 +110,34 @@ module Rel.Properties.BiFunctor where
                  { R : Rel B C }{ H : Rel A B }
                  { S : Rel Y Z }{ I : Rel X Y }
                → (R + S) ∙ (H + I) ≡r (R ∙ H) + (S ∙ I)
-  +-bi-functor = TODO
-    where postulate TODO : {A : Set} → A
+  +-bi-functor {A} {B} {C} {X} {Y} {Z} {R} {H} {S} {I}
+    = ⊆in aux1 , ⊆in aux2
+    where
+      aux1 : (a : A ⊎ X) (b : C ⊎ Z) → (R + S ∙ H + I) b a → ((R ∙ H) + (S ∙ I)) b a
+      aux1 (i1 a) (i1 c) (i1 x , (cons-either (w1 , cons-fun q11 , q12) 
+                                , cons-either (w2 , cons-fun q21 , q22))) 
+           rewrite (i1-inj q21)
+                 | (i1-inj q11) 
+                 = cons-either (c , (cons-fun refl , x , (q12 , q22)))
+      aux1 (i1 a) (i1 c) (i2 _ , (cons-either (_ , cons-fun () , _) , _))
+      aux1 (i1 a) (i2 z) (i1 _ , (cons-either (_ , cons-fun () , _) , _))
+      aux1 (i1 a) (i2 z) (i2 _ , (_ , cons-either (_ , cons-fun () , _)))
+      aux1 (i2 x) (i1 c) (i2 _ , (cons-either (_ , cons-fun () , _) , _))
+      aux1 (i2 x) (i1 c) (i1 _ , (_ , cons-either (_ , cons-fun () , _)))
+      aux1 (i2 x) (i2 z) (i1 _ , (cons-either (_ , cons-fun (), _) , _))
+      aux1 (i2 x) (i2 z) (i2 y , (cons-either (w1 , cons-fun q11 , q12) 
+                                , cons-either (w2 , cons-fun q21 , q22))) 
+           rewrite (i2-inj q21)
+                 | (i2-inj q11)
+                 = cons-either (z , ((cons-fun refl) , (y , (q12 , q22))))
+
+      aux2 : (a : A ⊎ X) (b : C ⊎ Z) → ((R ∙ H) + (S ∙ I)) b a → (R + S ∙ H + I) b a
+      aux2 (i1 a) (i1 c) (cons-either (w , (cons-fun q1 , rh))) rewrite (i1-inj q1) 
+        = (i1 (p1∙ rh)) , ((cons-either (c , ((cons-fun refl) , (p1 $ p2∙ rh)))) , (cons-either ((p1∙ rh) , (cons-fun refl) , (p2 $ p2∙ rh))))
+      aux2 (i1 a) (i2 z) (cons-either (_ , cons-fun () , _))
+      aux2 (i2 x) (i1 c) (cons-either (_ , cons-fun () , _))
+      aux2 (i2 x) (i2 z) (cons-either (w , (cons-fun q1 , rh))) rewrite (i2-inj q1) 
+        = (i2 (p1∙ rh)) , ((cons-either (z , ((cons-fun refl) , (p1 $ p2∙ rh)))) , (cons-either ((p1∙ rh) , (cons-fun refl) , (p2 $ p2∙ rh))))
 
   +-ᵒ-distr : {A B C D : Set}{R : Rel A B}{S : Rel C D}
             → (R ᵒ + S ᵒ) ≡r (R + S) ᵒ

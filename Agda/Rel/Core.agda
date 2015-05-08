@@ -346,6 +346,14 @@ module Rel.Core where
            → fun (f ∘ g)  ⊆  fun f ∙ fun g
   fun-comp {g = g} = ⊆in (λ { a _ (cons-fun fga) → g a , cons-fun fga , cons-fun PE.refl } )
 
+  fun-kill-1 : {A B C : Set}{f : C → A}{R : Rel A B}{c : C}{b : B}
+             → (R ∙ fun f) b c → R b (f c)
+  fun-kill-1 (._ , (bRw , cons-fun refl)) = bRw
+
+  fun-kill-2 : {A B C : Set}{f : B → C}{R : Rel A B}{c : C}{b : B}{a : A}
+             → (fun f ∙ R) c a → ∃ (λ b → R b a × f b ≡ c)
+  fun-kill-2 (w , cons-fun p1 , p2) = w , p2 , p1
+
   -------------------
   -- * Constants * --
   -------------------
