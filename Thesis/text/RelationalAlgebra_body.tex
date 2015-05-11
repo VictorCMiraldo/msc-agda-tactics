@@ -529,6 +529,15 @@ law is split in two separate laws:
 
 \Agda{Catas}{cata-uni}
 
+As far as the author is aware, this is an original atempt at encoding generic catamorphisms
+in Agda. The List relator has already been handled in \cite{Jansson09}, yet we were looking
+forward to give a generic framework. Although theoretically sound, the implementation does
+not work as intended. Whenever we were working on proof objects involving catamorphisms
+Agda delivered a bunch of \emph{stack overflows} and \emph{internal error} messages, not to
+mention the very poor runtime, which significantly slowed down development. Nevertheless,
+we are happy that it is possible to encode those generic functors. Fine tuning the implementation
+is left as future work.
+
 
 \subsection{Properties}
 

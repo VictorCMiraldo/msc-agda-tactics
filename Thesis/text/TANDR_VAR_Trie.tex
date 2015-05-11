@@ -327,7 +327,7 @@ to reconstruct the Agda term filling the goal.
 
 \Agda{RTermTrie}{search-action-def}
 
-Note how we can not just look up the goal term. We need to find out where the canges are,
+Note how we can not just look up the goal term. We need to find out where the changes are,
 just like we did with the \emph{by} tactic, and construct a term using these differences
 and a \F{RTermName} to use as a new head.
 
@@ -359,4 +359,61 @@ our goal head was $\_\leq\_$, we could start by searching actions which had the 
 if that did not work, we could start looking for actions whose head is $\_\equiv\_$. Although
 simple in its core, this idea has a few not so straight-forward details for the goal context $g_\square$
 must also be taken into account. For this reason we left this loose end open, to be tied in the future.
+
+\subsection{Summary}
+
+Although a more formal complexity analisys is needed to provide a sound conclusion as to
+how much time do we save by encoding our term database as a Trie, it is straight forward to have
+an intuition to how it performs better, at least on spacial complexity, compared to a list-based
+implementation. A Haskell prototype was developed prior to the Agda code. Needless to mention,
+such prototype performed much better and could handle a very large number of terms, even for a real theory.
+The biggest problem, in Agda, is the insertion function. Trying to make a database with 30 terms,
+running Agda with RTS options: \texttt{\small -K64M -M2.5G -s}, results in the output presented
+in figure \ref{fig:rtsdump}. That is, we need more than 2.5 gigabytes of heap space to finish
+the computation.
+
+This behaviour was somewhat expected, since the insertion algorithm needs to keep
+reconstructing the tree as it progresses. It is worth remembering that the \F{RTerm}s
+corresponding to the lemmas are not as small as one might imagine. For instance,
+consider the distributivity of converse over coproducts, that is:
+
+\Agda{SampleTerms}{sample-type-1}
+
+When translated to its corresponding meta-language representation, we have
+
+\Agda{SampleTerms}{sample-term-1}
+
+\begin{figure}[h]
+\begin{center}
+\scriptsize
+\begin{verbatim}
+Current maximum heap size is 2684354560 bytes (2560 MB);
+use `+RTS -M<size>' to increase it.
+  43,764,717,080 bytes allocated in the heap
+  19,527,437,072 bytes copied during GC
+   2,643,217,856 bytes maximum residency (40 sample(s))
+      10,944,000 bytes maximum slop
+            2637 MB total memory in use (0 MB lost due to fragmentation)
+
+                                    Tot time (elapsed)  Avg pause  Max pause
+  Gen  0     74987 colls,     0 par   31.79s   31.83s     0.0004s    0.0033s
+  Gen  1        40 colls,     0 par   393.98s   407.71s     10.1929s    27.7731s
+
+  INIT    time    0.00s  (  0.00s elapsed)
+  MUT     time  191.16s  (192.32s elapsed)
+  GC      time  425.78s  (439.54s elapsed)
+  EXIT    time    0.00s  (  0.00s elapsed)
+  Total   time  616.94s  (631.86s elapsed)
+
+  %GC     time      69.0%  (69.6% elapsed)
+
+  Alloc rate    228,946,026 bytes per MUT second
+
+  Productivity  31.0% of total user, 30.3% of total elapsed
+\end{verbatim}
+\end{center}
+\caption{RTS dump for \texttt{\small Rel.Properties.Database}.}
+\label{fig:rtsdump}
+\end{figure}
+
 

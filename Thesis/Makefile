@@ -58,7 +58,8 @@ CODE_AGDA_MODULES=Basic\
                   RTrie\
                   RTrieLkup\
                   RTrieInsert\
-                  RTermTrie
+                  RTermTrie\
+                  SampleTerms
                   
 COMPILER=pdflatex -etex
 
