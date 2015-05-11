@@ -33,7 +33,8 @@ module Rel.CaseStudies.SelectionSort where
      ok (a₁ , x) = (a₂ : A) → elem {{ eq eqA }} x a₂ → a₂ ≤ a₁
 
      perm-preserves-ok : (l1 l2 : Lw A) → perm l1 l2 → (a : A) → ok (a , l1) → ok (a , l2)
-     perm-preserves-ok l1 l2 hip a₁ aok a₂ a₂∈l2 = {!!}
+     perm-preserves-ok l1 l2 hip a₁ aok a₂ a₂∈l2 
+       = aok a₂ (⊆out (≡r-elim1 (perm-elem {{eq eqA}})) a₂ l1 (l2 , hip , a₂∈l2))
 
      ok-perm-natural : φ ok ∙ (Id * perm) ≡r (Id * perm) ∙ φ ok
      ok-perm-natural = ⊆in {!!} , ⊆in {!!}

@@ -24,10 +24,23 @@ module Rel.Relator.List.Defs where
   open IsWFunctor1 {{...}}
   open IsRelator   {{...}}
 
+  -- nil is unique!
+  -- just a different presentation of inLi1-lemma.
+  nil-unique : {A : Set}{x : Unit}{f : ⊥ → Lw A} → sup (i1 x) f ≡ nil
+  nil-unique {x = unit} = cong (sup (i1 unit)) (fun-ext (λ ()))
+    where
+      open import Rel.Core.HOTT
+
+
   -- List concatenation
   _++_ : {A : Set} → Lw A → Lw A → Lw A
   (sup (i1 _) _) ++ l2 = l2
   (sup (i2 s) p) ++ l2 = sup (i2 s) (λ ss → p ss ++ l2)
+
+  ++-nil-nil : {A : Set}{l1 l2 : Lw A} → l1 ++ l2 ≡ nil → l1 ≡ nil × l2 ≡ nil
+  ++-nil-nil {l1 = sup (i1 unit) f} {sup (i1 .unit) .(λ ())} refl = nil-unique , refl
+  ++-nil-nil {l1 = sup (i1 x) x₁} {sup (i2 y) x₂} ()
+  ++-nil-nil {l1 = sup (i2 y) x} ()
 
   cat : {A : Set} → Rel (Lw A × Lw A) (Lw A)
   cat = fun (uncurry _++_)
@@ -46,6 +59,12 @@ module Rel.Relator.List.Defs where
   -- ⊢ (x ++ [z] ++ y) add (z , x ++ y)
   add : {A : Set} → Rel (A × Lw A) (Lw A)
   add = cat ∙ (Id * consR) ∙ exch ∙ (Id * cat ᵒ)
+
+  add-non-empty : {A : Set}(a : A)(l : Lw A) → add nil (a , l) → ⊥
+  add-non-empty a l ((w1 , w2) , (cons-fun un , proj₂)) with ++-nil-nil {l1 = w1} {l2 = w2} un
+  add-non-empty a l ((w1 , .(sup (i1 unit) (λ ()))) , (cons-fun un , (.w1 , .k) 
+                    , (cons-⟨,⟩ ((.w1 , cons-fun refl , cons-fun refl) 
+                    , (k , (.(i2 k) , cons-fun () , cons-fun refl) , cons-fun refl)) , c2))) | _ , refl 
 
   -- Permutations, as defined in the AoP book.
   perm : {A : Set} → Rel (Lw A) (Lw A)
@@ -124,3 +143,25 @@ module Rel.Relator.List.Defs where
             → perm {A = A} ∙ consR ≡r perm ∙ consR ∙ (Id * perm)
   permLemma = ≡r-trans permcons-lemma 
               (≡r-trans (≡r-cong (λ z → z ∙ Id * perm) add≡permcons) ∙-assoc)
+
+  perm-elem : {A : Set}{{_ : Eq A}}
+            → perm {A = A} ∙ elem ≡r elem
+  perm-elem {A} {{eq f}} = TODO -- ⊆in aux1 , ⊆in {!!}
+    where
+      postulate TODO : ∀{α}{A : Set α} → A
+      {-
+        stack overflowing... :(
+      aux1 : (a : A)(b : Lw A) → (perm ∙ elem {{eq f}}) b a → elem {{eq f}} b a
+      aux1 a (sup (i1 x) x₁) (sup (i1 x₂) x₃ , (cons-cata c1 , ()))
+      aux1 a (sup (i1 x) x₁) (sup (i2 y) x₂ , (cons-cata (.(i2 (y , k2)) , cons-either c , cons-either ((.y , k2) 
+                             , cons-fun refl , cons-⟨,⟩ ((.y , cons-fun refl , cons-fun refl) , d2))) , c2)) 
+        = add-non-empty y k2 (subst (λ z → add z (y , k2)) nil-unique c)
+      aux1 a (sup (i2 y) x) hip with f y a
+      ...| yes prf = unit
+      aux1 a (sup (i2 y) x) (sup (i1 x₁) x₂ , (cons-cata un , ())) | no prf
+      aux1 a (sup (i2 y) x) (sup (i2 j) x₂ , (cons-cata (.(i2 (j , k2)) , cons-either c , cons-either ((.j , k2) 
+                             , cons-fun refl , cons-⟨,⟩ ((.j , cons-fun refl , cons-fun refl) , d2))) , c2)) 
+           | no prf = aux1 a (x unit) {!!}
+      -- aux1 a (sup (i2 y) x) (sup (i2 y₁) x₁ , (cons-cata (.(i2 k2) , cons-either c1 , cons-either (k2 , (cons-fun refl , c22))) , proj₂)) 
+      --   | no prf = aux1 y {!!} {!!}
+      -}

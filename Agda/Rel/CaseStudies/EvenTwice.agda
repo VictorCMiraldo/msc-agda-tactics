@@ -92,10 +92,9 @@ module Rel.CaseStudies.EvenTwice where
   evenLemma2 = ⊆in (λ  b' b bEvena 
     → let evenb = p2 (φ.un bEvena)
           a , btwicea = evenLemma2Aux b evenb
-      in cons-ρ $ 
-           (a , btwicea , cons-fun 
-              (subst (λ x → twice a ≡ x) (p1 $ φ.un bEvena) (fun.un btwicea))) 
-         , (p1 $ φ.un bEvena)
+      in cons-ρ ((a , (btwicea , (cons-ᵒ 
+                    (cons-fun (subst (λ x → twice a ≡ x) (p1 $ φ.un bEvena) (fun.un btwicea)))))) 
+                , (p1 $ φ.un bEvena))
     ) where
       evenLemma2Aux : (b : ℕ) → So (even b) 
                     → ∃ (λ x → twiceR b x)
@@ -117,6 +116,8 @@ module Rel.CaseStudies.EvenTwice where
   open import Rel.Properties.Monotonicity
   open import Rel.Properties.Correflexive
   open import Rel.Properties.Neutral
+  
+  open import Rel.Properties.DatabaseList
 
   twiceIsEven : (twiceR ∙ evenR ⊆ evenR ∙ twiceR) ⇐ Unit
   twiceIsEven 
@@ -128,7 +129,8 @@ module Rel.CaseStudies.EvenTwice where
 
       twiceR ∙ evenR ⊆ (ρ twiceR) ∙ twiceR
 
-    ⇐⟨ (tactic (by (quote ρ-intro))) ⟩
+    -- ⇐⟨ (tactic (by (quote ρ-intro))) ⟩
+    ⇐⟨ (tactic (by+ db)) ⟩
 
       twiceR ∙ evenR ⊆ twiceR
 
