@@ -379,9 +379,17 @@ consider the distributivity of converse over coproducts, that is:
 
 \Agda{SampleTerms}{sample-type-1}
 
-When translated to its corresponding meta-language representation, we have
+When translated to its corresponding meta-language representation, we have the following \F{RTerm}.
 
 \Agda{SampleTerms}{sample-term-1}
+
+One solution to this performance problem is to perform all processing in Haskell. We would need
+two additional keywords on Agda. One to add a given function to the internal term database
+and one to run the corresponding \F{auto} tactic with the persistent term database. Is it really
+a good idea to push reflection computations to Haskell instead of fixing the Agda side, though?
+This is a complicated question to answer and we will leave this paragraph as a thought
+digression only, since Agda is still a young tool.
+
 
 \begin{figure}[h]
 \begin{center}
