@@ -2,10 +2,11 @@ The overall task of adding rewriting functionality to Agda is quite an explorato
 project for a couple reasons, the most relevant being the unstable state of Agda's
 standard library and, in particular, of the Reflection module. One workaround
 is to define our own Term datatype, and, whenever Agda changes its reflection module,
-we just need to fix the two converssion functions.
+we just need to fix the two converssion functions. One of the biggest difficulties
+we found is the steep learning curve of Agda's standard library.
 
 Our goal was not only adding automatic rewriting to Agda, but to explore how closely
-to pen and paper we could model Relational Algebra in Agda. Disconsidering generic catamorphisms,
+to \emph{pen-and-paper} we could model Relational Algebra in Agda. Disconsidering generic catamorphisms,
 the result is very satisfactory. Agda runs in an aceptable time and allows us to build
 some homework level proofs. When things got interesting though, that is, when we added (generic) catamorphisms to
 the recipe, Agda did not behave that well. We encountered several performance problems
@@ -17,21 +18,33 @@ can not help but wish Agda provided more control or information over evaluation 
 Some sort of profiling, for instance, would really help developers.
 
 On another interesting digression, we did fix the relational equality problem, in Agda,
-by using Homotopy Type Theory. Our fix still relies on one axiom, the Univalence Axiom.
+by using a few concepts from Homotopy Type Theory. Our fix still relies on one axiom, the Univalence Axiom.
 It is arguable, however, on how much of that was indeed necessary, since by assuming
-function extensionality one could already provide the proofs.
+function extensionality one could already complete the proofs.
 Nevertheless, we do believe it is very good practice to keep postulates to an absolute minimum. 
 They not only block evaluation but can lead to inconsistencies if not carefully analized. 
 It is also worth noting that our library had special specifications in mind, when it was designed.
-Such as being suitable for automated processing. This constraint rendered a heavier library
-in terms of code.
+Such as being suitable for automated processing. This constraint rendered a library
+with much more code overhead to give us finer control over evaluation.
+
+We would like to reiterate that the Relational Algebra library we constructed is by no means final.
+A proper organization of the already provided properties, which do not encompass a full account
+of Relational Algebra, is definetely needed. Bootstrapping the proofs with our rewriting engine
+would be also very interesting, even though not all proofs can be bootstrapped. A more
+detailed work on the decidability of relational composition could also be important for
+making catamorphisms usable in practice.
 
 In parallel with the development of the aforementioned library, on a more practical front,
 we developed a few tactics for automated context inference on equational reasoning proofs.
+That is, we are able to infer the substitutions that justify the rewriting operation automatically.
 During a first iteration, the tactic was pretty straight forward and, once we figured out
-the necessary \F{RTerm} operations, its implementation was relatively straight forward.
-Generalizing it was a more complicated task. We did develop a data structure better than lists to
-handle multiple possible actions, yet, the construction of such object in Agda posed a 
-performance problem, which we did not have time to overcome and was left as future work.
-Here again, a few debugging tools from Agda itself could be of great help.
+the necessary \F{RTerm} operations, its implementation was relatively simple.
+Generalizing it was a more complicated task. We did develop a data structure that 
+seems to perform better than lists to handle multiple possible actions, yet, the construction 
+of such object in Agda posed a performance problem, which we did not have time to overcome 
+and was left as future work. Here again, a few debugging tools from Agda itself could have been of great help.
+
+Although Agda is still a young tool, it has incredible potential. The unified language for
+programming and meta-programming, indeed, makes it possible to automate almost every mechanical 
+task in a very natural way. { \color{blue} bla bla bla continue this! }
 

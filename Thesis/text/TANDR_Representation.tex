@@ -129,26 +129,61 @@ As an example:
 \end{eqnarray*}
 
 From the intersection and difference operators we ca already extract a lot of information to
-complete our goal. The general algorithm is as follows:
+complete our goal. The general algorithm is given in figure \ref{fig:rwdata2udata}
 
+\begin{figure}[h]
 \begin{enumerate} %[i)]
   \item Given the goal $(hd_g, g_1, g_2)$ and action type $(hd_a, a_1, a_2)$, we start
-        by calculating the abstraction $g\square = \uparrow (g_1 \cap g_2)$, where $\uparrow\_$
-        represents hole-lifting.
+        by calculating the abstraction 
+          \[ g\square \;=\; \uparrow (g_1 \cap g_2) \]
+        where $\uparrow\_$ represents hole-lifting.\\
   \item We proceed by separating the parts of the goal which still need to be handled,
-        they are $u_1 = g\square - g_1$ and $u_2 = g\square - g_2$.
-  \item Unification of $u_1$ with $a_1$ and $u_2$ with $a_2$ follows, this should give two substitutions
-        $\sigma_1$ and $\sigma_2$.
+        they are, for $i \in \{1 , 2\}$, $u_i \;=\; g\square - g_i$.\\
+  \item Instantiation of $u_1$ with $a_1$ and $u_2$ with $a_2$ follows, this should give two substitutions
+        $\sigma_1$ and $\sigma_2$.\\
   \item Afterwards, it's just a matter of converting all this data back to a term. $\sigma = \sigma_1 \conc \sigma_2$
         will contain the list of arguments we should pass to our action function.
 \end{enumerate}
+\caption{Converting a \F{RWData} to a \F{UData}}
+\label{fig:rwdata2udata}
+\end{figure}
 
-The last step, of converting everything back to Agda's \D{Term} type, should be modular.
-A simple idea is to use different strategies triggered by specific $(hd_g,\;hd_a)$ pairs.
-This should give us enough freedom to use our library even on very particular scenarios.
-Remembering, though, that the specific constructors of a given case study should be
-deeply embedded into, at least, a record. Otherwise, normalization is going to render
-terms incompatible. We are going to discuss this topic later.
+The last step, of converting everything back to Agda's \D{Term} type, should 
+be modular. A simple idea is to use different strategies triggered by 
+specific $(hd_g,\;hd_a)$ pairs. This should give us enough freedom to use our 
+library even on very particular scenarios. Remembering, though, that the 
+specific constructors of a given case study should be deeply embedded into, 
+at least, a record. Otherwise, normalization is going to render terms 
+incompatible. We are going to discuss this topic later.
+
+\subsection{Complexity Remarks}
+
+Since we do not provide the full code here, it is also out of 
+scope to give a detailed complexity analisys. For the interested reader, the 
+code is anotated with such analisys. In this section we will present only a 
+few results where our reasoning is always in a worst-case setting.
+Two important measures over \F{RTerm}s have to be introduced, that is,
+the size of a term and the set of free variables of a term:
+
+\newcommand{\bigO}[1]{\mathcal{O}(#1)}
+\begin{minipage}[t]{0.45\textwidth}
+\Agda{RTerm}{rterm-size}
+\end{minipage}
+\begin{minipage}[t]{0.45\textwidth}
+\Agda{RTerm}{rterm-fv}
+\end{minipage}
+
+Given a $t \in \F{RTerm} A$, for all $A$, $S_t$ denotes $(S\; t)$ and 
+$\#\;Fv_t$ denotes $length (Fv\;t)$. 
+
+Term intersection $t_1 \cap t_2$ was found to run in $\bigO{min(S_t, S_u)}$.
+Same thing goes for lifting after intersection, $\_\cap\uparrow\_$. 
+An ideal version of term subtraction $t - u$ will run in $\bigO{\# Fv_t}$,
+the same reasoning applies to $\_-\downarrow\_$.
+Instantiation, $\F{inst }t$, which is discussed in the next section, given
+that $t$ has at most $n$ free variables, will run in 
+$\bigO{n^2 + (S_t + 1)\times n + S_t}$.
+
 
 \section{Instantiation}
 

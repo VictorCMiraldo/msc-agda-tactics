@@ -11,7 +11,7 @@ is the type of the elements and \inlagda{n} is the length of the vector. Readers
 with C may argue that C also has fixed size arrays. The difference is that
 this \inlagda{n} need not to be known at compile time: it can be an arbitrary term , as long as it has type \inlagda{Nat}. That is, there is no difference between types and values, they are all sets, explained in the sequel.
 
-This chapter introduces the basics of Agda and shows some examples in both
+This chapter introduces the basics of Agda \index{Agda} and shows some examples in both
 the programming and the proof theoretic sides of the language. Later on, in 
 section \ref{sec:background:martinlof}, we will see the theory in which Agda is built 
 on top of, whereby a number of concepts introduced below will become clearer. 
@@ -31,8 +31,8 @@ The \emph{Hello World} program in Agda is the encoding of Peano's Natural number
 \Agda{Basic}{NAT}
 
 Data declarations in Agda are very similar to a GADTs\cite{Xi2003} in Haskell. Remember that, in Agda, types and values are the same thing.
-The data declaration above states that \inlagda{Nat} is \emph{of type} 
-\inlagda{Set}. This \inlagda{Set} is the type of types, to be addressed in more detail later. 
+The data declaration above states that \F{Nat} is \emph{of type} 
+\F{Set} \index{Agda!Set}. This \F{Set} is the type of types, to be addressed in more detail later. 
 For now, think of it as Haskell's $*$ kind.
 
 
@@ -176,7 +176,7 @@ where we need to use such finite types is first-order unification, as in \cite{m
 As the unification algorithm progresses, the terms are growing bigger, since variables are being
 substituted by (possibly) more complex terms. Yet, the number of variables to be substituted
 decreases by one in each step. This is modeled by a function with type $\D{Fin}\;(\IC{suc}\;n) \rightarrow \D{Fin}\;n$,
-where \D{Fin $n$} is a type with $n$ elements. 
+where \D{Fin $n$} \index{Agda!Fin} is a type with $n$ elements. 
 
 Agda, and dependently typed languages in general, allows one to speak about type \emph{families}
 in a very structured way. To define the family $(\D{Fin}\;n)_{n \in \mathbb{N}}$ of types with 

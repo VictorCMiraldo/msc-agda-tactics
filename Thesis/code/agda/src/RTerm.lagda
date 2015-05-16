@@ -40,6 +40,36 @@ isHole _              = false
 \begin{code}
 {-# TERMINATING #-}
 \end{code}
+%<*rterm-size>
+\begin{code}
+S : {A : Set} → RTerm A → ℕ
+S (ovar _) = 1
+S (ivar _) = 1
+S (rlit _) = 1
+S (rlam t) = 1 + S t
+S (rapp n ts) = 1 + sum (map S ts)
+  where open import Data.List using (sum)
+\end{code}
+%</rterm-size>
+
+\begin{code}
+{-# TERMINATING #-}
+\end{code}
+%<*rterm-fv>
+\begin{code}
+Fv : {A : Set} → RTerm A → List A
+Fv (ovar a) = a ∷ []
+Fv (ivar _) = []
+Fv (rlit _) = []
+Fv (rlam t) = Fv t
+Fv (rapp _ ts) = concatMap Fv ts
+  where open import Data.List using (concatMap)
+\end{code}
+%</rterm-fv>
+
+\begin{code}
+{-# TERMINATING #-}
+\end{code}
 %<*rterm-replace>
 \begin{code}
 replace : ∀{a b}{A : Set a}{B : Set b}
