@@ -157,10 +157,11 @@ at least, a record. Otherwise, normalization is going to render terms
 incompatible. We are going to discuss this topic later.
 
 \subsection{Complexity Remarks}
+\label{sec:basiccomplexity}
 
 Since we do not provide the full code here, it is also out of 
-scope to give a detailed complexity analisys. For the interested reader, the 
-code is anotated with such analisys. In this section we will present only a 
+scope to give a detailed complexity analysis. For the interested reader, the 
+code is annotated with such analysis. In this section we will present only a 
 few results where our reasoning is always in a worst-case setting.
 Two important measures over \F{RTerm}s have to be introduced, that is,
 the size of a term and the set of free variables of a term:
@@ -184,6 +185,19 @@ Instantiation, $\F{inst }t$, which is discussed in the next section, given
 that $t$ has at most $n$ free variables, will run in 
 $\bigO{n^2 + (S_t + 1)\times n + S_t}$.
 
+Note that we chose to leave the complexities dependent both on the size of the term
+and on the number of free variables. This is because more often than not we will have
+terms with 2 or 3 free variables, with a size of 10 to 15. It is therefore wrong
+to prune out either parameter from our analysis.
+
+Our unification strategy, displayed in figure \ref{fig:rwdata2udata}, lets call
+it \F{basic}, when called as $\F{basic }(g_1 \equiv_g g_2)\;(t_1 \equiv_t t_2)$,
+in the worst case, runs in, approximately, $\bigO{2t(t + S + 1) + 2S}$ time, for $t = max(\#Fv_{t_1}, \#Fv_{t_2})$ and
+$S = max(S_{t_1}, S_{t_2})$.
+
+This shows that the action structure plays a bigger role than the goal itself,
+for the run time of our tactic. Such result was somewhat expected, since instantiation
+has a quadratic run time on its first parameter's \IC{ovar}s. 
 
 \section{Instantiation}
 

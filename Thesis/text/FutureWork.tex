@@ -2,19 +2,19 @@ The overall task of adding rewriting functionality to Agda is quite an explorato
 project for a couple reasons, the most relevant being the unstable state of Agda's
 standard library and, in particular, of the Reflection module. One workaround
 is to define our own Term datatype, and, whenever Agda changes its reflection module,
-we just need to fix the two converssion functions. One of the biggest difficulties
+we just need to fix the two conversion functions. One of the biggest difficulties
 we found is the steep learning curve of Agda's standard library.
 
 Our goal was not only adding automatic rewriting to Agda, but to explore how closely
 to \emph{pen-and-paper} we could model Relational Algebra in Agda. Disconsidering generic catamorphisms,
-the result is very satisfactory. Agda runs in an aceptable time and allows us to build
+the result is very satisfactory. Agda runs in an acceptable time and allows us to build
 some homework level proofs. When things got interesting though, that is, when we added (generic) catamorphisms to
 the recipe, Agda did not behave that well. We encountered several performance problems
 and \emph{internal error} messages. The code still works and is able to (poorly) handle
 generic catamorphisms. From what we know, this is the first attempt at encoding relational generic catamorphisms
 in Agda. It is interesting to know that it is, indeed, possible to develop an encoding using W-types. Yet,
 work remains to be done in refining and fixing this approach. On this same note, the authors
-can not help but wish Agda provided more control or information over evaluation (typechecking).
+can not help but wish Agda provided more control or information over evaluation (type checking).
 Some sort of profiling, for instance, would really help developers.
 
 On another interesting digression, we did fix the relational equality problem, in Agda,
@@ -22,14 +22,14 @@ by using a few concepts from Homotopy Type Theory. Our fix still relies on one a
 It is arguable, however, on how much of that was indeed necessary, since by assuming
 function extensionality one could already complete the proofs.
 Nevertheless, we do believe it is very good practice to keep postulates to an absolute minimum. 
-They not only block evaluation but can lead to inconsistencies if not carefully analized. 
+They not only block evaluation but can lead to inconsistencies if not carefully analyzed. 
 It is also worth noting that our library had special specifications in mind, when it was designed.
 Such as being suitable for automated processing. This constraint rendered a library
 with much more code overhead to give us finer control over evaluation.
 
 We would like to reiterate that the Relational Algebra library we constructed is by no means final.
 A proper organization of the already provided properties, which do not encompass a full account
-of Relational Algebra, is definetely needed. Bootstrapping the proofs with our rewriting engine
+of Relational Algebra, is definitely needed. Bootstrapping the proofs with our rewriting engine
 would be also very interesting, even though not all proofs can be bootstrapped. A more
 detailed work on the decidability of relational composition could also be important for
 making catamorphisms usable in practice.
