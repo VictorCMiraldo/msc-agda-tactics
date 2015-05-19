@@ -5,14 +5,15 @@ fixed, there should be one solution. A naive extension to our library could be m
 
 \Agda{RW}{by+-def}
 
-However, a \F{List} of names is a bad data structure to use here. We need to search
-every single action, where, we could rule out actions purely based on their structure.
+However, a \F{List} of names is a bad data structure to use here. We can see that
+by borrowing a few definitions from the complexity of our \F{by} tactic, section \ref{sec:basiccomplexity}.
+Without loss of generality, let us assume that we are going to search a list of $n$
+tactics. Let us assume that a given action $t$ maximizes the function $2\times \# Fv_t(\# Fv_t + S_t + 1) + 2S_t$.
+Our \F{by+} tactic will belong to $\bigO{n \times (2\times \# Fv_t(\# Fv_t + S_t + 1) + 2S_t)}$,
+for we might need to search every other $n-1$ actions before finding the correct one.
+Is it possible, however, to rule out actions purely based on their structure?
 Indeed, we are going to explore an alternative data structure to speed up search and get
 instantiation for free, during lookup.
-
-\begin{TODO}
-  \item cite Tries, Edward Fredkin
-\end{TODO}
 
 This section starts with a summarized explanation of Tries and then follows with our
 generalization of the same concept. The structure we arrive at is a type-indexed data structure,
@@ -88,12 +89,10 @@ arises when we start to allow variables in the index.
 
 \subsection{Towards a Generalization}
 
-\newcommand{\mytrie}{RTrie}
-
 Following the popular saying -- A picture is worth a thousand words -- let us begin
-with a simple representation. Just like a trie, our \mytrie trie was designed to
+with a simple representation. Just like a trie, our RTrie trie was designed to
 store names of actions to be performed, indexed by their respective type. Figure 
-\ref{fig:btrie1} shows the \mytrie that stores the actions from figure \ref{fig:trie1terms}.
+\ref{fig:btrie1} shows the RTrie that stores the actions from figure \ref{fig:trie1terms}.
 For clarity, we have written the De Bruijn indexes of the respective variables as a superscript on
 their names.
 
@@ -109,7 +108,7 @@ their names.
 
 \begin{figure}[h]
 \include{img/BTrie1}
-\caption{\mytrie for terms of figure \ref{fig:trie1terms}. Yellow and green circles represent DeBruijn indexes and literals, respectively.}
+\caption{RTrie for terms of figure \ref{fig:trie1terms}. Yellow and green circles represent DeBruijn indexes and literals, respectively.}
 \label{fig:btrie1}
 \end{figure}
 
@@ -139,9 +138,9 @@ also the environment gathered, we get the instantiation for variables for free.
 The result of such search should be $(0 \mapsto 2 \times x , RI) :: []$.
 
 This small worked example already provides a few insights not only on how to code lookup, but
-also on how to define our \mytrie. We have faced two kinds of nodes. Fork nodes, which
+also on how to define our RTrie. We have faced two kinds of nodes. Fork nodes, which
 are composed by a list of cells, and, Leaf nodes, which contain a list of (rewrite) rules.
-Indeed, we define \mytrie by:
+Indeed, we define RTrie by:
 
 \Agda{RTrie}{btrie-rule-def}\\
 \Agda{RTrie}{btrie-def}
@@ -160,14 +159,14 @@ algorithm, in section \ref{sec:tandr:representingterms}.
 
 \subsection{Polymorphic vs. Monomorphic}
 
-In a first attempt to encode our \mytrie in Agda, we went generic, polymorphic. Type variable $t$ is the index 
+In a first attempt to encode our RTrie in Agda, we went generic, polymorphic. Type variable $t$ is the index 
 type and $c$ is the conclusion type, which we are being indexed by different
 elements $t_1, \cdots t_n\; :\; t$. The assumption we make, however, states that $t$ must
 have a \F{IsTrie} instance. Such record is defined by:
 
 \Agda{RTrie}{istrie-def}
 
-Such record states that for a given $t$, there exists an index type \F{Idx}, with a decidable
+Stating that for a given $t$, there exists an index type \F{Idx}, with a decidable
 underlying equality. We must be able to at least differentiate between different indexes, after all.
 We also state the we must be able to open and close such term. It is easy to prove that for each
 sum-of-products recursive type, we can construct a type \F{Idx} satisfying these properties.
@@ -192,7 +191,7 @@ that we only return closed instantiations, or, maps from $\mathbb{N}$ to \F{RTer
 
 \subsection{Lookup}
 
-Looking up a term in a \mytrie, as we stated in the example given in the beginning of this section,
+Looking up a term in a RTrie, as we stated in the example given in the beginning of this section,
 will involve a fair amount of components. Here, we will just give the outline of the algorithm. The
 details can be checked directly in the source code. The same will happen with insertion.
 
@@ -202,11 +201,11 @@ representing the disjunctions used in the example. Henceforth, we have
 \Agda{RTrieLkup}{L-monad}
 
 where \F{Lst} represents a single state, or, an instantiation with a possible label
-representing the last path we took on the \mytrie. In Agda:
+representing the last path we took on the RTrie. In Agda:
 
 \Agda{RTrieLkup}{label-lst-def}
 
-Retrieving a term from a \mytrie relies mostly on the rewrite rules. The \F{ruleList} function
+Retrieving a term from a RTrie relies mostly on the rewrite rules. The \F{ruleList} function
 will try the application of a list of rules to \emph{all} states it receives. If we cannot apply a rule,
 we prune that state out of the search.
 
@@ -364,7 +363,7 @@ must also be taken into account. For this reason we left this loose end open, to
 
 Although a more formal complexity analysis is needed to provide a sound conclusion as to
 how much time do we save by encoding our term database as a Trie, it is straight forward to have
-an intuition to how it performs better, at least on spacial complexity, compared to a list-based
+an intuition to how it performs better, at the very least on spacial complexity, compared to a list-based
 implementation. A Haskell prototype was developed prior to the Agda code. Needless to mention,
 such prototype performed much better and could handle a very large number of terms, even for a real theory.
 The biggest problem, in Agda, is the insertion function. Trying to make a database with 30 terms,
