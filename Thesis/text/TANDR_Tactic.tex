@@ -17,6 +17,9 @@ where \F{Ag2RTypeFin} is defined by:
 Which means that we first translate a type normally, for which we get a \F{RTerm $\bot$}, then we lift all \IC{ivar}s there to \IC{ovar}s. \F{R2FinType} finishes up by converting the variables $n$ such that $n \le act\mathbb{N}$ to a finite
 representation and downgrades other variables back to \IC{ivar}s. This
 gives a term that can be passed directly to instantiation without further processing.
+Note the $\eta$-reduction being forced upon the terms before instantiation. This is due
+to relations being of type $A \rightarrow B \rightarrow \F{Set}$, and, sometimes, Agda
+will add superfluous abstractions during normalization. 
 
 Having computed a \F{RWData}, we need to extract the congruence (resp. substitution) and the parameters, if any, to give to the action. That is, we are now going to compute some \emph{unification data} out of a \F{RWData}.
 

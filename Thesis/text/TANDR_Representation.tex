@@ -1,6 +1,11 @@
-\begin{TODO}
-  \item Add a state of the art somewhere. Compare what we do to what Sozeau did in \cite{Sozeau09}. Explain that we do not get to choose over which relation we're performing a rewrite, since Agda only rewrites over propositional equality.
-\end{TODO}
+Before some confusion arises it is important to explain that we can not tackle rewriting 
+in a standard fashion, like arbitrary term rewriting systems might do.
+Our problem is, in fact, slightly different. Given two structuraly different terms and
+an action, we want to see: (A) if it is possible to apply such action in such a way that (B) it
+justifies the rewriting step. The first step is a simple matter of unification, which will be
+discussed later. However, the second part, justifying the rewrite, boils down to the generation
+of a \F{subst} that explains to Agda that what we are doing is valid. Our main goal here
+is to generate such \F{subst}. 
 
 The best way to explain how we implemented the \emph{by} tactic is to work out a few examples by hand. 
 This should provide the justification of some design decisions
@@ -200,6 +205,7 @@ for the run time of our tactic. Such result was somewhat expected, since instant
 has a quadratic run time on its first parameter's \IC{ovar}s. 
 
 \section{Instantiation}
+\label{sec:tandr:instantiation}
 
 Until now, we know how to extract a congruence (if possible) from the goal type only. Nevertheless,
 we have more information to use. The action type namely. From it, we should be able to extract

@@ -40,7 +40,7 @@ postulate
 %<*ag2rtypefin-def>
 \begin{code}
 Ag2RTypeFin : AgType → ∃ FinTerm
-Ag2RTypeFin = R2FinType ∘ lift-ivar ∘ Ag2RType
+Ag2RTypeFin = R2FinType ∘ lift-ivar ∘ η ∘ Ag2RType
 \end{code}
 %</ag2rtypefin-def>
 
@@ -48,7 +48,7 @@ Ag2RTypeFin = R2FinType ∘ lift-ivar ∘ Ag2RType
 \begin{code}
 make-RWData : Name → AgTerm → List (Arg AgType) → Err StratErr RWData
 make-RWData act goal ctx 
-  with Ag2RTerm goal | Ag2RTypeFin (type act) | map (Ag2RType ∘ unarg) ctx
+  with η (Ag2RTerm goal) | Ag2RTypeFin (type act) | map (Ag2RType ∘ unarg) ctx
 ...| g' | tyℕ , ty | ctx' with forceBinary g' | forceBinary (typeResult ty)
 ...| just g | just a = return (rw-data g tyℕ a ctx')
 ...| _ | _ = throwError (Custom "...")
