@@ -39,10 +39,10 @@ module Rel.Properties.BiFunctor where
     = prod-uni-r2 (R ∙ π₁) (S ∙ π₂) ⊆-refl
 
   *-bi-functor : {A B C X Y Z : Set}
-                 { R : Rel B C }{H : Rel A B }
-                 { S : Rel Y Z }{I : Rel X Y } 
+                 ( R : Rel B C )( H : Rel A B )
+                 ( S : Rel Y Z )( I : Rel X Y ) 
                → (R * S) ∙ (H * I) ≡r (R ∙ H) * (S ∙ I)
-  *-bi-functor {A} {B} {C} {X} {Y} {Z} {R} {H} {S} {I} 
+  *-bi-functor {A} {B} {C} {X} {Y} {Z} R H S I
     = ⊆in aux1 , ⊆in aux2
     where
       aux1 : (a : A × X) (b : C × Z) → (R * S ∙ H * I) b a → ((R ∙ H) * (S ∙ I)) b a
@@ -56,9 +56,9 @@ module Rel.Properties.BiFunctor where
         , cons-⟨,⟩ (((p1∙ ph11) , ((p1 $ p2∙ ph11) , (cons-fun refl))) , ((p1∙ ph21) , ((p1 $ p2∙ ph21) , (cons-fun refl))))
         , cons-⟨,⟩ ((wh1 , (p2 $ p2∙ ph11) , ph12) , (wh2 , (p2 $ p2∙ ph21) , ph22))
 
-  *-ᵒ-distr : {A B C D : Set}{R : Rel A B}{S : Rel C D}
+  *-ᵒ-distr : {A B C D : Set}(R : Rel A B)(S : Rel C D)
             → (R ᵒ * S ᵒ) ≡r (R * S) ᵒ
-  *-ᵒ-distr {R = R} {S = S} 
+  *-ᵒ-distr R S 
     = ⊆in (λ { (b , d) (a , c) (cons-⟨,⟩ ((hb , cons-ᵒ h1 , cons-fun f) , (hd , cons-ᵒ h2 , cons-fun g))) 
            → cons-ᵒ $ cons-⟨,⟩ ((a , subst (λ x → R x a) (sym f) h1 , cons-fun refl) , (c , subst (λ x → S x c) (sym g) h2 , cons-fun refl)) })
     , ⊆in (λ { (b , d) (a , c) (cons-ᵒ (cons-⟨,⟩ ((ha , h1 , cons-fun f) , (hc , h2 , cons-fun g)))) 
@@ -84,33 +84,33 @@ module Rel.Properties.BiFunctor where
   -- * Coproduct * --
   -------------------
 
-  ι₁-natural : {A B C D : Set}{R : Rel A B}{S : Rel C D}
+  ι₁-natural : {A B C D : Set}(R : Rel A B)(S : Rel C D)
              → ι₁ ∙ R ≡r (R + S) ∙ ι₁
-  ι₁-natural {R = R} {S = S}
+  ι₁-natural R S
     = coprod-uni-r1 (ι₁ ∙ R) (ι₂ ∙ S) 
       ( ⊆in (λ a b z → cons-either (either.un z)) 
       , ⊆in (λ a b z → cons-either (either.un z)))
 
-  ι₁-cancel : {A B C : Set}{R : Rel A B}{S : Rel C B}
+  ι₁-cancel : {A B C : Set}(R : Rel A B)(S : Rel C B)
             → either R S ∙ ι₁ ≡r R
-  ι₁-cancel {R = R} {S = S} = ≡r-sym (coprod-uni-r1 R S ≡r-refl)
+  ι₁-cancel R S = ≡r-sym (coprod-uni-r1 R S ≡r-refl)
 
-  ι₂-natural : {A B C D : Set}{R : Rel A B}{S : Rel C D}
+  ι₂-natural : {A B C D : Set}(R : Rel A B)(S : Rel C D)
              → ι₂ ∙ S ≡r (R + S) ∙ ι₂
-  ι₂-natural {R = R} {S = S} 
+  ι₂-natural R S
     = coprod-uni-r2 (ι₁ ∙ R) (ι₂ ∙ S) 
       ( ⊆in (λ a b z → cons-either (either.un z))
       , ⊆in (λ a b z → cons-either (either.un z)))
 
-  ι₂-cancel : {A B C : Set}{R : Rel A B}{S : Rel C B}
+  ι₂-cancel : {A B C : Set}(R : Rel A B)(S : Rel C B)
             → either R S ∙ ι₂ ≡r S
-  ι₂-cancel {R = R} {S = S} = ≡r-sym (coprod-uni-r2 R S ≡r-refl)
+  ι₂-cancel R S = ≡r-sym (coprod-uni-r2 R S ≡r-refl)
 
   +-bi-functor : {A B C X Y Z : Set}
-                 { R : Rel B C }{ H : Rel A B }
-                 { S : Rel Y Z }{ I : Rel X Y }
+                 ( R : Rel B C )( H : Rel A B )
+                 ( S : Rel Y Z )( I : Rel X Y )
                → (R + S) ∙ (H + I) ≡r (R ∙ H) + (S ∙ I)
-  +-bi-functor {A} {B} {C} {X} {Y} {Z} {R} {H} {S} {I}
+  +-bi-functor {A} {B} {C} {X} {Y} {Z} R H S I
     = ⊆in aux1 , ⊆in aux2
     where
       aux1 : (a : A ⊎ X) (b : C ⊎ Z) → (R + S ∙ H + I) b a → ((R ∙ H) + (S ∙ I)) b a
@@ -139,9 +139,9 @@ module Rel.Properties.BiFunctor where
       aux2 (i2 x) (i2 z) (cons-either (w , (cons-fun q1 , rh))) rewrite (i2-inj q1) 
         = (i2 (p1∙ rh)) , ((cons-either (z , ((cons-fun refl) , (p1 $ p2∙ rh)))) , (cons-either ((p1∙ rh) , (cons-fun refl) , (p2 $ p2∙ rh))))
 
-  +-ᵒ-distr : {A B C D : Set}{R : Rel A B}{S : Rel C D}
+  +-ᵒ-distr : {A B C D : Set}(R : Rel A B)(S : Rel C D)
             → (R ᵒ + S ᵒ) ≡r (R + S) ᵒ
-  +-ᵒ-distr {R = R} {S = S} 
+  +-ᵒ-distr R S 
     = ⊆in (λ { (i1 b) (i1 a) (cons-either (x , y , cons-ᵒ z))  → cons-ᵒ $ cons-either (b , cons-fun refl , subst (R b) (i1-inj (fun.un y)) z)
              ; (i2 _) (i1 _) (cons-either (_ , (cons-fun () , _)))
              ; (i1 _) (i2 _) (cons-either (_ , (cons-fun () , _)))
@@ -171,12 +171,12 @@ module Rel.Properties.BiFunctor where
       ...| i2 b′ = cons-either (b′ , cons-fun refl , cons-fun refl)
 
 
-  either-+-abs : {A B X Y Z : Set}{R : Rel X Z}{S : Rel Y Z}{T : Rel A X}{U : Rel B Y}
+  either-+-abs : {A B X Y Z : Set}(R : Rel X Z)(S : Rel Y Z)(T : Rel A X)(U : Rel B Y)
                → either R S ∙ (T + U) ≡r either (R ∙ T) (S ∙ U)
   either-+-abs = TODO
     where postulate TODO : ∀{a}{A : Set a} → A
 
-  either-abs : {X Y Z K : Set}{R : Rel X Z}{S : Rel Y Z}{T : Rel Z K}
+  either-abs : {X Y Z K : Set}(R : Rel X Z)(S : Rel Y Z)(T : Rel Z K)
              → T ∙ either R S ≡r either (T ∙ R) (T ∙ S)
   either-abs = TODO
     where postulate TODO : ∀{a}{A : Set a} → A
