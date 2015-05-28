@@ -35,7 +35,7 @@ module Rel.Properties.Basic where
                → (U ∙ T) ∙ S ∙ R ≡r (U ∙ T ∙ S) ∙ R
   ∙-assoc-join' {R = R} {S = S} {T = T} {U = U}
     = ≡r-trans (≡r-sym (∙-assoc R S (U ∙ T))) 
-               (≡r-cong (λ i → i ∙ R) (∙-assoc {!!} {!!} {!!}))
+               (≡r-cong (λ i → i ∙ R) (∙-assoc S T U))
 
   ∙-assoc-join : ∀{A B C D E}(R : Rel A B)(S : Rel B C)
                 (T : Rel C D)(U : Rel D E)

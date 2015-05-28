@@ -36,6 +36,8 @@ module Rel.Reasoning.RelEq-Strategy where
            ∷ []))
 
     rel-≡r-how : Name → UData → Err StratErr (RTerm ⊥)
+    rel-≡r-how act (u-data (ovar unit) σ trs)
+      = i2 (foldr fixTrs (makeApp act σ) trs)
     rel-≡r-how act (u-data g□ σ trs) = i2 (
       rapp (rdef (quote ≡r-cong))
            ( hole2Abs g□

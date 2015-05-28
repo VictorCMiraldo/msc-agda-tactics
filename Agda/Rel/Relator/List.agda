@@ -12,8 +12,7 @@ open import RW.Language.RTerm
 open import RW.Language.RTermUtils
 
 open import Rel.Properties.BiFunctor
-open import Rel.Properties.Neutral
-open import Rel.Properties.Basic hiding (∙-id-r)
+open import Rel.Properties.Basic
 open import Rel.Properties.Idempotence
 open import Rel.Core.Helper.Injections
 open import Rel.Reasoning.RelationJudgement         
@@ -99,11 +98,11 @@ module Rel.Relator.List where
             aux1 : (Id + (Id * R) ∙ Id + (Id * S)) ∙ ι₁ ≡r ι₁ ∙ Id
             aux1 = begin 
                  (Id + (Id * R) ∙ Id + (Id * S)) ∙ ι₁
-              ≡r⟨ ≡r-cong (λ s → s ∙ ι₁) +-bi-functor ⟩ 
+              ≡r⟨ (tactic (by (quote +-bi-functor))) ⟩ 
                  ((Id ∙ Id) + (Id * R ∙ Id * S)) ∙ ι₁
-              ≡r⟨ ≡r-sym ι₁-natural ⟩ 
+              ≡r⟨ (tactic (by (quote ι₁-natural))) ⟩ 
                  ι₁ ∙ (Id ∙ Id)
-              ≡r⟨ ≡r-cong (_∙_ ι₁) (≡r-sym (∙-id-r Id)) ⟩
+              ≡r⟨ (tactic (by (quote ∙-id-r))) ⟩
                  ι₁ ∙ Id
               ∎ 
 
@@ -112,25 +111,34 @@ module Rel.Relator.List where
                  (Id + (Id * R) ∙ Id + (Id * S)) ∙ ι₂
               ≡r⟨ (tactic (by (quote +-bi-functor))) ⟩
                  (Id ∙ Id) + (Id * R ∙ Id * S) ∙ ι₂
-              ≡r⟨ ≡r-sym ι₂-natural ⟩ 
+              ≡r⟨ (tactic (by (quote ι₂-natural))) ⟩ 
                  ι₂ ∙ Id * R ∙ Id * S
-              ≡r⟨ ≡r-cong (_∙_ ι₂) *-bi-functor ⟩
+              ≡r⟨ (tactic (by (quote *-bi-functor))) ⟩
                  ι₂ ∙ (Id ∙ Id) * (R ∙ S)
               ≡r⟨ (tactic (by (quote ∙-id-r))) ⟩
                  ι₂ ∙ Id * (R ∙ S)
               ∎ 
 
+        postulate 
+          a : {A : Set} → A
+        fromJust : {A : Set} → Maybe A → A
+        fromJust (just x) = x
+        fromJust nothing  = a
+
+        open import RW.Language.RTermUtils
+        open import RW.Language.Instantiation
+
         lemma-ᵒ : {I A B : Set} {R : Rel A B}
                 → Id {Unit} + (Id {I} * (R ᵒ)) ≡r (Id + (Id * R)) ᵒ
         lemma-ᵒ {R = R} = begin 
                 Id + (Id * (R ᵒ))
-              ≡r⟨ ≡r-cong (λ i → i + (Id * (R ᵒ))) idmp-id-ᵒ ⟩
+              ≡r⟨ (tactic (by (quote idmp-id-ᵒ))) ⟩
                 (Id ᵒ) + (Id * (R ᵒ))
-              ≡r⟨ ≡r-cong (λ i → (Id ᵒ) + (i * (R ᵒ))) idmp-id-ᵒ ⟩
+              ≡r⟨ (tactic (by (quote idmp-id-ᵒ))) ⟩
                 (Id ᵒ) + ((Id ᵒ) * (R ᵒ))
-              ≡r⟨ ≡r-cong (λ i → (Id ᵒ) + i) *-ᵒ-distr ⟩
+              ≡r⟨ (tactic (by (quote *-ᵒ-distr))) ⟩ 
                 (Id ᵒ) + ((Id * R) ᵒ)
-              ≡r⟨ +-ᵒ-distr ⟩
+              ≡r⟨ (tactic (by (quote +-ᵒ-distr))) ⟩
                 (Id + (Id * R)) ᵒ
               ∎
 
