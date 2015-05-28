@@ -37,6 +37,13 @@ module Rel.Properties.Basic where
     = ≡r-trans (≡r-sym (∙-assoc {R = R} {S = S} {T = U ∙ T})) 
                (≡r-cong (λ i → i ∙ R) ∙-assoc)
 
+  ∙-assoc-join' : ∀{A B C D E}(R : Rel A B)(S : Rel B C)
+                (T : Rel C D)(U : Rel D E)
+               → (U ∙ T) ∙ S ∙ R ≡r (U ∙ T ∙ S) ∙ R
+  ∙-assoc-join' R S T U
+    = ≡r-trans (≡r-sym (∙-assoc {R = R} {S = S} {T = U ∙ T})) 
+               (≡r-cong (λ i → i ∙ R) ∙-assoc)
+
   ᵒ-idp : {A B : Set}{R : Rel A B} → (R ᵒ) ᵒ ≡r R
   ᵒ-idp = (⊆in (λ a b z → _ᵒ.un (_ᵒ.un z))) 
         , (⊆in (λ a b z → cons-ᵒ (cons-ᵒ z)))

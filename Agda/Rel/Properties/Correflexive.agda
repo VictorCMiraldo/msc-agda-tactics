@@ -16,6 +16,10 @@ module Rel.Properties.Correflexive where
       aux2 a b (cons-ᵒ (cons-φ (prf , pa))) 
         rewrite prf = cons-φ (refl , pa)
 
+  φ≡φᵒ' : {A : Set}(P : A → Set)
+        → φ P ≡r (φ P) ᵒ
+  φ≡φᵒ' p = φ≡φᵒ {P = p}
+
   φ≡φ∙φ : {A : Set}{P : A → Set}
         → φ P ≡r φ P ∙ φ P
   φ≡φ∙φ {A} {P} = ⊆in aux1 , ⊆in aux2
