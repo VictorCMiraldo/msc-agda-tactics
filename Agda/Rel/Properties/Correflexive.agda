@@ -4,9 +4,9 @@ open import Rel.Core.Correflexive
 
 module Rel.Properties.Correflexive where
 
-  φ≡φᵒ : {A : Set}{P : A → Set}
+  φ≡φᵒ : {A : Set}(P : A → Set)
        → φ P ≡r (φ P) ᵒ
-  φ≡φᵒ {A} {P} = ⊆in aux1 , ⊆in aux2
+  φ≡φᵒ {A} P = ⊆in aux1 , ⊆in aux2
     where
       aux1 : (a b : A) → φ P b a → (φ P ᵒ) b a
       aux1 a b (cons-φ (prf , pa)) 
@@ -16,13 +16,9 @@ module Rel.Properties.Correflexive where
       aux2 a b (cons-ᵒ (cons-φ (prf , pa))) 
         rewrite prf = cons-φ (refl , pa)
 
-  φ≡φᵒ' : {A : Set}(P : A → Set)
-        → φ P ≡r (φ P) ᵒ
-  φ≡φᵒ' p = φ≡φᵒ {P = p}
-
-  φ≡φ∙φ : {A : Set}{P : A → Set}
+  φ≡φ∙φ : {A : Set}(P : A → Set)
         → φ P ≡r φ P ∙ φ P
-  φ≡φ∙φ {A} {P} = ⊆in aux1 , ⊆in aux2
+  φ≡φ∙φ {A} P = ⊆in aux1 , ⊆in aux2
     where
       aux1 : (a b : A) → φ P b a → (φ P ∙ φ P) b a
       aux1 a b (cons-φ (prf , pa))
@@ -32,9 +28,9 @@ module Rel.Properties.Correflexive where
       aux2 a b (c , cons-φ h1 , cons-φ h2) 
         = cons-φ (trans (p1 h1) (p1 h2) , p2 h1)
 
-  φ⊆Id : ∀{A : Set}{P : A → Set}
+  φ⊆Id : ∀{A : Set}(P : A → Set)
        → φ P ⊆ Id
-  φ⊆Id = ⊆in (λ a b x → cons-fun (sym $ p1 $ φ.un x))
+  φ⊆Id P = ⊆in (λ a b x → cons-fun (sym $ p1 $ φ.un x))
 
   ρ-intro : ∀{A B : Set}(R : Rel A B) → R ≡r ρ R ∙ R
   ρ-intro r = (⊆in (λ a b x → b , cons-ρ ((a , (x , cons-ᵒ x)) , refl) , x)) 
