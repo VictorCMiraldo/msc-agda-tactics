@@ -10,7 +10,6 @@ open import Rel.Properties.Basic
 open import Rel.Properties.BiFunctor
 open import Rel.Properties.Idempotence
 open import Rel.Properties.Correflexive
-open import Rel.Properties.Neutral hiding (∙-id-l; ∙-id-r)
 
 module Rel.Properties.DatabaseList where
 

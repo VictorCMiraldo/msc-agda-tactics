@@ -113,11 +113,13 @@ module Rel.CaseStudies.EvenTwice where
   open import Rel.Reasoning.RelEq-Strategy using (rel-⊆-strat)
   open import RW.RW (rel-⊆-strat ∷ [])
 
+  open import Rel.Properties.Basic
   open import Rel.Properties.Monotonicity
   open import Rel.Properties.Correflexive
-  open import Rel.Properties.Neutral
   
   open import Rel.Properties.DatabaseList
+
+  open ⊆-Reasoning
 
   twiceIsEven : (twiceR ∙ evenR ⊆ evenR ∙ twiceR) ⇐ Unit
   twiceIsEven 
@@ -129,8 +131,7 @@ module Rel.CaseStudies.EvenTwice where
 
       twiceR ∙ evenR ⊆ (ρ twiceR) ∙ twiceR
 
-    -- ⇐⟨ (tactic (by (quote ρ-intro))) ⟩
-    ⇐⟨ (tactic (by+ db)) ⟩
+    ⇐⟨ (tactic (by (quote ρ-intro))) ⟩
 
       twiceR ∙ evenR ⊆ twiceR
 
@@ -142,7 +143,7 @@ module Rel.CaseStudies.EvenTwice where
 
       (twiceR ⊆ twiceR × evenR ⊆ Id)
 
-    ⇐⟨ (λ _ → ⊆-refl , φ⊆Id) ⟩
+    ⇐⟨ (λ _ → ⊆-refl , φ⊆Id (λ z → So (even z))) ⟩
 
       Unit
 

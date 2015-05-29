@@ -8,12 +8,15 @@ open import Rel.Core.Correflexive
 open import Rel.Relator
 
 open import Rel.Properties.BiFunctor
-open import Rel.Properties.Neutral
-open import Rel.Properties.Basic hiding (∙-id-r)
+open import Rel.Properties.Basic
 open import Rel.Properties.Idempotence
 open import Rel.Core.Helper.Injections
 
 open import Rel.Relator.List
+
+open import Rel.Reasoning.RelationJudgement  
+open import Rel.Reasoning.RelEq-Strategy
+open import RW.RW (rel-≡r-strat ∷ [])
 
 module Rel.Relator.List.Defs where
 
@@ -91,24 +94,30 @@ module Rel.Relator.List.Defs where
 
   -- Simple lemma to rewrite perm.
   permcons-lemma : {A : Set} → perm {A = A} ∙ consR ≡r add ∙ (Id * perm)
+  permcons-lemma = ?
+  {-
+  TODO: why is this proof taking so long to typecheck?
+
   permcons-lemma = begin
         perm ∙ fun inL ∙ ι₂
-      ≡r⟨ ≡r-sym ∙-assoc ⟩
+      ≡r⟨ (tactic (by (quote ∙-assoc))) ⟩
         (perm ∙ fun inL) ∙ ι₂
       ≡r⟨ ≡r-cong (λ z → z ∙ ι₂) cata-cancel ⟩
          ((either nilR add) ∙ (Id + (Id * perm))) ∙ ι₂
-      ≡r⟨ ∙-assoc ⟩
+      ≡r⟨ (tactic (by (quote ∙-assoc))) ⟩
          (either nilR add) ∙ (Id + (Id * perm)) ∙ ι₂
-      ≡r⟨ ≡r-cong (λ z → (either nilR add) ∙ z) (≡r-sym ι₂-natural) ⟩
+      -- ≡r⟨ ≡r-cong (λ z → (either nilR add) ∙ z) (≡r-sym ι₂-natural) ⟩
+      ≡r⟨ (tactic (by (quote ι₂-natural))) ⟩
          (either nilR add) ∙ ι₂ ∙ Id * perm
-      ≡r⟨ ≡r-sym ∙-assoc ⟩
+      ≡r⟨ (tactic (by (quote ∙-assoc))) ⟩
         ((either nilR add) ∙ ι₂) ∙ Id * perm
-      ≡r⟨ ≡r-cong (λ z → z ∙ Id * perm) ι₂-cancel ⟩
+      ≡r⟨ (tactic (by (quote ι₂-cancel))) ⟩
+      -- ≡r⟨ ≡r-cong (λ z → z ∙ Id * perm) ι₂-cancel ⟩
          add ∙ Id * perm
       ∎
-    where
-      open import Rel.Reasoning.RelationJudgement         
+    where       
       open ≡r-Reasoning
+  -}
 
   -- Now, we can also rewrite add in tems of perm.
   -- TODO: remove that ugly postulate... how?
@@ -142,7 +151,7 @@ module Rel.Relator.List.Defs where
   permLemma : {A : Set} 
             → perm {A = A} ∙ consR ≡r perm ∙ consR ∙ (Id * perm)
   permLemma = ≡r-trans permcons-lemma 
-              (≡r-trans (≡r-cong (λ z → z ∙ Id * perm) add≡permcons) ∙-assoc)
+              (≡r-trans (≡r-cong (λ z → z ∙ Id * perm) add≡permcons) ∙-assocᵢ)
 
   perm-elem : {A : Set}{{_ : Eq A}}
             → perm {A = A} ∙ elem ≡r elem

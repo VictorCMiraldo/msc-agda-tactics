@@ -30,21 +30,28 @@ module Rel.Properties.Basic where
           → (T ∙ S) ∙ R ≡r T ∙ (S ∙ R)
   ∙-assoc _ _ _ = ≡r-intro ∙-assocr ∙-assocl
 
+  ∙-assocᵢ : ∀{A B C D}{R : Rel A B}{S : Rel B C}{T : Rel C D}
+           → (T ∙ S) ∙ R ≡r T ∙ (S ∙ R)
+  ∙-assocᵢ = ≡r-intro ∙-assocr ∙-assocl
+
   -- Provides an easy way to 'pull' something to a parenthesis.
-  ∙-assoc-join' : ∀{A B C D E}{R : Rel A B}{S : Rel B C}{T : Rel C D}{U : Rel D E}
+  ∙-assoc-joinᵢ : ∀{A B C D E}{R : Rel A B}{S : Rel B C}{T : Rel C D}{U : Rel D E}
                → (U ∙ T) ∙ S ∙ R ≡r (U ∙ T ∙ S) ∙ R
-  ∙-assoc-join' {R = R} {S = S} {T = T} {U = U}
+  ∙-assoc-joinᵢ {R = R} {S = S} {T = T} {U = U}
     = ≡r-trans (≡r-sym (∙-assoc R S (U ∙ T))) 
                (≡r-cong (λ i → i ∙ R) (∙-assoc S T U))
 
   ∙-assoc-join : ∀{A B C D E}(R : Rel A B)(S : Rel B C)
                 (T : Rel C D)(U : Rel D E)
                → (U ∙ T) ∙ S ∙ R ≡r (U ∙ T ∙ S) ∙ R
-  ∙-assoc-join R S T U = ∙-assoc-join'
+  ∙-assoc-join R S T U = ∙-assoc-joinᵢ
 
   ᵒ-idp : {A B : Set}(R : Rel A B) → (R ᵒ) ᵒ ≡r R
   ᵒ-idp R = (⊆in (λ a b z → _ᵒ.un (_ᵒ.un z))) 
           , (⊆in (λ a b z → cons-ᵒ (cons-ᵒ z)))
+
+  ᵒ-idpᵢ : {A B : Set}{R : Rel A B} → (R ᵒ) ᵒ ≡r R
+  ᵒ-idpᵢ {R = R} = ᵒ-idp R
 
   ᵒ-∙-distr : {A B C : Set}(R : Rel A B)(S : Rel B C)
             → R ᵒ ∙ S ᵒ ≡r (S ∙ R) ᵒ
@@ -53,6 +60,10 @@ module Rel.Properties.Basic where
             , ⊆in (λ a b x 
               → p1∙ (_ᵒ.un x) , ((cons-ᵒ $ p2 $ p2∙ (_ᵒ.un x)) 
                               , (cons-ᵒ $ p1 $ p2∙ (_ᵒ.un x))))
+
+  ᵒ-∙-distrᵢ : {A B C : Set}{R : Rel A B}{S : Rel B C}
+             → R ᵒ ∙ S ᵒ ≡r (S ∙ R) ᵒ
+  ᵒ-∙-distrᵢ {R = R} {S = S} = ᵒ-∙-distr R S
 
   ᵒ-∙-distr3 : {A B C D : Set}(R : Rel A B)(S : Rel B C)(T : Rel C D)
              → R ᵒ ∙ S ᵒ ∙ T ᵒ ≡r (T ∙ S ∙ R) ᵒ
@@ -88,9 +99,17 @@ module Rel.Properties.Basic where
          , ⊆in (λ a b bIdRa → subst (λ x → R x a) 
                   (fun.un (p1 (p2∙ bIdRa))) (p2 (p2∙ bIdRa)) )
 
+  ∙-id-lᵢ : ∀{A B}{R : Rel A B}
+          → R ≡r Id ∙ R
+  ∙-id-lᵢ {R = R} = ∙-id-l R
+
   -- Id is right neutral
   ∙-id-r : ∀{A B}(R : Rel A B)
          → R ≡r R ∙ Id
   ∙-id-r R = ⊆in (λ a b bRa → a , bRa , cons-fun refl)
            , ⊆in (λ a b bRIda → subst (R b) 
                     (sym (fun.un (p2 (p2∙ bRIda)))) (p1 (p2∙ bRIda)) )
+
+  ∙-id-rᵢ : ∀{A B}{R : Rel A B}
+         → R ≡r R ∙ Id
+  ∙-id-rᵢ {R = R} = ∙-id-r R
