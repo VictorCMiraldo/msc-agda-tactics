@@ -21,7 +21,7 @@ module Rel.Relator where
         ) → (x : W S P) → C x
   W-rec {C = C} c (sup s f) = c s f (W-rec {C = C} c ∘ f)
 
-  -- Hopefully, it has been proved (by Abbot 2003 and Abbot 2004)
+  -- It has been proved (by Abbot 2003 and Abbot 2004)
   -- that all polinomial functors are "strictly positive" and,
   -- therefore, have an initial algebra that correspond
   -- exactly to W S P.
@@ -123,7 +123,7 @@ module Rel.Relator where
           field un : W-cata-F R b μFa
 
   -- We are going to postulate the catamorphism universsal law.
-  -- The reason for this is it is unprovable in the generic case.
+  -- The reason for this is it is unprovable in the generic case (in Agda).
   -- Yet, for specific instances of F, it should be fairly easy to prove,
   -- once it lies in the core of the catamorphism definition.
   --
@@ -154,37 +154,4 @@ module Rel.Relator where
                 → {T : Rel (F A C) C}{R : Rel (F A B) B}{S : Rel B C}
                 → S ∙ R ⊆ T ∙ Fᵣ S
                 → S ∙ ⟦ R ⟧₁ ⊆ ⟦ T ⟧₁
-    
-  -- Then we can proceed to prove the generic cata laws.
-  {-
-  cata-reflex : {A : Set}{F : Set → Set → Set}{{ pF : IsWFunctor1 F }}{{ pR : IsRelator F }}
-              → ⟦ inR {F = F} ⟧₁ ≡r Id {A = μ F A}
-  cata-reflex {A} {F} ⦃ pF ⦄ ⦃ pR ⦄ = cata-uni-2 (≡r-elim1 aux) , cata-uni-1 (≡r-elim2 aux)
-    where
-      open import Rel.Properties.Neutral
-      open import Rel.Reasoning.RelationJudgement
-      open ≡r-Reasoning
-
-      aux : (IsWFunctor1.inR pF {A = A}) ∙ (IsWFunctor1.Fᵣ pF Id) ∙ (IsWFunctor1.outR pF) ≡r Id
-      aux = let FId≡Id = IsRelator.fmap-id pR {B = A} in
-          begin
-            (IsWFunctor1.inR pF) ∙ Fᵣ Id ∙ (IsWFunctor1.outR pF)
-          ≡r⟨ ≡r-cong (λ i → inR ∙ i ∙ outR) FId≡Id ⟩
-            (IsWFunctor1.inR pF) ∙ Id {A = F A (μ F A)} ∙ (IsWFunctor1.outR pF)
-          ≡r⟨ ≡r-cong (λ i → i ∙ outR) (∙-id-r inR) ⟩
-            inR ∙ outR
-          ≡r⟨ lambek-1 ⟩
-            Id
-          ∎
-
-  cata-fusion-1 : {A B C : Set}{F : Set → Set → Set}{{pF : IsWFunctor1 F}}{{pR : IsRelator F}}
-                → {T : Rel (F A C) C}{R : Rel (F A B) B}{S : Rel B C}
-                → T ∙ Fᵣ S ⊆ S ∙ R
-                → ⟦ T ⟧₁ ⊆ S ∙ ⟦ R ⟧₁
-  cata-fusion-1 {A} {B} {C} {F} ⦃ pF ⦄ ⦃ pR ⦄ {T} {R} {S} (⊆in hip) = cata-uni-2 (⊆in aux)
-    where
-      aux : (a : μ F A)(c : C) → (T ∙ Fᵣ (S ∙ ⟦ R ⟧₁) ∙ outR) c a →  (S ∙ ⟦ R ⟧₁) c a
-      aux a c (fac , (cTfac , ._ , (fr , cons-fun refl))) 
-        = ?
-             
-  -}
+ 

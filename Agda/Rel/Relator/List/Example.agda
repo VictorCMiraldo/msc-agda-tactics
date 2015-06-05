@@ -31,5 +31,18 @@ module Rel.Relator.List.Example where
   prefix : Rel (Lw ℕ) (Lw ℕ)
   prefix = ⟦ prefix-gene ⟧₁
 
-  prf1 : {{ i : IsDec prefix }} → Dec (prefix l1 l3)
-  prf1 {{ dec i }} = i l1 l3
+  instance
+    prefix-runs : Composes (prefix-gene ∙ ι₂) (Id * prefix)
+    prefix-runs = choose , aux
+     where
+       choose : Lw ℕ → ℕ × Lw ℕ → ℕ × Lw ℕ
+       choose (sup (i1 unit) ys) a = p1 a , nil
+       choose (sup (i2 y)    ys) a = {!!}
+
+       aux : (c : Lw ℕ)(a : ℕ × Lw ℕ)
+           → ((prefix-gene ∙ ι₂) c (choose c a))
+           × ((Id * prefix) (choose c a) a)
+       aux (sup (i1 unit) ys) a 
+         = ({!!} , {!!}) , {!!}
+       aux (sup (i2 y) ys)    a = {!!}
+               

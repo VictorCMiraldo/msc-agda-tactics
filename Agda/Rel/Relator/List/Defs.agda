@@ -27,13 +27,6 @@ module Rel.Relator.List.Defs where
   open IsWFunctor1 {{...}}
   open IsRelator   {{...}}
 
-  -- nil is unique!
-  -- just a different presentation of inLi1-lemma.
-  nil-unique : {A : Set}{x : Unit}{f : ⊥ → Lw A} → sup (i1 x) f ≡ nil
-  nil-unique {x = unit} = cong (sup (i1 unit)) (fun-ext (λ ()))
-    where
-      open import Rel.Core.HOTT
-
 
   -- List concatenation
   _++_ : {A : Set} → Lw A → Lw A → Lw A
@@ -94,30 +87,26 @@ module Rel.Relator.List.Defs where
 
   -- Simple lemma to rewrite perm.
   permcons-lemma : {A : Set} → perm {A = A} ∙ consR ≡r add ∙ (Id * perm)
-  permcons-lemma = ?
-  {-
-  TODO: why is this proof taking so long to typecheck?
-
   permcons-lemma = begin
         perm ∙ fun inL ∙ ι₂
-      ≡r⟨ (tactic (by (quote ∙-assoc))) ⟩
+      --≡r⟨ (tactic (by (quote ∙-assoc))) ⟩
+      ≡r⟨ ≡r-sym ∙-assocᵢ ⟩
         (perm ∙ fun inL) ∙ ι₂
       ≡r⟨ ≡r-cong (λ z → z ∙ ι₂) cata-cancel ⟩
          ((either nilR add) ∙ (Id + (Id * perm))) ∙ ι₂
-      ≡r⟨ (tactic (by (quote ∙-assoc))) ⟩
+      ≡r⟨ ∙-assocᵢ ⟩
          (either nilR add) ∙ (Id + (Id * perm)) ∙ ι₂
-      -- ≡r⟨ ≡r-cong (λ z → (either nilR add) ∙ z) (≡r-sym ι₂-natural) ⟩
-      ≡r⟨ (tactic (by (quote ι₂-natural))) ⟩
+      ≡r⟨ ≡r-cong (λ z → (either nilR add) ∙ z) (≡r-sym ι₂-naturalᵢ) ⟩
+      -- ≡r⟨ (tactic (by (quote ι₂-natural))) ⟩
          (either nilR add) ∙ ι₂ ∙ Id * perm
-      ≡r⟨ (tactic (by (quote ∙-assoc))) ⟩
+      ≡r⟨ ≡r-sym ∙-assocᵢ ⟩
         ((either nilR add) ∙ ι₂) ∙ Id * perm
-      ≡r⟨ (tactic (by (quote ι₂-cancel))) ⟩
-      -- ≡r⟨ ≡r-cong (λ z → z ∙ Id * perm) ι₂-cancel ⟩
+      --≡r⟨ (tactic (by (quote ι₂-cancel))) ⟩
+      ≡r⟨ ≡r-cong (λ z → z ∙ Id * perm) ι₂-cancelᵢ ⟩
          add ∙ Id * perm
       ∎
     where       
       open ≡r-Reasoning
-  -}
 
   -- Now, we can also rewrite add in tems of perm.
   -- TODO: remove that ugly postulate... how?

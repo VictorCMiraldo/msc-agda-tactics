@@ -39,6 +39,23 @@ module Rel.Relator.List where
   cons : {A : Set} → A × Lw A → Lw A
   cons (h , t) = sup (i2 h) (const t)
 
+  private
+    sup-inj : {A : Set}{x y : A}{xs : Lp (i2 x) → Lw A}{ys : Lw A}
+            → sup (i2 y) (λ _ → ys) ≡ sup (i2 x) xs
+            → (x ≡ y) × (xs unit ≡ ys)
+    sup-inj refl = refl , refl
+
+    sup-inj' : {A : Set}{x y : A}{xs ys : Lp (i2 x) → Lw A}
+            → sup (i2 y) ys ≡ sup (i2 x) xs
+            → (x ≡ y) × (xs ≡ ys)
+    sup-inj' refl = refl , refl
+
+    sup-inj-tr : {A : Set}{y : A}{xs ys : Lp (i2 y) → Lw A}
+              → sup (i2 y) (λ v → xs v) ≡ sup (i2 y) (λ v → ys v)
+              → sup (i2 y) (λ _ → xs unit) ≡ sup (i2 y) ys
+    sup-inj-tr {y = y} refl = cong (sup (i2 y)) (fun-ext (λ { unit → refl }))
+      where open import Rel.Core.HOTT using (fun-ext)
+
   pattern L-nil      = sup (i1 unit) _
   pattern L-cons h p = sup (i2 h) p
 
@@ -49,10 +66,17 @@ module Rel.Relator.List where
   inLi1-lemma {A} {f} = cong (sup (i1 unit)) (fun-ext (λ ()))
     where open import Rel.Core.HOTT using (fun-ext)
 
+  -- nil is unique!
+  -- just a different presentation of inLi1-lemma.
+  nil-unique : {A : Set}{x : Unit}{f : ⊥ → Lw A} → sup (i1 x) f ≡ nil
+  nil-unique {x = unit} = cong (sup (i1 unit)) (fun-ext (λ ()))
+    where
+      open import Rel.Core.HOTT
+
   inLi2-lemma : {A : Set}{a : A}{f : Lp (i2 a) → Lw A}
               → inL (i2 (a , f unit)) ≡ sup (i2 a) f
   inLi2-lemma {a = a} = cong (sup (i2 a)) (fun-ext (λ { unit → refl }))
-    where open import Rel.Core.HOTT using (fun-ext)
+    where open import Rel.Core.HOTT using (fun-ext)    
 
   outL : {A : Set} → Lw A → L A (Lw A)
   outL (sup (i1 x) x₁) = i1 unit
@@ -63,6 +87,63 @@ module Rel.Relator.List where
 
   consR : {A : Set} → Rel (A × Lw A) (Lw A)
   consR = fun inL ∙ ι₂
+
+  instance
+    isEq-L : {A : Set}{{eqA : Eq A}} → Eq (Lw A)
+    isEq-L {A} {{eq _≟_}} = eq iseq
+      where
+        open import Rel.Core.HOTT using (fun-ext) 
+
+        iseq : (x y : Lw A) → Dec (x ≡ y)
+        iseq (sup (i1 unit) f₁) (sup (i1 unit) f₂) 
+          = yes (trans nil-unique (sym nil-unique))
+        iseq (sup (i2 x) xs) (sup (i2 y) ys) with x ≟ y
+        ...| no  x≢y = no (x≢y ∘ sym ∘ p1 ∘ sup-inj')
+        ...| yes x≡y 
+           rewrite x≡y
+             = dec-elim 
+               (λ h → yes (cong (sup (i2 y)) (fun-ext (λ { unit → h })))) 
+               (λ h → no (λ j → h (p2 (sup-inj (sup-inj-tr (cong (sup (i2 y)) (p2 (sup-inj' j)))))))) 
+               (iseq (xs unit) (ys unit))
+        iseq (sup (i2 _) _) (sup (i1 _) _) = no (λ ())
+        iseq (sup (i1 _) _) (sup (i2 _) _) = no (λ ())
+
+    isDec-nilR : {A B : Set} → IsDec (nilR {A} {B})
+    isDec-nilR {A} {B} = dec decide
+      where
+        decide : (x : Lw A)(y : B) → Dec (nilR x y)
+        decide (sup (i1 unit) x₁) y 
+          = yes ((i1 unit) , ((cons-fun (inLi1-lemma {f = x₁})) 
+                , (unit , ((cons-fun refl) , unit))))
+        decide (sup (i2 y) x) y₁ 
+          = no (λ { (.(i1 c) , cons-fun () , (c , cons-fun refl , e)) })
+
+    isDec-consR : {A : Set}{{eqA : Eq A}} → IsDec (consR {A})
+    isDec-consR {A} {{eq _≟_}} = dec decide
+      where
+        open import Rel.Core.HOTT using (fun-ext)
+
+        lemma : {x y : A}{xs : Lp (i2 x) → Lw A}{ys : Lw A}
+              → x ≡ y → xs unit ≡ ys 
+              → sup (i2 y) (λ _ → ys) ≡ sup (i2 x) xs
+        lemma {x = x} refl refl = cong (sup (i2 x)) (fun-ext (λ { unit → refl }))
+
+        decide : (x : Lw A)(y : A × Lw A) → Dec (consR x y)
+        decide (sup (i1 unit) f) (y , ys) 
+          = no (λ { (.(i2 (y , ys)) , cons-fun () , cons-fun refl) })
+        decide (sup (i2 x)   xs) (y , ys) 
+          with x ≟ y | Eq.cmp (isEq-L {{eq _≟_}}) (xs unit) ys 
+        ...| yes x≡y | yes xs≡ys 
+           = yes (i2 (y , ys) , (cons-fun (lemma x≡y xs≡ys)) , (cons-fun refl))
+        ...| yes x≡y | no  xs≢ys 
+           = no (λ { (.(i2 (y , ys)) , (cons-fun d , cons-fun refl)) 
+                   → xs≢ys (p2 (sup-inj d)) })
+        ...| no  x≢y | yes xs≡ys
+           = no (λ { (.(i2 (y , ys)) , (cons-fun d , cons-fun refl)) 
+                   → x≢y (p1 (sup-inj d)) })
+        ...| no  x≢y | no  xs≢ys
+           = no (λ { (.(i2 (y , ys)) , (cons-fun d , cons-fun refl)) 
+                   → xs≢ys (p2 (sup-inj d)) })
 
   open IsWFunctor1 {{...}}
   open IsRelator {{...}}
