@@ -324,6 +324,26 @@ expand or evaluate. It does not serve our purpose, however. If we declare a rela
 using an abstract (or a postulate for that matter) definition, Agda does not know
 how to introduce or eliminate it from terms and evaluation is blocked.
 
+The decidability of relational composition is complicated. Given $R : \F{Rel }B\; C$ 
+and $S : \F{Rel }A\; B$ decidable relations, for every $a , c \in A \times C$ we would like to be able to compute 
+$(R \cdot S)\; c\; a \uplus ((R \cdot S)\; c\; a \rightarrow \bot)$. But $(R \cdot S)\; c\; a$ 
+holds if and only if there exists a $b$ that witness the composition. As we already know, there is
+only one way of proving an existential constructively: to construct the quantified object. 
+However, we have to assume no structure for $B$ whatsoever. For an enumerable set $B$,
+we could use some constraint solving technique, as in KodKod \cite{Torlak09}.
+
+In some cases it is easy to compute such $b : B$. Take $R\cdot \F{fun }f $ for instance.
+Given $a$, we have no choice but $b = f\; a$ and this indeed solves the problem. 
+In our library, we provided a \emph{quickfix} for this if the user can 
+provide another relation $when : \F{Rel }A\; C$ such that $when\;c\;a$ is
+inhabited if and only if the given relations composes (encoded by typeclass \F{Composes}). 
+Although not the most general,
+it allows one to give alternative formulations of relational composition, so Agda
+can use this alternative formulations for computing decidability whereas it uses
+the normal composition for regular proofs. This task deserves more time, which is why it was
+left as future work. If we could provide a class that is sufficient to decide relational composition, we would
+be able to run almost every relation we use. This is a non-trivial problem, however.
+
 
 \subsection{Products}
 \label{sec:relations:products}
