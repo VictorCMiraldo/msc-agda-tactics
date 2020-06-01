@@ -1,7 +1,7 @@
 Victor's Master Thesis 
 =======================
 
-([pdf](http://victorcmiraldo.github.io/papers/MiraldoMsc.pdf))
+([pdf](https://victorcmiraldo.github.io/data/MiraldoMsc.pdf))
 
 This repo is meant exclusively for personal organization. Everything you may find
 here may be very far away from usable, although I plan to keep an up-to-date
